@@ -48,7 +48,7 @@ if (newsCount === 0) {
       title: 'Quem é Júnior Menezes, o prefeito de União dos Palmares',
       summary: 'Eleito em 2024 com a maior votação da história do município, Júnior Menezes segue à frente da Prefeitura com foco em saúde, educação e infraestrutura.',
       content: 'Júnior Menezes assumiu a Prefeitura de União dos Palmares após vencer as eleições de 2024 com 63,83% dos votos válidos, o maior percentual já obtido por um prefeito eleito no município. Ao longo da gestão, a Prefeitura tem promovido ações em diversas áreas, como mutirões de saúde, reformas de escolas, inauguração de novas unidades básicas de saúde e eventos culturais e sociais voltados à população.',
-      image: img('prefeito-junior-menezes.jpg'),
+      image: img('prefeitura-up-ia.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-07-10 09:00:00'
@@ -84,7 +84,7 @@ if (newsCount === 0) {
       title: 'Júnior Menezes garante mais 4,5 km de asfalto para União dos Palmares em parceria com Arthur Lira',
       summary: 'Prefeito e deputado federal assinaram ordem de serviço para pavimentação de vias urbanas com investimento de R$ 1,5 milhão.',
       content: 'O prefeito Júnior Menezes e o deputado federal Arthur Lira assinaram ordem de serviço para a pavimentação de mais de 4,5 quilômetros de vias urbanas em União dos Palmares, com investimento de R$ 1,5 milhão viabilizado pelo parlamentar por meio da Codevasf. A parceria integra uma estratégia de ampliação dos investimentos em mobilidade urbana no município, que já recebeu pavimentação em bairros como COHAB Velha, COHAB Nova, Alto do Cruzeiro, Vaquejada, Robertão, Morada das Árvores e Jaguaribe por meio de parcerias anteriores com o governador Paulo Dantas. Na mesma ocasião, Arthur Lira também participou da entrega de veículos para a prefeitura, incluindo uma caminhonete adquirida com recursos viabilizados pelo deputado.',
-      image: img('escola-rocha-cavalcante.jpg'),
+      image: img('pavimentacao-ia.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-06-26 14:00:00'
@@ -120,7 +120,7 @@ if (newsCount === 0) {
       title: 'Adolescente de 14 anos morre em Craíbas após passar mal horas depois de sentir dores durante jogo de futebol',
       summary: 'Jovem foi atendido, liberado e passou mal durante a madrugada em casa; caso será esclarecido por necropsia.',
       content: 'José Laelson Nascimento dos Santos, de 14 anos, morreu na madrugada de segunda-feira (13 de julho) em Craíbas, no Agreste alagoano, após passar mal em casa. Segundo relatos de familiares, o adolescente jogava futebol quando sofreu um forte impacto de bola no peito. Ele chegou a ser atendido na Casa Maternal Frei Damião, em Craíbas, e depois foi transferido ao Hospital de Emergência do Agreste (HEA), em Arapiraca, onde foi avaliado, medicado e liberado para casa. Horas depois, seu quadro se agravou e ele passou mal na residência da família; apesar dos esforços para reverter a situação, o óbito foi confirmado em seguida. O corpo foi encaminhado ao Instituto Médico Legal (IML) de Arapiraca, e o laudo da necropsia será fundamental para esclarecer a real causa da morte e se há relação direta com o impacto sofrido durante o jogo.',
-      image: img('bandeira-alagoas.svg'),
+      image: img('agreste-alagoas-ia.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-07-13 10:00:00'
@@ -147,7 +147,7 @@ if (newsCount === 0) {
       title: 'JHC renuncia à Prefeitura de Maceió para disputar as eleições estaduais de 2026',
       summary: 'Com a saída do prefeito, o vice Rodrigo Cunha assume o comando da capital alagoana.',
       content: 'O prefeito de Maceió, João Henrique Caldas (JHC), renunciou ao cargo em abril de 2026 para se dedicar à disputa eleitoral deste ano, apontado como possível candidato ao governo de Alagoas ou ao Senado. Com a renúncia, o vice-prefeito Rodrigo Cunha (Podemos) assumiu o comando da Prefeitura de Maceió. JHC deixou o PL, partido em que era presidente estadual, e se filiou ao PSDB para concorrer nas eleições estaduais.',
-      image: img('maceio-orla.jpg'),
+      image: img('prefeitura-maceio-ia.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-04-04 10:00:00'
@@ -156,7 +156,7 @@ if (newsCount === 0) {
       title: 'Calendário eleitoral entra em fase decisiva em julho, com restrições a agentes públicos e convenções partidárias',
       summary: 'Regras eleitorais para as Eleições 2026 se intensificam neste mês, três meses antes do primeiro turno de outubro.',
       content: 'O mês de julho marca o início de uma fase decisiva do calendário das Eleições 2026 em Alagoas. Desde o dia 4 de julho, três meses antes do primeiro turno, entraram em vigor restrições a agentes públicos, incluindo limitações a nomeações, contratações, transferências ou exonerações de servidores, além da obrigatoriedade de remoção de nomes, slogans, símbolos e imagens de autoridades em disputa dos canais oficiais de órgãos públicos. No dia 7 de julho, juízes eleitorais publicaram editais de convocação de mesárias, mesários e apoio logístico para a votação. Entre 20 de julho e 5 de agosto, partidos e federações poderão realizar convenções partidárias para escolher os candidatos a presidente, governador, senador, deputado federal e deputado estadual, além de deliberar sobre coligações nas eleições majoritárias.',
-      image: img('urna-eletronica.jpg'),
+      image: img('tre-al-ia.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-01 09:00:00'
@@ -174,7 +174,7 @@ if (newsCount === 0) {
       title: 'Prefeitura de Maceió convoca 650 professores e mais de 600 profissionais de apoio no PSS 2026 da Educação',
       summary: 'Convocados entregam documentação em duas chamadas ao longo de julho, incluindo auxiliares de sala para a Educação Especial.',
       content: 'A Prefeitura de Maceió, por meio da Secretaria Municipal de Educação (Semed), convocou 650 professores aprovados no Processo Seletivo Simplificado (PSS) 2026 para os cargos de Educação Infantil, 1º ao 5º ano, Matemática, Português, História, Ciências, Arte e Geografia. A entrega de documentos e o credenciamento para lotação aconteceram entre os dias 6 e 9 de julho, das 8h às 14h, na Coordenação Geral de Gestão de Pessoas (CGGP), no bairro Cambona. Em uma segunda convocação, a Semed chamou também os Profissionais de Apoio Escolar (PAEs) e auxiliares de sala, com a maior parte das 626 vagas destinada a auxiliares de sala da Educação Especial, com entrega de documentos entre os dias 13 e 16 de julho. Após a validação e escolha da lotação, os contratos são enviados por e-mail para assinatura digital pela plataforma Gov.br.',
-      image: img('maceio-orla.jpg'),
+      image: img('escola-publica-ia.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-13 09:00:00'
