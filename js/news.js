@@ -1,8 +1,7 @@
 const CATEGORY_LABELS = {
   alagoas: 'Alagoas',
-  interior: 'Interior',
+  interior: 'União dos Palmares',
   brasil: 'Brasil',
-  mundo: 'Mundo',
   entretenimento: 'Entretenimento',
   saude: 'Saúde',
   esportes: 'Esportes'
@@ -62,12 +61,17 @@ function emptyState(message) {
   return `<p style="color:#6b7280;font-size:14px;">${escapeHtml(message)}</p>`;
 }
 
+function fourUpCard(n, tagLabel) {
+  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><img src="${n.image}" alt="${escapeHtml(n.title)}"><div class="card__body"><span class="card__tag">${tagLabel}</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`;
+}
+
 async function renderHome() {
   const featuredBig = document.getElementById('featuredBig');
   const featuredSmall = document.getElementById('featuredSmall');
   const latestList = document.getElementById('latestList');
   const rankingList = document.getElementById('rankingList');
-  const entretenimentoGrid = document.getElementById('entretenimentoGrid');
+  const interiorGrid = document.getElementById('interiorGrid');
+  const alagoasGrid = document.getElementById('alagoasGrid');
 
   if (featuredBig) {
     const featured = await fetchNews({ featured: '1', limit: 1 });
@@ -96,11 +100,18 @@ async function renderHome() {
     }
   }
 
-  if (entretenimentoGrid) {
-    const items = await fetchNews({ category: 'entretenimento', limit: 4 });
-    entretenimentoGrid.innerHTML = items.length
-      ? items.map((n) => `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><img src="${n.image}" alt="${escapeHtml(n.title)}"><div class="card__body"><span class="card__tag">Entretenimento</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`).join('')
-      : emptyState('Nenhuma notícia de entretenimento cadastrada ainda.');
+  if (interiorGrid) {
+    const items = await fetchNews({ category: 'interior', limit: 4 });
+    interiorGrid.innerHTML = items.length
+      ? items.map((n) => fourUpCard(n, 'União dos Palmares')).join('')
+      : emptyState('Nenhuma notícia de União dos Palmares cadastrada ainda.');
+  }
+
+  if (alagoasGrid) {
+    const items = await fetchNews({ category: 'alagoas', limit: 4 });
+    alagoasGrid.innerHTML = items.length
+      ? items.map((n) => fourUpCard(n, 'Alagoas')).join('')
+      : emptyState('Nenhuma notícia de Alagoas cadastrada ainda.');
   }
 }
 

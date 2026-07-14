@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>AG FM 99,9 - O tempo todo em todo lugar!</title>
 <meta name="description" content="Rádio AG FM 99,9 - Notícias, entretenimento e a melhor programação de Alagoas para o Brasil.">
-<link rel="icon" href="assets/img/logo.jpg">
+<link rel="icon" href="assets/img/logo.png">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
@@ -35,7 +35,7 @@
 <header class="header">
   <div class="header__inner">
     <a href="index.html" class="logo">
-      <img src="assets/img/logo.jpg" alt="AG FM 99,9">
+      <img src="assets/img/logo.png" alt="AG FM 99,9">
       <div class="logo__text">
         <strong>AG FM</strong>
         <span>99,9 - Portal de notícias de Alagoas para o Brasil</span>
@@ -48,10 +48,9 @@
 
     <nav class="nav" id="mainNav">
       <a href="index.html">Últimas notícias</a>
+      <a href="categoria.html?c=interior">União dos Palmares</a>
       <a href="categoria.html?c=alagoas">Alagoas</a>
-      <a href="categoria.html?c=interior">Interior</a>
       <a href="categoria.html?c=brasil">Brasil</a>
-      <a href="categoria.html?c=mundo">Mundo</a>
       <a href="categoria.html?c=entretenimento">Entretenimento</a>
       <a href="categoria.html?c=saude">Saúde</a>
       <a href="categoria.html?c=esportes">Esportes</a>
@@ -90,6 +89,20 @@
       </div>
     </section>
 
+    <!-- União dos Palmares -->
+    <section class="section">
+      <h2 class="section__title section__title--highlight">União dos Palmares</h2>
+      <div class="grid grid--four" id="interiorGrid"></div>
+      <a href="categoria.html?c=interior" class="link-more">Ver todas as notícias de União dos Palmares &rarr;</a>
+    </section>
+
+    <!-- Alagoas -->
+    <section class="section">
+      <h2 class="section__title section__title--highlight">Alagoas</h2>
+      <div class="grid grid--four" id="alagoasGrid"></div>
+      <a href="categoria.html?c=alagoas" class="link-more">Ver todas as notícias de Alagoas &rarr;</a>
+    </section>
+
     <!-- Últimas notícias + Mais lidas -->
     <section class="section section--split">
       <div class="section__col">
@@ -109,19 +122,13 @@
       </aside>
     </section>
 
-    <!-- Entretenimento -->
-    <section class="section">
-      <h2 class="section__title">Entretenimento</h2>
-      <div class="grid grid--four" id="entretenimentoGrid"></div>
-    </section>
-
   </div>
 </main>
 
 <footer class="footer">
   <div class="footer__inner">
     <div class="footer__brand">
-      <img src="assets/img/logo.jpg" alt="AG FM 99,9">
+      <img src="assets/img/logo.png" alt="AG FM 99,9">
       <p>AG FM 99,9 — O tempo todo em todo lugar! 35 anos no ar levando notícia, música e prestação de serviço para Alagoas.</p>
     </div>
 

@@ -7,7 +7,7 @@ const newsTableBody = document.getElementById('newsTableBody');
 const filterCategory = document.getElementById('filterCategory');
 
 const CATEGORY_LABELS = {
-  alagoas: 'Alagoas', interior: 'Interior', brasil: 'Brasil', mundo: 'Mundo',
+  alagoas: 'Alagoas', interior: 'União dos Palmares', brasil: 'Brasil',
   entretenimento: 'Entretenimento', saude: 'Saúde', esportes: 'Esportes'
 };
 
