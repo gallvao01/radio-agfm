@@ -57,7 +57,7 @@ if (newsCount === 0) {
       title: 'Carro furtado em União dos Palmares é recuperado após PM descobrir troca de produtos por drogas em Maceió',
       summary: 'Veículo e notebooks roubados de um estabelecimento no interior foram localizados pela polícia na rodoviária da capital.',
       content: 'A guarnição motorizada do 13º Batalhão de Polícia Militar abordou, na madrugada de 7 de julho, um Chevrolet Onix prata sendo conduzido sem habilitação no Terminal Rodoviário de Maceió, no bairro do Feitosa. O motorista confessou ter arrombado um estabelecimento comercial em União dos Palmares e furtado o veículo, dois notebooks e um equipamento de vigilância. Ele revelou ainda ter trocado os computadores por drogas com um comerciante que atuava dentro da própria rodoviária. A polícia recuperou os aparelhos e conduziu os dois suspeitos à Central de Flagrantes: o autor do furto foi autuado por furto qualificado, enquanto o comerciante responderá por receptação.',
-      image: img('policia.jpg'),
+      image: img('pm-alagoas-brasao.png'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-08 14:00:00'
@@ -66,7 +66,7 @@ if (newsCount === 0) {
       title: 'Identificada vítima de acidente fatal na BR-104, entre Branquinha e União dos Palmares',
       summary: 'Condutor de 22 anos morreu ao colidir de frente com uma carreta carregada de leite no km 47 da rodovia.',
       content: 'Darlan Liberato dos Santos, de 22 anos, empresário do ramo de som automotivo e morador de Murici, morreu em um acidente no km 47 da BR-104, entre os municípios de Branquinha e União dos Palmares. Segundo a Polícia Rodoviária Federal, o Toyota Corolla conduzido por Darlan invadiu a pista contrária e colidiu de frente com uma carreta carregada de leite da empresa Natville. Ele não resistiu aos ferimentos e morreu no local antes de receber atendimento. O motorista da carreta sofreu apenas ferimentos leves. A BR-104 foi totalmente liberada após as 22h, depois da perícia do Instituto de Criminalística, da remoção do corpo pelo IML e da limpeza da pista.',
-      image: img('rodovia.jpg'),
+      image: img('br104-generico.svg'),
       category: 'interior',
       featured: 0,
       date: '2026-02-25 17:00:00'
@@ -75,7 +75,7 @@ if (newsCount === 0) {
       title: 'Após junho cheio de folgas, União dos Palmares terá novo feriado; veja a data',
       summary: 'Feriado municipal em homenagem a Santa Maria Madalena, padroeira da cidade, cai em 22 de julho.',
       content: 'União dos Palmares terá mais um feriado municipal no calendário: o dia 22 de julho, dedicado a Santa Maria Madalena, padroeira da cidade, com base na Lei Municipal nº 1.182/2010. Embora a festa social tradicional em homenagem à santa ocorra em fevereiro, a festividade religiosa é celebrada em julho, quando as celebrações movimentam o município ao longo do mês, com peregrinação da imagem da padroeira por comunidades urbanas e rurais, além de missas, novenas e procissões organizadas pela paróquia local. Repartições públicas municipais suspendem o expediente na data, enquanto o funcionamento do comércio pode variar conforme cada estabelecimento.',
-      image: img('praca-comemoracao.jpg'),
+      image: img('serra-da-barriga-1.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-07-08 17:00:00'
@@ -84,7 +84,7 @@ if (newsCount === 0) {
       title: 'Júnior Menezes garante mais 4,5 km de asfalto para União dos Palmares em parceria com Arthur Lira',
       summary: 'Prefeito e deputado federal assinaram ordem de serviço para pavimentação de vias urbanas com investimento de R$ 1,5 milhão.',
       content: 'O prefeito Júnior Menezes e o deputado federal Arthur Lira assinaram ordem de serviço para a pavimentação de mais de 4,5 quilômetros de vias urbanas em União dos Palmares, com investimento de R$ 1,5 milhão viabilizado pelo parlamentar por meio da Codevasf. A parceria integra uma estratégia de ampliação dos investimentos em mobilidade urbana no município, que já recebeu pavimentação em bairros como COHAB Velha, COHAB Nova, Alto do Cruzeiro, Vaquejada, Robertão, Morada das Árvores e Jaguaribe por meio de parcerias anteriores com o governador Paulo Dantas. Na mesma ocasião, Arthur Lira também participou da entrega de veículos para a prefeitura, incluindo uma caminhonete adquirida com recursos viabilizados pelo deputado.',
-      image: img('rodovia.jpg'),
+      image: img('escola-rocha-cavalcante.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-06-26 14:00:00'
@@ -93,7 +93,7 @@ if (newsCount === 0) {
       title: 'Projeto "Encontro com Palmares" une ancestralidade e realidade virtual em itinerância por seis estados do Brasil',
       summary: 'Iniciativa foi lançada na Serra da Barriga, em União dos Palmares, e percorre comunidades quilombolas até março de 2027.',
       content: '"Encontro com Palmares" é um projeto de intercâmbio cultural que combina saberes afro-brasileiros com tecnologia audiovisual, tendo como elemento central a "Sala de Saberes Petrobras", espaço imersivo com óculos de realidade virtual 360° que permite explorar digitalmente a Serra da Barriga. O projeto foi lançado em 26 de junho de 2026 no Parque Memorial Quilombo dos Palmares, em União dos Palmares, com programação gratuita que incluiu oficinas, apresentações artísticas e a peça teatral "Em Busca de Palmares". A caravana percorrerá comunidades quilombolas no Pará, Maranhão, Minas Gerais, São Paulo e Rio Grande do Sul entre junho de 2026 e março de 2027, com oficinas de dança afro, percussão, ervas medicinais, culinária quilombola e rodas de conversa com lideranças locais.',
-      image: img('zumbi-monumento.jpg'),
+      image: img('serra-da-barriga-3.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-06-26 19:00:00'
