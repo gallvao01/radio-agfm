@@ -42,38 +42,68 @@
       Logado como <strong id="loggedUser"></strong>
     </div>
     <div class="admin-dashboard__actions">
-      <button id="btnNewNews" class="btn-admin">+ Nova notícia</button>
       <button id="btnChangePassword" class="btn-admin btn-admin--outline">Trocar senha</button>
       <button id="btnLogout" class="btn-admin btn-admin--danger">Sair</button>
     </div>
   </div>
 
-  <div class="admin-filter">
-    <label>Filtrar por categoria:
-      <select id="filterCategory">
-        <option value="">Todas</option>
-        <option value="interior">União dos Palmares</option>
-        <option value="alagoas">Alagoas</option>
-        <option value="brasil">Brasil</option>
-        <option value="entretenimento">Entretenimento</option>
-        <option value="saude">Saúde</option>
-        <option value="esportes">Esportes</option>
-      </select>
-    </label>
+  <div class="admin-tabs">
+    <button type="button" class="admin-tab admin-tab--active" data-tab="news">Notícias</button>
+    <button type="button" class="admin-tab" data-tab="comprovantes">Comprovantes de Irradiação</button>
   </div>
 
-  <table class="admin-table">
-    <thead>
-      <tr>
-        <th>Destaque</th>
-        <th>Título</th>
-        <th>Categoria</th>
-        <th>Data</th>
-        <th>Ações</th>
-      </tr>
-    </thead>
-    <tbody id="newsTableBody"></tbody>
-  </table>
+  <div id="tabNews">
+    <div class="admin-dashboard__actions admin-dashboard__actions--tab">
+      <button id="btnNewNews" class="btn-admin">+ Nova notícia</button>
+    </div>
+
+    <div class="admin-filter">
+      <label>Filtrar por categoria:
+        <select id="filterCategory">
+          <option value="">Todas</option>
+          <option value="interior">União dos Palmares</option>
+          <option value="alagoas">Alagoas</option>
+          <option value="brasil">Brasil</option>
+          <option value="entretenimento">Entretenimento</option>
+          <option value="saude">Saúde</option>
+          <option value="esportes">Esportes</option>
+        </select>
+      </label>
+    </div>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Destaque</th>
+          <th>Título</th>
+          <th>Categoria</th>
+          <th>Data</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="newsTableBody"></tbody>
+    </table>
+  </div>
+
+  <div id="tabComprovantes" hidden>
+    <div class="admin-dashboard__actions admin-dashboard__actions--tab">
+      <button id="btnNewComprovante" class="btn-admin">+ Novo comprovante</button>
+    </div>
+
+    <table class="admin-table">
+      <thead>
+        <tr>
+          <th>Anunciante</th>
+          <th>Comercial</th>
+          <th>Período</th>
+          <th>Inserções</th>
+          <th>Emitido em</th>
+          <th>Ações</th>
+        </tr>
+      </thead>
+      <tbody id="comprovantesTableBody"></tbody>
+    </table>
+  </div>
 </section>
 
 <!-- Modal de notícia (criar/editar) -->
@@ -132,6 +162,48 @@
       <div class="admin-modal__actions">
         <button type="button" id="btnCancelPassword" class="btn-admin btn-admin--outline">Cancelar</button>
         <button type="submit" class="btn-admin">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de comprovante de irradiação -->
+<div id="comprovanteModal" class="admin-modal" hidden>
+  <div class="admin-modal__box admin-modal__box--wide">
+    <h2>Novo comprovante de irradiação</h2>
+    <form id="comprovanteForm">
+      <label>Anunciante
+        <input type="text" name="anunciante" placeholder="Nome do cliente/empresa" required>
+      </label>
+      <label>Comercial / Campanha
+        <input type="text" name="comercial" placeholder="Nome do spot ou campanha" required>
+      </label>
+      <div class="admin-form-row">
+        <label>Início do período
+          <input type="date" name="dataInicio" required>
+        </label>
+        <label>Fim do período
+          <input type="date" name="dataFim" required>
+        </label>
+      </div>
+
+      <label>Inserções (datas e horários em que foi ao ar)</label>
+      <div id="insercoesList" class="insercoes-list"></div>
+      <button type="button" id="btnAddInsercao" class="btn-admin btn-admin--outline btn-sm">+ Adicionar inserção</button>
+
+      <div class="admin-form-row">
+        <label>Responsável (nome)
+          <input type="text" name="responsavelNome" required>
+        </label>
+        <label>Cargo
+          <input type="text" name="responsavelCargo" placeholder="Ex: Diretor de Programação" required>
+        </label>
+      </div>
+
+      <div id="comprovanteFormError" class="admin-error" hidden></div>
+      <div class="admin-modal__actions">
+        <button type="button" id="btnCancelComprovante" class="btn-admin btn-admin--outline">Cancelar</button>
+        <button type="submit" class="btn-admin">Salvar e gerar</button>
       </div>
     </form>
   </div>

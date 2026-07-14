@@ -3,19 +3,67 @@ const crypto = require('node:crypto');
 const express = require('express');
 const session = require('express-session');
 const bcrypt = require('bcryptjs');
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
 const ROOT = path.join(__dirname, '..');
+const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
-app.use(express.json());
+// Necessário quando o site roda atrás de um proxy reverso (Render, Cloudflare etc.)
+// para o rate limiting e os cookies seguros identificarem o IP/protocolo reais.
+app.set('trust proxy', 1);
+
+app.use(helmet({
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'"],
+      styleSrc: ["'self'", 'https://fonts.googleapis.com', "'unsafe-inline'"],
+      fontSrc: ["'self'", 'https://fonts.gstatic.com'],
+      imgSrc: ["'self'", 'data:', 'https:'],
+      mediaSrc: ["'self'", 'https:'],
+      connectSrc: ["'self'"],
+      objectSrc: ["'none'"],
+      frameAncestors: ["'self'"]
+    }
+  }
+}));
+
+app.use(express.json({ limit: '1mb' }));
+
 app.use(session({
-  secret: crypto.randomBytes(32).toString('hex'),
+  secret: process.env.SESSION_SECRET || crypto.randomBytes(32).toString('hex'),
   resave: false,
   saveUninitialized: false,
-  cookie: { httpOnly: true, maxAge: 1000 * 60 * 60 * 8 }
+  cookie: {
+    httpOnly: true,
+    sameSite: 'lax',
+    secure: IS_PRODUCTION,
+    maxAge: 1000 * 60 * 60 * 8
+  }
 }));
+
+// Limita tentativas de login para dificultar ataques de força bruta
+const loginLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  limit: 10,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas tentativas de login. Tente novamente em alguns minutos.' }
+});
+
+// Limite geral de requisições por IP, para proteger o servidor de sobrecarga/abuso
+const apiLimiter = rateLimit({
+  windowMs: 60 * 1000,
+  limit: 120,
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { error: 'Muitas requisições. Aguarde um instante e tente novamente.' }
+});
+app.use('/api/', apiLimiter);
 
 function requireAuth(req, res, next) {
   if (req.session && req.session.userId) return next();
@@ -23,7 +71,7 @@ function requireAuth(req, res, next) {
 }
 
 // ---------- Auth ----------
-app.post('/api/login', (req, res) => {
+app.post('/api/login', loginLimiter, (req, res) => {
   const { username, password } = req.body || {};
   if (!username || !password) {
     return res.status(400).json({ error: 'Informe usuário e senha' });
@@ -129,6 +177,36 @@ app.put('/api/news/:id', requireAuth, (req, res) => {
 app.delete('/api/news/:id', requireAuth, (req, res) => {
   const info = db.prepare('DELETE FROM news WHERE id = ?').run(req.params.id);
   if (info.changes === 0) return res.status(404).json({ error: 'Notícia não encontrada' });
+  res.json({ ok: true });
+});
+
+// ---------- Comprovantes de irradiação (admin only) ----------
+app.get('/api/comprovantes', requireAuth, (req, res) => {
+  const rows = db.prepare('SELECT * FROM comprovantes ORDER BY created_at DESC').all();
+  res.json(rows.map((r) => ({ ...r, insercoes: JSON.parse(r.insercoes) })));
+});
+
+app.get('/api/comprovantes/:id', requireAuth, (req, res) => {
+  const row = db.prepare('SELECT * FROM comprovantes WHERE id = ?').get(req.params.id);
+  if (!row) return res.status(404).json({ error: 'Comprovante não encontrado' });
+  res.json({ ...row, insercoes: JSON.parse(row.insercoes) });
+});
+
+app.post('/api/comprovantes', requireAuth, (req, res) => {
+  const { anunciante, comercial, dataInicio, dataFim, insercoes, responsavelNome, responsavelCargo } = req.body || {};
+  if (!anunciante || !comercial || !dataInicio || !dataFim || !Array.isArray(insercoes) || !insercoes.length || !responsavelNome || !responsavelCargo) {
+    return res.status(400).json({ error: 'Preencha anunciante, comercial, período, ao menos uma inserção e o responsável' });
+  }
+  const info = db.prepare(`
+    INSERT INTO comprovantes (anunciante, comercial, data_inicio, data_fim, insercoes, responsavel_nome, responsavel_cargo, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, datetime('now'))
+  `).run(anunciante, comercial, dataInicio, dataFim, JSON.stringify(insercoes), responsavelNome, responsavelCargo);
+  res.json({ ok: true, id: info.lastInsertRowid });
+});
+
+app.delete('/api/comprovantes/:id', requireAuth, (req, res) => {
+  const info = db.prepare('DELETE FROM comprovantes WHERE id = ?').run(req.params.id);
+  if (info.changes === 0) return res.status(404).json({ error: 'Comprovante não encontrado' });
   res.json({ ok: true });
 });
 

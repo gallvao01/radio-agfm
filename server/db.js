@@ -22,6 +22,18 @@ db.exec(`
     username TEXT NOT NULL UNIQUE,
     password_hash TEXT NOT NULL
   );
+
+  CREATE TABLE IF NOT EXISTS comprovantes (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    anunciante TEXT NOT NULL,
+    comercial TEXT NOT NULL,
+    data_inicio TEXT NOT NULL,
+    data_fim TEXT NOT NULL,
+    insercoes TEXT NOT NULL,
+    responsavel_nome TEXT NOT NULL,
+    responsavel_cargo TEXT NOT NULL,
+    created_at TEXT NOT NULL DEFAULT (datetime('now'))
+  );
 `);
 
 const newsCount = db.prepare('SELECT COUNT(*) AS c FROM news').get().c;
@@ -142,15 +154,6 @@ if (newsCount === 0) {
       category: 'alagoas',
       featured: 0,
       date: '2026-07-04 11:00:00'
-    },
-    {
-      title: 'JHC renuncia à Prefeitura de Maceió para disputar as eleições estaduais de 2026',
-      summary: 'Com a saída do prefeito, o vice Rodrigo Cunha assume o comando da capital alagoana.',
-      content: 'O prefeito de Maceió, João Henrique Caldas (JHC), renunciou ao cargo em abril de 2026 para se dedicar à disputa eleitoral deste ano, apontado como possível candidato ao governo de Alagoas ou ao Senado. Com a renúncia, o vice-prefeito Rodrigo Cunha (Podemos) assumiu o comando da Prefeitura de Maceió. JHC deixou o PL, partido em que era presidente estadual, e se filiou ao PSDB para concorrer nas eleições estaduais.',
-      image: img('prefeitura-maceio-ia.jpg'),
-      category: 'alagoas',
-      featured: 0,
-      date: '2026-04-04 10:00:00'
     },
     {
       title: 'Calendário eleitoral entra em fase decisiva em julho, com restrições a agentes públicos e convenções partidárias',

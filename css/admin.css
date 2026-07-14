@@ -35,7 +35,8 @@
 
 .admin-login__box label,
 #newsForm label,
-#passwordForm label {
+#passwordForm label,
+#comprovanteForm label {
   display: flex;
   flex-direction: column;
   gap: 6px;
@@ -47,7 +48,8 @@
 #newsForm input,
 #newsForm select,
 #newsForm textarea,
-#passwordForm input {
+#passwordForm input,
+#comprovanteForm input {
   padding: 10px 12px;
   border: 1px solid #ddd;
   border-radius: 8px;
@@ -91,6 +93,22 @@
   font-size: 14px;
 }
 .admin-dashboard__actions { display: flex; gap: 10px; flex-wrap: wrap; }
+.admin-dashboard__actions--tab { margin-bottom: 16px; }
+
+.admin-tabs { display: flex; gap: 4px; margin-bottom: 20px; border-bottom: 2px solid #e5e5e5; }
+.admin-tab {
+  background: none;
+  border: none;
+  padding: 10px 18px;
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--muted);
+  cursor: pointer;
+  border-bottom: 3px solid transparent;
+  margin-bottom: -2px;
+}
+.admin-tab:hover { color: var(--dark); }
+.admin-tab--active { color: var(--green-dark); border-bottom-color: var(--green); }
 
 .admin-filter { margin-bottom: 16px; font-size: 14px; }
 .admin-filter select { padding: 6px 10px; border-radius: 6px; border: 1px solid #ddd; margin-left: 8px; }
@@ -134,6 +152,19 @@
   width: 100%;
   max-width: 560px;
 }
-#newsForm, #passwordForm { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
+.admin-modal__box--wide { max-width: 680px; }
+#newsForm, #passwordForm, #comprovanteForm { display: flex; flex-direction: column; gap: 14px; margin-top: 14px; }
 .admin-checkbox { flex-direction: row !important; align-items: center; gap: 8px !important; }
 .admin-modal__actions { display: flex; justify-content: flex-end; gap: 10px; }
+
+.admin-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+
+.insercoes-list { display: flex; flex-direction: column; gap: 8px; margin-top: -6px; }
+.insercao-row { display: flex; gap: 8px; align-items: center; }
+.insercao-row input { flex: 1; }
+.insercao-row .insercao-remove { flex-shrink: 0; }
+
+@media (max-width: 600px) {
+  .admin-form-row { grid-template-columns: 1fr; }
+  .insercao-row { flex-wrap: wrap; }
+}

@@ -27,11 +27,22 @@ async function checkSession() {
     dashboard.hidden = false;
     loggedUser.textContent = data.username;
     loadNews();
+    loadComprovantes();
   } else {
     loginScreen.hidden = false;
     dashboard.hidden = true;
   }
 }
+
+// ---- Abas ----
+document.querySelectorAll('.admin-tab').forEach((tab) => {
+  tab.addEventListener('click', () => {
+    document.querySelectorAll('.admin-tab').forEach((t) => t.classList.remove('admin-tab--active'));
+    tab.classList.add('admin-tab--active');
+    document.getElementById('tabNews').hidden = tab.dataset.tab !== 'news';
+    document.getElementById('tabComprovantes').hidden = tab.dataset.tab !== 'comprovantes';
+  });
+});
 
 loginForm.addEventListener('submit', async (e) => {
   e.preventDefault();
@@ -178,5 +189,110 @@ passwordForm.addEventListener('submit', async (e) => {
   passwordModal.hidden = true;
   alert('Senha alterada com sucesso!');
 });
+
+// ---- Comprovantes de irradiação ----
+const comprovantesTableBody = document.getElementById('comprovantesTableBody');
+const comprovanteModal = document.getElementById('comprovanteModal');
+const comprovanteForm = document.getElementById('comprovanteForm');
+const comprovanteFormError = document.getElementById('comprovanteFormError');
+const insercoesList = document.getElementById('insercoesList');
+
+function formatDateBR(isoDate) {
+  if (!isoDate) return '';
+  const [y, m, d] = isoDate.split('-');
+  return `${d}/${m}/${y}`;
+}
+
+async function loadComprovantes() {
+  const res = await fetch('/api/comprovantes');
+  if (!res.ok) return;
+  const items = await res.json();
+  comprovantesTableBody.innerHTML = items.map((c) => `
+    <tr>
+      <td>${escapeHtml(c.anunciante)}</td>
+      <td>${escapeHtml(c.comercial)}</td>
+      <td>${formatDateBR(c.data_inicio)} a ${formatDateBR(c.data_fim)}</td>
+      <td>${c.insercoes.length}</td>
+      <td>${new Date(c.created_at.replace(' ', 'T')).toLocaleDateString('pt-BR')}</td>
+      <td class="actions">
+        <a class="btn-admin btn-admin--outline btn-sm" href="comprovante.html?id=${c.id}" target="_blank">Ver / Imprimir</a>
+        <button class="btn-admin btn-admin--danger btn-sm" data-delete-comprovante="${c.id}">Excluir</button>
+      </td>
+    </tr>
+  `).join('') || '<tr><td colspan="6">Nenhum comprovante emitido ainda.</td></tr>';
+
+  comprovantesTableBody.querySelectorAll('[data-delete-comprovante]').forEach((btn) => {
+    btn.addEventListener('click', () => deleteComprovante(Number(btn.dataset.deleteComprovante)));
+  });
+}
+
+function addInsercaoRow(data = '', horario = '') {
+  const row = document.createElement('div');
+  row.className = 'insercao-row';
+  row.innerHTML = `
+    <input type="date" class="insercao-data" value="${data}" required>
+    <input type="time" class="insercao-horario" value="${horario}" required>
+    <button type="button" class="btn-admin btn-admin--danger btn-sm insercao-remove">Remover</button>
+  `;
+  row.querySelector('.insercao-remove').addEventListener('click', () => row.remove());
+  insercoesList.appendChild(row);
+}
+
+document.getElementById('btnAddInsercao').addEventListener('click', () => addInsercaoRow());
+
+document.getElementById('btnNewComprovante').addEventListener('click', () => {
+  hideError(comprovanteFormError);
+  comprovanteForm.reset();
+  insercoesList.innerHTML = '';
+  addInsercaoRow();
+  comprovanteModal.hidden = false;
+});
+document.getElementById('btnCancelComprovante').addEventListener('click', () => { comprovanteModal.hidden = true; });
+
+comprovanteForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideError(comprovanteFormError);
+  const fd = new FormData(comprovanteForm);
+
+  const insercoes = [...insercoesList.querySelectorAll('.insercao-row')].map((row) => ({
+    data: row.querySelector('.insercao-data').value,
+    horario: row.querySelector('.insercao-horario').value
+  })).filter((i) => i.data && i.horario);
+
+  if (!insercoes.length) {
+    showError(comprovanteFormError, 'Adicione ao menos uma inserção com data e horário');
+    return;
+  }
+
+  const payload = {
+    anunciante: fd.get('anunciante'),
+    comercial: fd.get('comercial'),
+    dataInicio: fd.get('dataInicio'),
+    dataFim: fd.get('dataFim'),
+    insercoes,
+    responsavelNome: fd.get('responsavelNome'),
+    responsavelCargo: fd.get('responsavelCargo')
+  };
+
+  const res = await fetch('/api/comprovantes', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(payload)
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    showError(comprovanteFormError, data.error || 'Erro ao salvar comprovante');
+    return;
+  }
+  comprovanteModal.hidden = true;
+  loadComprovantes();
+  window.open(`comprovante.html?id=${data.id}`, '_blank');
+});
+
+async function deleteComprovante(id) {
+  if (!confirm('Tem certeza que deseja excluir este comprovante?')) return;
+  await fetch(`/api/comprovantes/${id}`, { method: 'DELETE' });
+  loadComprovantes();
+}
 
 checkSession();
