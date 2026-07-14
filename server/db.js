@@ -54,22 +54,22 @@ if (newsCount === 0) {
       date: '2026-07-10 09:00:00'
     },
     {
-      title: 'PM prende suspeitos e desarticula esquema de troca de produtos por drogas na rodoviária de União dos Palmares',
-      summary: 'Guarnição do 13º Batalhão de Polícia Militar prendeu dois indivíduos em flagrante durante operação na região da rodoviária.',
-      content: 'A guarnição motorizada Guardiã-01, do 13º Batalhão de Polícia Militar, prendeu em flagrante dois indivíduos suspeitos de participar de um esquema de troca de produtos por drogas na região da rodoviária de União dos Palmares. A ação desarticulou a atividade ilícita e os envolvidos foram encaminhados à delegacia.',
+      title: 'Carro furtado em União dos Palmares é recuperado após PM descobrir troca de produtos por drogas em Maceió',
+      summary: 'Veículo e notebooks roubados de um estabelecimento no interior foram localizados pela polícia na rodoviária da capital.',
+      content: 'A guarnição motorizada do 13º Batalhão de Polícia Militar abordou, na madrugada de 7 de julho, um Chevrolet Onix prata sendo conduzido sem habilitação no Terminal Rodoviário de Maceió, no bairro do Feitosa. O motorista confessou ter arrombado um estabelecimento comercial em União dos Palmares e furtado o veículo, dois notebooks e um equipamento de vigilância. Ele revelou ainda ter trocado os computadores por drogas com um comerciante que atuava dentro da própria rodoviária. A polícia recuperou os aparelhos e conduziu os dois suspeitos à Central de Flagrantes: o autor do furto foi autuado por furto qualificado, enquanto o comerciante responderá por receptação.',
       image: img('policia.jpg'),
-      category: 'interior',
+      category: 'alagoas',
       featured: 0,
       date: '2026-07-08 14:00:00'
     },
     {
-      title: 'Acidente grave entre Branquinha e União dos Palmares deixa vítima fatal na BR-104',
-      summary: 'Colisão entre uma carreta de leite e um automóvel interditou parcialmente a rodovia federal.',
-      content: 'Um acidente grave envolvendo uma carreta de transporte de leite e um automóvel deixou uma vítima fatal no trecho da BR-104 entre os municípios de Branquinha e União dos Palmares. O Corpo de Bombeiros foi acionado para atender a ocorrência e a rodovia chegou a ser parcialmente interditada durante o atendimento.',
+      title: 'Identificada vítima de acidente fatal na BR-104, entre Branquinha e União dos Palmares',
+      summary: 'Condutor de 22 anos morreu ao colidir de frente com uma carreta carregada de leite no km 47 da rodovia.',
+      content: 'Darlan Liberato dos Santos, de 22 anos, empresário do ramo de som automotivo e morador de Murici, morreu em um acidente no km 47 da BR-104, entre os municípios de Branquinha e União dos Palmares. Segundo a Polícia Rodoviária Federal, o Toyota Corolla conduzido por Darlan invadiu a pista contrária e colidiu de frente com uma carreta carregada de leite da empresa Natville. Ele não resistiu aos ferimentos e morreu no local antes de receber atendimento. O motorista da carreta sofreu apenas ferimentos leves. A BR-104 foi totalmente liberada após as 22h, depois da perícia do Instituto de Criminalística, da remoção do corpo pelo IML e da limpeza da pista.',
       image: img('rodovia.jpg'),
       category: 'interior',
       featured: 0,
-      date: '2026-07-05 08:00:00'
+      date: '2026-02-25 17:00:00'
     },
     {
       title: 'Após junho cheio de folgas, União dos Palmares terá novo feriado; veja a data',
@@ -108,22 +108,22 @@ if (newsCount === 0) {
       date: '2026-05-21 12:00:00'
     },
     {
-      title: 'Hemoal promove coleta externa de sangue em União dos Palmares',
-      summary: 'Coleta foi realizada no Hospital Regional da Mata, incentivando a doação de sangue na região.',
-      content: 'O Hemocentro de Alagoas (Hemoal) realizou uma coleta externa de sangue no Hospital Regional da Mata, em União dos Palmares, incentivando a população a contribuir com doações para o banco de sangue do estado.',
+      title: 'Hemoal promove coleta externa de sangue em União dos Palmares dentro da campanha Junho Vermelho',
+      summary: 'Ação itinerante no Hospital Regional da Mata, no bairro Alameda, buscou formar estoque estratégico de sangue para maternidades e hospitais.',
+      content: 'O Hemocentro de Alagoas (Hemoal) realizou uma coleta externa de sangue no Hospital Regional da Mata (HRM), no bairro Alameda, em União dos Palmares, das 9h às 16h, como parte da campanha Junho Vermelho. A ação itinerante teve como objetivo formar um estoque estratégico de componentes sanguíneos para atender à demanda transfusional de maternidades e hospitais da região. Para doar, é preciso estar em bom estado de saúde, portar documento de identificação com foto, pesar no mínimo 50 quilos e ter entre 16 e 69 anos.',
       image: img('doacao-sangue.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-06-17 10:00:00'
     },
     {
-      title: 'Tragédia no Agreste: adolescente morre em Craíbas após lance durante partida de futebol',
-      summary: 'Jovem passou mal durante jogo e não resistiu, causando comoção na cidade do interior alagoano.',
-      content: 'Uma tragédia comoveu o município de Craíbas, no Agreste alagoano, após um adolescente passar mal durante uma partida de futebol e não resistir. O caso gerou grande comoção entre moradores da região.',
+      title: 'Adolescente de 14 anos morre em Craíbas após passar mal horas depois de sentir dores durante jogo de futebol',
+      summary: 'Jovem foi atendido, liberado e passou mal durante a madrugada em casa; caso será esclarecido por necropsia.',
+      content: 'José Laelson Nascimento dos Santos, de 14 anos, morreu na madrugada de segunda-feira (13 de julho) em Craíbas, no Agreste alagoano, após passar mal em casa. Segundo relatos de familiares, o adolescente jogava futebol quando sofreu um forte impacto de bola no peito. Ele chegou a ser atendido na Casa Maternal Frei Damião, em Craíbas, e depois foi transferido ao Hospital de Emergência do Agreste (HEA), em Arapiraca, onde foi avaliado, medicado e liberado para casa. Horas depois, seu quadro se agravou e ele passou mal na residência da família; apesar dos esforços para reverter a situação, o óbito foi confirmado em seguida. O corpo foi encaminhado ao Instituto Médico Legal (IML) de Arapiraca, e o laudo da necropsia será fundamental para esclarecer a real causa da morte e se há relação direta com o impacto sofrido durante o jogo.',
       image: img('bandeira-alagoas.svg'),
       category: 'interior',
       featured: 0,
-      date: '2026-07-01 16:00:00'
+      date: '2026-07-13 10:00:00'
     },
     {
       title: 'Cartórios eleitorais de Alagoas iniciam convocação de mesários para as Eleições 2026',
@@ -162,36 +162,36 @@ if (newsCount === 0) {
       date: '2026-07-01 09:00:00'
     },
     {
-      title: 'Kleber Malaquias: ex-PM acusado de participar da morte de empresário vai a júri popular',
-      summary: 'Caso que chocou Alagoas terá desfecho em julgamento popular após conclusão das investigações.',
-      content: 'O ex-policial militar Kleber Malaquias, acusado de participar da morte de um empresário em Alagoas, foi pronunciado e irá a júri popular. O caso segue em acompanhamento pela Justiça estadual.',
+      title: 'Último réu do caso Kleber Malaquias vai a júri popular nesta segunda-feira (20)',
+      summary: 'Ex-PM Marcos Maurício Francisco dos Santos é o sexto e último acusado a ser julgado pela morte do empresário e ativista.',
+      content: 'O ex-policial militar Marcos Maurício Francisco dos Santos será julgado por júri popular nesta segunda-feira (20 de julho), a partir das 8h, no Fórum Desembargador Jairon Maia Fernandes, em Maceió — o último dos seis réus a ser julgado pela morte do empresário e ativista social Kleber Malaquias, assassinado a tiros dentro de um bar em Rio Largo em 15 de julho de 2020. Segundo o Ministério Público, o crime teve caráter de execução, motivado pelas denúncias públicas que Kleber Malaquias fazia contra esquemas de corrupção envolvendo agentes públicos. Marcos Maurício é acusado de integrar o grupo responsável pelo monitoramento da vítima e pelo repasse de informações aos executores. Os outros quatro réus já foram condenados: os ex-policiais militares Fredson José dos Santos e Marcelo Souza, além de José Mário de Lima Silva e Edinaldo Estevão de Lima.',
       image: img('justica.png'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-13 08:30:00'
     },
     {
-      title: 'Convocados no PSS 2026 iniciam contratação para reforço da Educação de Maceió',
-      summary: 'Processo seletivo simplificado avança com a chamada de profissionais para a rede municipal de ensino.',
-      content: 'A Prefeitura de Maceió iniciou a etapa de contratação dos profissionais convocados no Processo Seletivo Simplificado (PSS) 2026, reforçando o quadro da rede municipal de Educação para o ano letivo.',
+      title: 'Prefeitura de Maceió convoca 650 professores e mais de 600 profissionais de apoio no PSS 2026 da Educação',
+      summary: 'Convocados entregam documentação em duas chamadas ao longo de julho, incluindo auxiliares de sala para a Educação Especial.',
+      content: 'A Prefeitura de Maceió, por meio da Secretaria Municipal de Educação (Semed), convocou 650 professores aprovados no Processo Seletivo Simplificado (PSS) 2026 para os cargos de Educação Infantil, 1º ao 5º ano, Matemática, Português, História, Ciências, Arte e Geografia. A entrega de documentos e o credenciamento para lotação aconteceram entre os dias 6 e 9 de julho, das 8h às 14h, na Coordenação Geral de Gestão de Pessoas (CGGP), no bairro Cambona. Em uma segunda convocação, a Semed chamou também os Profissionais de Apoio Escolar (PAEs) e auxiliares de sala, com a maior parte das 626 vagas destinada a auxiliares de sala da Educação Especial, com entrega de documentos entre os dias 13 e 16 de julho. Após a validação e escolha da lotação, os contratos são enviados por e-mail para assinatura digital pela plataforma Gov.br.',
       image: img('maceio-orla.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-13 09:00:00'
     },
     {
-      title: 'Julho começa com apenas 2,6% da chuva esperada em Maceió',
-      summary: 'Dados apontam déficit expressivo de chuvas no início do mês na capital alagoana.',
-      content: 'O mês de julho começou com um déficit expressivo de precipitação em Maceió, registrando apenas 2,6% do volume de chuva esperado para o período, segundo dados meteorológicos.',
+      title: 'Em 13 dias, julho registra apenas 2,66% da chuva esperada em Maceió',
+      summary: 'Apesar do déficit expressivo no início do mês, meteorologistas dizem que ainda é cedo para prever se julho fechará abaixo da média.',
+      content: 'Maceió registrou até o dia 13 de julho apenas 7,2 milímetros de chuva, o equivalente a 2,66% dos 271 milímetros esperados para todo o mês. Segundo o meteorologista Hugo Carvalho, coordenador do Centro Integrado de Meteorologia e Recursos Hídricos de Alagoas (Cimadec), a quantidade de chuva prevista para um mês não precisa ocorrer de forma uniforme — em alguns anos, boa parte da precipitação mensal se concentra em apenas dois ou três dias, o que torna fundamental o acompanhamento diário do cenário. Para os próximos dias, a previsão indica predomínio de sol, com possibilidade de chuvas isoladas apenas na quarta-feira (15). Não há alertas vigentes emitidos pelo Inmet ou pelo Cemaden para a capital alagoana.',
       image: img('maceio-orla.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-13 07:00:00'
     },
     {
-      title: 'ASA goleia e avança às oitavas de final da Série D',
-      summary: 'Clube alagoano tem atuação expressiva e segue vivo na competição nacional.',
-      content: 'O Agremiação Sportiva Alagoana (ASA) teve atuação segura e goleou seu adversário, garantindo classificação às oitavas de final da Série D do Campeonato Brasileiro, mantendo viva a esperança de acesso.',
+      title: 'ASA goleia o Ivinhema-MS por 4 a 0 e avança às oitavas de final da Série D',
+      summary: 'Time de Arapiraca fechou o placar agregado em 6 a 1 e vai enfrentar o Cianorte-PR na próxima fase.',
+      content: 'O ASA (Agremiação Sportiva Arapiraquense), clube de Arapiraca, venceu o Ivinhema-MS por 4 a 0 no domingo (12 de julho), no Estádio Coaracy da Mata Fonseca, em Arapiraca, e confirmou classificação às oitavas de final da Série D do Campeonato Brasileiro. Como já havia vencido o jogo de ida por 2 a 1, fora de casa, o ASA fechou o placar agregado em 6 a 1. Os gols da vitória foram marcados por Alex Bruno, Higor Leite e Michel Douglas, que balançou as redes duas vezes. Na próxima fase, o ASA enfrenta o Cianorte-PR, que eliminou o XV de Piracicaba-SP.',
       image: img('asa-escudo.svg'),
       category: 'esportes',
       featured: 0,
