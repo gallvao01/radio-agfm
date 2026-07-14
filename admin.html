@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Administrativo - AG FM 99,9</title>
+<link rel="icon" href="assets/img/logo.jpg">
+<link rel="stylesheet" href="css/style.css">
+<link rel="stylesheet" href="css/admin.css">
+</head>
+<body class="admin-body">
+
+<header class="admin-header">
+  <img src="assets/img/logo.jpg" alt="AG FM 99,9">
+  <strong>Painel Administrativo</strong>
+  <a href="index.html" class="admin-header__back">&larr; Voltar ao site</a>
+</header>
+
+<!-- Tela de login -->
+<section id="loginScreen" class="admin-login">
+  <form id="loginForm" class="admin-login__box">
+    <h1>Entrar</h1>
+    <p class="admin-hint">Acesso restrito à equipe da AG FM 99,9.</p>
+    <div id="loginError" class="admin-error" hidden></div>
+    <label>Usuário
+      <input type="text" name="username" autocomplete="username" required>
+    </label>
+    <label>Senha
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn-admin">Entrar</button>
+  </form>
+</section>
+
+<!-- Painel -->
+<section id="dashboard" class="admin-dashboard" hidden>
+  <div class="admin-dashboard__top">
+    <div>
+      Logado como <strong id="loggedUser"></strong>
+    </div>
+    <div class="admin-dashboard__actions">
+      <button id="btnNewNews" class="btn-admin">+ Nova notícia</button>
+      <button id="btnChangePassword" class="btn-admin btn-admin--outline">Trocar senha</button>
+      <button id="btnLogout" class="btn-admin btn-admin--danger">Sair</button>
+    </div>
+  </div>
+
+  <div class="admin-filter">
+    <label>Filtrar por categoria:
+      <select id="filterCategory">
+        <option value="">Todas</option>
+        <option value="alagoas">Alagoas</option>
+        <option value="interior">Interior</option>
+        <option value="brasil">Brasil</option>
+        <option value="mundo">Mundo</option>
+        <option value="entretenimento">Entretenimento</option>
+        <option value="saude">Saúde</option>
+        <option value="esportes">Esportes</option>
+      </select>
+    </label>
+  </div>
+
+  <table class="admin-table">
+    <thead>
+      <tr>
+        <th>Destaque</th>
+        <th>Título</th>
+        <th>Categoria</th>
+        <th>Data</th>
+        <th>Ações</th>
+      </tr>
+    </thead>
+    <tbody id="newsTableBody"></tbody>
+  </table>
+</section>
+
+<!-- Modal de notícia (criar/editar) -->
+<div id="newsModal" class="admin-modal" hidden>
+  <div class="admin-modal__box">
+    <h2 id="newsModalTitle">Nova notícia</h2>
+    <form id="newsForm">
+      <input type="hidden" name="id">
+      <label>Título
+        <input type="text" name="title" required>
+      </label>
+      <label>Categoria
+        <select name="category" required>
+          <option value="alagoas">Alagoas</option>
+          <option value="interior">Interior</option>
+          <option value="brasil">Brasil</option>
+          <option value="mundo">Mundo</option>
+          <option value="entretenimento">Entretenimento</option>
+          <option value="saude">Saúde</option>
+          <option value="esportes">Esportes</option>
+        </select>
+      </label>
+      <label>Resumo (aparece nos cards)
+        <textarea name="summary" rows="2" required></textarea>
+      </label>
+      <label>Conteúdo completo
+        <textarea name="content" rows="6" required></textarea>
+      </label>
+      <label>URL da imagem <em>(opcional — ao editar, deixe em branco para manter a imagem atual)</em>
+        <input type="url" name="image" placeholder="https://...">
+      </label>
+      <label class="admin-checkbox">
+        <input type="checkbox" name="featured">
+        Usar como destaque principal da home
+      </label>
+      <div id="newsFormError" class="admin-error" hidden></div>
+      <div class="admin-modal__actions">
+        <button type="button" id="btnCancelNews" class="btn-admin btn-admin--outline">Cancelar</button>
+        <button type="submit" class="btn-admin">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Modal de troca de senha -->
+<div id="passwordModal" class="admin-modal" hidden>
+  <div class="admin-modal__box">
+    <h2>Trocar senha</h2>
+    <form id="passwordForm">
+      <label>Senha atual
+        <input type="password" name="currentPassword" required>
+      </label>
+      <label>Nova senha (mín. 6 caracteres)
+        <input type="password" name="newPassword" required minlength="6">
+      </label>
+      <div id="passwordFormError" class="admin-error" hidden></div>
+      <div class="admin-modal__actions">
+        <button type="button" id="btnCancelPassword" class="btn-admin btn-admin--outline">Cancelar</button>
+        <button type="submit" class="btn-admin">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<script src="js/admin.js"></script>
+</body>
+</html>
