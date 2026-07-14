@@ -318,16 +318,17 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 .card__media { position: relative; }
 .ai-badge {
   position: absolute;
-  top: 8px;
-  right: 8px;
+  top: 5px;
+  right: 5px;
   background: rgba(28,43,31,.85);
   color: #fff;
-  font-size: 10px;
+  font-size: 7px;
   font-weight: 700;
-  letter-spacing: .5px;
-  padding: 3px 7px;
-  border-radius: 4px;
+  letter-spacing: .3px;
+  padding: 1px 4px;
+  border-radius: 3px;
   z-index: 2;
+  line-height: 1.4;
 }
 .article__body p { margin-bottom: 14px; line-height: 1.7; }
 .btn--back { background: var(--green); color: var(--white); margin-top: 10px; }
