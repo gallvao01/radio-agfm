@@ -36,13 +36,13 @@ if (newsCount === 0) {
 
   const seed = [
     {
-      title: 'Prefeito Júnior Menezes pressiona Verde Alagoas por regularização no abastecimento de água em União dos Palmares',
-      summary: 'Gestão municipal cobra a concessionária responsável pelo fornecimento de água após moradores de diversos bairros relatarem interrupções constantes no abastecimento.',
-      content: 'O prefeito de União dos Palmares, Júnior Menezes (José Iran Menezes da Silva Junior), intensificou as cobranças junto à concessionária Verde Alagoas para que o abastecimento de água seja normalizado em bairros que enfrentam interrupções frequentes no serviço. Júnior Menezes venceu as eleições municipais de 2024 com 23.163 votos, equivalentes a 63,83% dos votos válidos — a maior votação da história do município — ao lado da vice-prefeita Samires Ulisses. Desde então, a atual gestão tem atuado junto a órgãos estaduais e concessionárias para resolver demandas de infraestrutura da cidade.',
+      title: 'Júnior Menezes institui comissão para novo concurso público em União dos Palmares',
+      summary: 'Portaria publicada em 1º de julho cria comissão especial para planejar concurso da SMTT e da Guarda Civil Municipal.',
+      content: 'A Secretaria Municipal Geral de Administração de União dos Palmares formalizou, por meio da Portaria nº 007/2026/SMGA (publicada em 1º de julho de 2026), uma Comissão Especial de Estudos e Planejamento para organizar um novo concurso público municipal. A iniciativa busca preencher cargos efetivos em duas corporações estratégicas: a Superintendência Municipal de Transportes e Trânsito (SMTT) e a Guarda Civil Municipal. A comissão, coordenada pelo secretário-geral de Administração, Adelson Angelo de Andrade, e com participação da Procuradoria Geral, da Controladoria Interna e da Secretaria de Finanças, será responsável por estudos de viabilidade técnica e financeira, definição do número de vagas, elaboração do cronograma e levantamento da documentação necessária para a contratação da banca examinadora.',
       image: img('prefeito-junior-menezes.jpg'),
       category: 'interior',
       featured: 1,
-      date: '2026-03-03 10:00:00'
+      date: '2026-07-02 10:00:00'
     },
     {
       title: 'Quem é Júnior Menezes, o prefeito de União dos Palmares',
@@ -72,49 +72,40 @@ if (newsCount === 0) {
       date: '2026-07-05 08:00:00'
     },
     {
-      title: 'União dos Palmares celebra o Dia das Mães com festa na Praça Basiliano de Sarmento',
-      summary: 'Evento reuniu centenas de famílias com música e programação especial organizada pela Prefeitura.',
-      content: 'A Prefeitura de União dos Palmares promoveu uma grande festividade em celebração ao Dia das Mães na Praça Basiliano de Sarmento, reunindo centenas de famílias em uma programação com música ao vivo e atividades para todas as idades.',
+      title: 'Após junho cheio de folgas, União dos Palmares terá novo feriado; veja a data',
+      summary: 'Feriado municipal em homenagem a Santa Maria Madalena, padroeira da cidade, cai em 22 de julho.',
+      content: 'União dos Palmares terá mais um feriado municipal no calendário: o dia 22 de julho, dedicado a Santa Maria Madalena, padroeira da cidade, com base na Lei Municipal nº 1.182/2010. Embora a festa social tradicional em homenagem à santa ocorra em fevereiro, a festividade religiosa é celebrada em julho, quando as celebrações movimentam o município ao longo do mês, com peregrinação da imagem da padroeira por comunidades urbanas e rurais, além de missas, novenas e procissões organizadas pela paróquia local. Repartições públicas municipais suspendem o expediente na data, enquanto o funcionamento do comércio pode variar conforme cada estabelecimento.',
       image: img('praca-comemoracao.jpg'),
       category: 'interior',
       featured: 0,
-      date: '2026-05-04 18:00:00'
+      date: '2026-07-08 17:00:00'
     },
     {
-      title: 'Caravana "Toque de Assistência com Amor" leva serviços e cidadania ao distrito de Rocha Cavalcante',
-      summary: 'Secretaria de Assistência Social levou atendimentos gratuitos à população do distrito, fora da sede do município.',
-      content: 'A Secretaria de Assistência Social de União dos Palmares realizou mais uma edição da caravana "Toque de Assistência com Amor", desta vez no distrito de Rocha Cavalcante, oferecendo serviços de cidadania e atendimento social à comunidade local.',
-      image: img('escola-rocha-cavalcante.jpg'),
+      title: 'Júnior Menezes garante mais 4,5 km de asfalto para União dos Palmares em parceria com Arthur Lira',
+      summary: 'Prefeito e deputado federal assinaram ordem de serviço para pavimentação de vias urbanas com investimento de R$ 1,5 milhão.',
+      content: 'O prefeito Júnior Menezes e o deputado federal Arthur Lira assinaram ordem de serviço para a pavimentação de mais de 4,5 quilômetros de vias urbanas em União dos Palmares, com investimento de R$ 1,5 milhão viabilizado pelo parlamentar por meio da Codevasf. A parceria integra uma estratégia de ampliação dos investimentos em mobilidade urbana no município, que já recebeu pavimentação em bairros como COHAB Velha, COHAB Nova, Alto do Cruzeiro, Vaquejada, Robertão, Morada das Árvores e Jaguaribe por meio de parcerias anteriores com o governador Paulo Dantas. Na mesma ocasião, Arthur Lira também participou da entrega de veículos para a prefeitura, incluindo uma caminhonete adquirida com recursos viabilizados pelo deputado.',
+      image: img('rodovia.jpg'),
       category: 'interior',
       featured: 0,
-      date: '2026-04-26 15:00:00'
+      date: '2026-06-26 14:00:00'
     },
     {
-      title: 'União dos Palmares está entre as 20 redes de ensino do país reconhecidas pelo MEC por educação antirracista',
-      summary: 'Reconhecimento nacional destaca o trabalho da rede municipal de ensino na promoção da educação antirracista.',
-      content: 'A rede municipal de ensino de União dos Palmares foi reconhecida pelo Ministério da Educação (MEC) como uma das 20 redes do país que mais se destacam na promoção de práticas de educação antirracista, um marco importante para a educação do município.',
-      image: img('escola-rocha-cavalcante.jpg'),
-      category: 'interior',
-      featured: 0,
-      date: '2025-11-06 12:00:00'
-    },
-    {
-      title: 'Confira a programação completa do Festival Negritude em União dos Palmares',
-      summary: 'Festival celebra duas noites de música, cultura e valorização da ancestralidade no município.',
-      content: 'A Prefeitura de União dos Palmares divulgou a programação completa do Festival Negritude, que promete duas noites de música, cultura e celebração da ancestralidade afro-brasileira, com atrações locais e regionais.',
+      title: 'Projeto "Encontro com Palmares" une ancestralidade e realidade virtual em itinerância por seis estados do Brasil',
+      summary: 'Iniciativa foi lançada na Serra da Barriga, em União dos Palmares, e percorre comunidades quilombolas até março de 2027.',
+      content: '"Encontro com Palmares" é um projeto de intercâmbio cultural que combina saberes afro-brasileiros com tecnologia audiovisual, tendo como elemento central a "Sala de Saberes Petrobras", espaço imersivo com óculos de realidade virtual 360° que permite explorar digitalmente a Serra da Barriga. O projeto foi lançado em 26 de junho de 2026 no Parque Memorial Quilombo dos Palmares, em União dos Palmares, com programação gratuita que incluiu oficinas, apresentações artísticas e a peça teatral "Em Busca de Palmares". A caravana percorrerá comunidades quilombolas no Pará, Maranhão, Minas Gerais, São Paulo e Rio Grande do Sul entre junho de 2026 e março de 2027, com oficinas de dança afro, percussão, ervas medicinais, culinária quilombola e rodas de conversa com lideranças locais.',
       image: img('zumbi-monumento.jpg'),
       category: 'interior',
       featured: 0,
-      date: '2025-11-12 19:00:00'
+      date: '2026-06-26 19:00:00'
     },
     {
-      title: 'Prefeitura de União dos Palmares intensifica prevenção ao câncer de mama com mutirão de mamografias gratuitas',
-      summary: 'Ação da Secretaria de Saúde oferece exames gratuitos à população em campanha de conscientização.',
-      content: 'A Secretaria de Saúde de União dos Palmares realizou um mutirão de prevenção ao câncer de mama, disponibilizando exames de mamografia gratuitos à população como parte das ações de conscientização sobre a doença.',
-      image: img('mamografia.jpg'),
+      title: 'Pesquisa Ápice: gestão de Júnior Menezes atinge 93,7% de aprovação em União dos Palmares',
+      summary: 'Levantamento do Instituto Ápice mostra o maior índice de aprovação do prefeito desde o início do mandato.',
+      content: 'Uma pesquisa do Instituto Ápice apontou que a gestão do prefeito Júnior Menezes atingiu 93,7% de aprovação entre os moradores de União dos Palmares, o maior índice registrado até o momento. Alguns bairros chegaram a 100% de aprovação, enquanto o menor percentual registrado foi de 84,5%. Estudos anteriores dos institutos Ibrape e Falpe já apontavam tendência semelhante de alta. Com quase 18 meses de mandato, o prefeito mantém o capital político da vitória eleitoral de 2024, e moradores ouvidos pela pesquisa destacaram a proximidade do prefeito com a população e a comunicação direta como pontos fortes da gestão.',
+      image: img('escola-rocha-cavalcante.jpg'),
       category: 'interior',
       featured: 0,
-      date: '2025-11-12 09:00:00'
+      date: '2026-05-21 12:00:00'
     },
     {
       title: 'Hemoal promove coleta externa de sangue em União dos Palmares',
