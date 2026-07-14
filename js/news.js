@@ -22,9 +22,13 @@ async function fetchNews(params = {}) {
   return res.json();
 }
 
+function aiBadge(n) {
+  return isAiImage(n.image) ? '<span class="ai-badge" title="Imagem ilustrativa gerada por IA">IA</span>' : '';
+}
+
 function cardBig(n) {
   return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card card--big">
-    <img src="${n.image}" alt="${escapeHtml(n.title)}">
+    <div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div>
     <div class="card__body">
       <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
       <h3>${escapeHtml(n.title)}</h3>
@@ -35,7 +39,7 @@ function cardBig(n) {
 
 function cardSmall(n) {
   return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card card--small">
-    <img src="${n.image}" alt="${escapeHtml(n.title)}">
+    <div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div>
     <div class="card__body">
       <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
       <h3>${escapeHtml(n.title)}</h3>
@@ -45,7 +49,7 @@ function cardSmall(n) {
 
 function cardRow(n) {
   return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card card--row">
-    <img src="${n.image}" alt="${escapeHtml(n.title)}">
+    <div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div>
     <div class="card__body">
       <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
       <h3>${escapeHtml(n.title)}</h3>
@@ -61,8 +65,12 @@ function emptyState(message) {
   return `<p style="color:#6b7280;font-size:14px;">${escapeHtml(message)}</p>`;
 }
 
+function isAiImage(imagePath) {
+  return /-ia\.(jpg|jpeg|png|webp)$/i.test(imagePath || '');
+}
+
 function fourUpCard(n, tagLabel) {
-  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><img src="${n.image}" alt="${escapeHtml(n.title)}"><div class="card__body"><span class="card__tag">${tagLabel}</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`;
+  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div><div class="card__body"><span class="card__tag">${tagLabel}</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`;
 }
 
 async function renderHome() {
@@ -142,6 +150,7 @@ async function renderArticle() {
     <h1>${escapeHtml(n.title)}</h1>
     <p class="article__meta">${dateLabel}</p>
     <img class="article__image" src="${n.image}" alt="${escapeHtml(n.title)}">
+    ${isAiImage(n.image) ? '<p class="article__image-caption">Imagem ilustrativa gerada por IA — não retrata o local ou os envolvidos reais.</p>' : ''}
     <p class="article__summary">${escapeHtml(n.summary)}</p>
     <div class="article__body">${escapeHtml(n.content).split('\n').map((p) => `<p>${p}</p>`).join('')}</div>
     <a href="categoria.html?c=${encodeURIComponent(n.category)}" class="btn btn--back">&larr; Voltar para ${CATEGORY_LABELS[n.category] || n.category}</a>

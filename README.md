@@ -17,7 +17,7 @@ O site sobe em `http://localhost:5174` (porta configurável via variável de amb
 - `index.html`, `categoria.html` — carregam as notícias dinamicamente via `js/news.js`
 - `admin.html` + `js/admin.js` + `css/admin.css` — painel administrativo (login, criar/editar/excluir notícias, trocar senha)
 - `programacao.html`, `quem-somos.html`, `nossa-historia.html`, `expediente.html`, `contato.html`, `termos-de-uso.html`, `politica-de-privacidade.html` — páginas institucionais
-- `assets/img/logo.jpg` — logo da rádio (baixada do Instagram @radioagfmstereo)
+- `assets/img/logo.png` — logo da rádio (em alta resolução)
 
 ## Painel administrativo (login externo)
 
@@ -41,12 +41,16 @@ As notícias de Alagoas e União dos Palmares (incluindo sobre o prefeito Júnio
 
 ### Imagens das notícias
 
-As fotos em `assets/img/news/` vêm de fontes públicas/livres: foto oficial do prefeito (portal da Prefeitura de União dos Palmares) e imagens do Wikimedia Commons (licença livre) relacionadas a cada tema — não são fotos exatas dos eventos específicos, mas sim imagens reais e coerentes com o assunto de cada notícia. Ao publicar notícias novas pelo painel, você pode informar a URL de uma foto real do evento.
+Ordem de prioridade para a imagem de cada notícia:
+1. **Foto real e verificável** do assunto/local exato (fonte oficial ou Wikimedia Commons — sempre confirmando que o lugar/pessoa/símbolo é mesmo o correto, não só um resultado de busca parecido).
+2. Se não existir foto real verificável, uma **imagem gerada por IA**, realista e coerente com o tema (via `image.pollinations.ai`, sem necessidade de login). Toda notícia com imagem de IA recebe automaticamente um selo "IA" na miniatura e uma legenda de aviso na página do artigo — isso é feito pelo `js/news.js` com base no sufixo `-ia.jpg` no nome do arquivo, então ao adicionar uma nova imagem gerada por IA pelo painel, nomeie o arquivo terminando em `-ia` (ex: `nome-do-assunto-ia.jpg`).
+
+Nunca usar uma foto real de um lugar/pessoa diferente do que a notícia descreve, mesmo que pareça parecida — é preferível uma imagem de IA claramente sinalizada a uma foto real só que do lugar errado.
 
 ## Pendências
 
 1. **URL do stream de áudio ao vivo** — arquivo de origem do player (`<source src="https://SUBSTITUIR-PELA-URL-DO-STREAM.com/stream">`), presente em todas as páginas. Será preenchida quando a transmissão da rádio para o site estiver configurada.
-2. **Notícias de Brasil e Mundo** — ainda estão como espaço reservado (`[EXEMPLO]`); é só pedir para atualizar com manchetes reais quando houver interesse.
+2. **Notícias de Brasil** — ainda estão como espaço reservado (`[EXEMPLO]`); é só pedir para atualizar com manchetes reais quando houver interesse. A categoria "Mundo" foi removida a pedido, para focar em Alagoas e União dos Palmares.
 3. **Endereço físico** da emissora (`contato.html`, `expediente.html`, rodapé).
 4. **E-mail oficial** — atualmente usando placeholder `contato@agfm.com.br`.
 5. **Grade de programação completa** (`programacao.html`) — só tem o programa "União Rural" (José Oriel, domingos 6h) confirmado via Instagram.

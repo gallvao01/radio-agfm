@@ -310,8 +310,25 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 .article .card__tag { margin-bottom: 10px; }
 .article h1 { font-size: 28px; margin-bottom: 6px; }
 .article__meta { color: var(--muted); font-size: 13px; margin-bottom: 20px; }
-.article__image { width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--radius); margin-bottom: 20px; }
+.article__image { width: 100%; max-height: 420px; object-fit: cover; border-radius: var(--radius); margin-bottom: 8px; }
+.article__image-caption { font-size: 12px; color: var(--muted); font-style: italic; margin: 0 0 20px; }
 .article__summary { font-size: 18px; font-weight: 600; color: var(--dark); margin-bottom: 16px; }
+
+/* AI-generated image badge */
+.card__media { position: relative; }
+.ai-badge {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  background: rgba(28,43,31,.85);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: .5px;
+  padding: 3px 7px;
+  border-radius: 4px;
+  z-index: 2;
+}
 .article__body p { margin-bottom: 14px; line-height: 1.7; }
 .btn--back { background: var(--green); color: var(--white); margin-top: 10px; }
 .btn--back:hover { background: var(--green-dark); }

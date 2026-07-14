@@ -66,7 +66,7 @@ if (newsCount === 0) {
       title: 'Identificada vítima de acidente fatal na BR-104, entre Branquinha e União dos Palmares',
       summary: 'Condutor de 22 anos morreu ao colidir de frente com uma carreta carregada de leite no km 47 da rodovia.',
       content: 'Darlan Liberato dos Santos, de 22 anos, empresário do ramo de som automotivo e morador de Murici, morreu em um acidente no km 47 da BR-104, entre os municípios de Branquinha e União dos Palmares. Segundo a Polícia Rodoviária Federal, o Toyota Corolla conduzido por Darlan invadiu a pista contrária e colidiu de frente com uma carreta carregada de leite da empresa Natville. Ele não resistiu aos ferimentos e morreu no local antes de receber atendimento. O motorista da carreta sofreu apenas ferimentos leves. A BR-104 foi totalmente liberada após as 22h, depois da perícia do Instituto de Criminalística, da remoção do corpo pelo IML e da limpeza da pista.',
-      image: img('br104-generico.svg'),
+      image: img('br104-ia.jpg'),
       category: 'interior',
       featured: 0,
       date: '2026-02-25 17:00:00'
@@ -165,7 +165,7 @@ if (newsCount === 0) {
       title: 'Último réu do caso Kleber Malaquias vai a júri popular nesta segunda-feira (20)',
       summary: 'Ex-PM Marcos Maurício Francisco dos Santos é o sexto e último acusado a ser julgado pela morte do empresário e ativista.',
       content: 'O ex-policial militar Marcos Maurício Francisco dos Santos será julgado por júri popular nesta segunda-feira (20 de julho), a partir das 8h, no Fórum Desembargador Jairon Maia Fernandes, em Maceió — o último dos seis réus a ser julgado pela morte do empresário e ativista social Kleber Malaquias, assassinado a tiros dentro de um bar em Rio Largo em 15 de julho de 2020. Segundo o Ministério Público, o crime teve caráter de execução, motivado pelas denúncias públicas que Kleber Malaquias fazia contra esquemas de corrupção envolvendo agentes públicos. Marcos Maurício é acusado de integrar o grupo responsável pelo monitoramento da vítima e pelo repasse de informações aos executores. Os outros quatro réus já foram condenados: os ex-policiais militares Fredson José dos Santos e Marcelo Souza, além de José Mário de Lima Silva e Edinaldo Estevão de Lima.',
-      image: img('justica.png'),
+      image: img('forum-justica-ia.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-13 08:30:00'
