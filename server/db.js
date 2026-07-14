@@ -135,6 +135,33 @@ if (newsCount === 0) {
       date: '2026-07-13 08:00:00'
     },
     {
+      title: 'Pesquisa Paraná Pesquisas: JHC lidera disputa pelo governo de Alagoas em empate técnico com Renan Filho',
+      summary: 'Levantamento encomendado pela TV Pajuçara mostra JHC (PSDB) à frente, mas dentro da margem de erro nos cenários estimulados de 1º e 2º turno.',
+      content: 'Uma pesquisa do instituto Paraná Pesquisas, registrada no TSE sob o número AL-04491/2026 e encomendada pela TV Pajuçara, aponta João Henrique Caldas (JHC), do PSDB, na liderança da disputa pelo governo de Alagoas em 2026. No cenário estimulado de primeiro turno, JHC aparece com 45,9% das intenções de voto, contra 41% de Renan Filho (MDB) — uma diferença de 4,9 pontos percentuais que configura empate técnico, já que a margem de erro é de 2,7 pontos. Na simulação de segundo turno entre os dois, o resultado se repete: 47,5% para JHC e 42% para Renan Filho. Na pesquisa espontânea, JHC tem 21,7% e Renan Filho, 16,9%, com 55,3% dos entrevistados sem opinião formada. Para o Senado, no cenário estimulado, aparecem entre os mais citados Alfredo Gaspar (PL) com 40,4%, Arthur Lira (PP) com 39,8% e Renan Calheiros (MDB) com 36,4%. A pesquisa ouviu 1.400 eleitores entre 28 de junho e 1º de julho de 2026, com nível de confiança de 95%.',
+      image: img('bandeira-alagoas.svg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-07-04 11:00:00'
+    },
+    {
+      title: 'JHC renuncia à Prefeitura de Maceió para disputar as eleições estaduais de 2026',
+      summary: 'Com a saída do prefeito, o vice Rodrigo Cunha assume o comando da capital alagoana.',
+      content: 'O prefeito de Maceió, João Henrique Caldas (JHC), renunciou ao cargo em abril de 2026 para se dedicar à disputa eleitoral deste ano, apontado como possível candidato ao governo de Alagoas ou ao Senado. Com a renúncia, o vice-prefeito Rodrigo Cunha (Podemos) assumiu o comando da Prefeitura de Maceió. JHC deixou o PL, partido em que era presidente estadual, e se filiou ao PSDB para concorrer nas eleições estaduais.',
+      image: img('maceio-orla.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-04-04 10:00:00'
+    },
+    {
+      title: 'Calendário eleitoral entra em fase decisiva em julho, com restrições a agentes públicos e convenções partidárias',
+      summary: 'Regras eleitorais para as Eleições 2026 se intensificam neste mês, três meses antes do primeiro turno de outubro.',
+      content: 'O mês de julho marca o início de uma fase decisiva do calendário das Eleições 2026 em Alagoas. Desde o dia 4 de julho, três meses antes do primeiro turno, entraram em vigor restrições a agentes públicos, incluindo limitações a nomeações, contratações, transferências ou exonerações de servidores, além da obrigatoriedade de remoção de nomes, slogans, símbolos e imagens de autoridades em disputa dos canais oficiais de órgãos públicos. No dia 7 de julho, juízes eleitorais publicaram editais de convocação de mesárias, mesários e apoio logístico para a votação. Entre 20 de julho e 5 de agosto, partidos e federações poderão realizar convenções partidárias para escolher os candidatos a presidente, governador, senador, deputado federal e deputado estadual, além de deliberar sobre coligações nas eleições majoritárias.',
+      image: img('urna-eletronica.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-07-01 09:00:00'
+    },
+    {
       title: 'Kleber Malaquias: ex-PM acusado de participar da morte de empresário vai a júri popular',
       summary: 'Caso que chocou Alagoas terá desfecho em julgamento popular após conclusão das investigações.',
       content: 'O ex-policial militar Kleber Malaquias, acusado de participar da morte de um empresário em Alagoas, foi pronunciado e irá a júri popular. O caso segue em acompanhamento pela Justiça estadual.',
