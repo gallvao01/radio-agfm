@@ -156,6 +156,15 @@ if (newsCount === 0) {
       date: '2026-07-04 11:00:00'
     },
     {
+      title: 'Nova pesquisa (Vox Brasil) mostra Renan Filho à frente de JHC na disputa pelo governo de Alagoas',
+      summary: 'Levantamento encomendado pela Jovem Pan News/Maceió FM traz cenário oposto ao divulgado dias antes pela Paraná Pesquisas.',
+      content: 'Uma nova pesquisa, agora do instituto Vox Brasil, registrada no TSE sob o número AL-01460/2026 e encomendada pela Maceió FM Rádios Difusoras (Jovem Pan News), aponta o senador Renan Filho (MDB) na liderança da disputa pelo governo de Alagoas, com 49,3% das intenções de voto no cenário estimulado, contra 43,5% de João Henrique Caldas (JHC), do PSDB — uma diferença de 5,8 pontos, fora da margem de erro de 2,83 pontos. Lenilda Luna (PSOL) aparece com 2,6%, e 3,5% dos entrevistados votariam em branco, nulo ou em nenhum candidato. Na pesquisa espontânea, Renan Filho tem 31,5% e JHC, 26,3%, com 35,5% sem opinião formada. A pesquisa ouviu 1.200 eleitores, de forma presencial, em municípios de todas as regiões de Alagoas, entre 6 e 8 de julho de 2026. O resultado é oposto ao divulgado poucos dias antes pela Paraná Pesquisas, que mostrava JHC à frente — uma diferença que ilustra como institutos distintos, contratados por veículos diferentes, podem chegar a cenários opostos na mesma disputa eleitoral.',
+      image: img('pesquisa-eleitoral-ia.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-07-14 09:00:00'
+    },
+    {
       title: 'Calendário eleitoral entra em fase decisiva em julho, com restrições a agentes públicos e convenções partidárias',
       summary: 'Regras eleitorais para as Eleições 2026 se intensificam neste mês, três meses antes do primeiro turno de outubro.',
       content: 'O mês de julho marca o início de uma fase decisiva do calendário das Eleições 2026 em Alagoas. Desde o dia 4 de julho, três meses antes do primeiro turno, entraram em vigor restrições a agentes públicos, incluindo limitações a nomeações, contratações, transferências ou exonerações de servidores, além da obrigatoriedade de remoção de nomes, slogans, símbolos e imagens de autoridades em disputa dos canais oficiais de órgãos públicos. No dia 7 de julho, juízes eleitorais publicaram editais de convocação de mesárias, mesários e apoio logístico para a votação. Entre 20 de julho e 5 de agosto, partidos e federações poderão realizar convenções partidárias para escolher os candidatos a presidente, governador, senador, deputado federal e deputado estadual, além de deliberar sobre coligações nas eleições majoritárias.',
@@ -190,6 +199,42 @@ if (newsCount === 0) {
       category: 'alagoas',
       featured: 0,
       date: '2026-07-13 07:00:00'
+    },
+    {
+      title: 'Paulo Dantas anuncia investimentos em segurança, mobilidade e educação para Campo Alegre',
+      summary: 'Governador esteve com a prefeita Pauline Pereira e o deputado Fernando Pereira para anunciar obras no município.',
+      content: 'O governador Paulo Dantas anunciou uma série de investimentos para o município de Campo Alegre durante reunião com a prefeita Pauline Pereira e o deputado estadual Fernando Pereira. Na área de segurança, foram anunciados a construção de um Centro Integrado de Segurança Pública (CISP) no distrito de Luziápolis e um Grupamento de Polícia Militar (GPM) com guarnições 24 horas. Na educação, o governo deu ordem de serviço para duas creches do programa Cria, uma na sede do município e outra em Luziápolis. Em mobilidade, estão previstas uma rodovia ligando a BR-101 a Campo Alegre, uma via de 4 km pelo programa Alagoas de Ponta a Ponta, além da pavimentação de ruas pelo programa Pró-Estrada.',
+      image: img('paulo-dantas.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-06-27 14:00:00'
+    },
+    {
+      title: 'Pesquisa Paraná Pesquisas: aprovação do governo Paulo Dantas chega a 59,3%',
+      summary: 'Levantamento contratado pela TV Pajuçara ouviu 1.400 eleitores em 52 municípios entre 28 de junho e 1º de julho.',
+      content: 'Uma pesquisa do instituto Paraná Pesquisas, registrada no TSE sob o número AL-04491/2026, apontou que o governo de Paulo Dantas (MDB) é aprovado por 59,3% dos eleitores alagoanos. A desaprovação ficou em 36,8%, e 3,9% não souberam ou não opinaram. O levantamento ouviu 1.400 eleitores em 52 municípios de Alagoas, entre os dias 28 de junho e 1º de julho de 2026, com margem de erro de 2,7 pontos percentuais e nível de confiança de 95%. A metodologia utilizou seleção probabilística em três estágios, com cotas proporcionais por sexo, idade, escolaridade e renda familiar.',
+      image: img('palacio-governo-ia.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-07-04 10:00:00'
+    },
+    {
+      title: 'Renan Filho garante R$ 26 milhões do PAC Saúde para ampliar atendimento em Alagoas, incluindo União dos Palmares',
+      summary: 'Recursos financiam micro-ônibus, vans e unidades odontológicas móveis para 35 municípios alagoanos.',
+      content: 'O senador Renan Filho (MDB) garantiu R$ 26 milhões do PAC Saúde para a aquisição de veículos e equipamentos que vão fortalecer o atendimento especializado do SUS em Alagoas. Os recursos financiaram 41 micro-ônibus, 3 vans e 3 Unidades Odontológicas Móveis (UOMs), beneficiando 35 municípios alagoanos — entre eles Belo Monte, Branquinha, Campestre, Capela, Delmiro Gouveia, Penedo, Porto Calvo, Santana do Ipanema e União dos Palmares. As vans atenderão Mar Vermelho, Penedo e Traipu, enquanto as unidades odontológicas móveis reforçarão os serviços em Campestre, Capela e Delmiro Gouveia. Segundo estimativas do gabinete do senador, cerca de 1.600 pessoas serão atendidas diariamente por meio do transporte especializado.',
+      image: img('vans-saude-ia.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-05-29 11:00:00'
+    },
+    {
+      title: 'Renan Filho lança plataforma para receber sugestões da população e construir plano de governo',
+      summary: 'Site "Você Fala, Renan Filho Escuta" recebe propostas em áreas como saúde, educação e segurança pública.',
+      content: 'O senador Renan Filho lançou, em evento no Polo Tecnológico de Maceió, no bairro Jaraguá, uma plataforma digital para receber sugestões da população na construção do seu plano de governo para as eleições de 2026. Batizada de "Você Fala, Renan Filho Escuta", a ferramenta está disponível no site falaprorenanfilho.com.br, onde qualquer cidadão pode enviar ideias para áreas como saúde, educação, segurança pública, infraestrutura, desenvolvimento econômico, turismo, cultura, esporte e assistência social. Entre as prioridades citadas pelo senador estão saúde, educação e geração de emprego, incluindo a proposta de construção de um Hospital do Câncer em Alagoas.',
+      image: img('renan-filho.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-07-13 15:00:00'
     },
     {
       title: 'ASA goleia o Ivinhema-MS por 4 a 0 e avança às oitavas de final da Série D',
