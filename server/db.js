@@ -165,6 +165,15 @@ if (newsCount === 0) {
       date: '2026-07-14 09:00:00'
     },
     {
+      title: 'Paulo Dantas nomeia 83 novos delegados da Polícia Civil para atuar na capital e no interior de Alagoas',
+      summary: 'Governador classifica como o maior ciclo de investimentos em recursos humanos da segurança pública já feito pelo estado.',
+      content: 'O governador Paulo Dantas nomeou 83 novos delegados da Polícia Civil, sendo 22 mulheres (26,5%) e 61 homens (73,5%), que passam a atuar imediatamente em delegacias de Maceió e do interior de Alagoas. A solenidade de posse foi realizada no Centro de Convenções do bairro Jaraguá. Segundo o governador, quando assumiu o governo o estado contava com 106 delegados; somando as três nomeações feitas desde então (13, 50 e agora 83), a meta é dobrar esse número. Dantas também citou a criação dos Centros Integrados de Segurança Pública (Cisps) como parte da modernização da segurança pública estadual. "A função de delegado é estratégica para o combate ao crime organizado (...) nós vamos sair do governo com todos os indicadores bem melhores do que quando os recebemos", disse o governador.',
+      image: img('solenidade-posse-ia.jpg'),
+      category: 'alagoas',
+      featured: 0,
+      date: '2026-07-08 12:00:00'
+    },
+    {
       title: 'Calendário eleitoral entra em fase decisiva em julho, com restrições a agentes públicos e convenções partidárias',
       summary: 'Regras eleitorais para as Eleições 2026 se intensificam neste mês, três meses antes do primeiro turno de outubro.',
       content: 'O mês de julho marca o início de uma fase decisiva do calendário das Eleições 2026 em Alagoas. Desde o dia 4 de julho, três meses antes do primeiro turno, entraram em vigor restrições a agentes públicos, incluindo limitações a nomeações, contratações, transferências ou exonerações de servidores, além da obrigatoriedade de remoção de nomes, slogans, símbolos e imagens de autoridades em disputa dos canais oficiais de órgãos públicos. No dia 7 de julho, juízes eleitorais publicaram editais de convocação de mesárias, mesários e apoio logístico para a votação. Entre 20 de julho e 5 de agosto, partidos e federações poderão realizar convenções partidárias para escolher os candidatos a presidente, governador, senador, deputado federal e deputado estadual, além de deliberar sobre coligações nas eleições majoritárias.',
