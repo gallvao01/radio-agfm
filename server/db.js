@@ -192,15 +192,6 @@ if (newsCount === 0) {
       date: '2026-07-13 08:30:00'
     },
     {
-      title: 'Prefeitura de Maceió convoca 650 professores e mais de 600 profissionais de apoio no PSS 2026 da Educação',
-      summary: 'Convocados entregam documentação em duas chamadas ao longo de julho, incluindo auxiliares de sala para a Educação Especial.',
-      content: 'A Prefeitura de Maceió, por meio da Secretaria Municipal de Educação (Semed), convocou 650 professores aprovados no Processo Seletivo Simplificado (PSS) 2026 para os cargos de Educação Infantil, 1º ao 5º ano, Matemática, Português, História, Ciências, Arte e Geografia. A entrega de documentos e o credenciamento para lotação aconteceram entre os dias 6 e 9 de julho, das 8h às 14h, na Coordenação Geral de Gestão de Pessoas (CGGP), no bairro Cambona. Em uma segunda convocação, a Semed chamou também os Profissionais de Apoio Escolar (PAEs) e auxiliares de sala, com a maior parte das 626 vagas destinada a auxiliares de sala da Educação Especial, com entrega de documentos entre os dias 13 e 16 de julho. Após a validação e escolha da lotação, os contratos são enviados por e-mail para assinatura digital pela plataforma Gov.br.',
-      image: img('escola-publica-ia.jpg'),
-      category: 'alagoas',
-      featured: 0,
-      date: '2026-07-13 09:00:00'
-    },
-    {
       title: 'Em 13 dias, julho registra apenas 2,66% da chuva esperada em Maceió',
       summary: 'Apesar do déficit expressivo no início do mês, meteorologistas dizem que ainda é cedo para prever se julho fechará abaixo da média.',
       content: 'Maceió registrou até o dia 13 de julho apenas 7,2 milímetros de chuva, o equivalente a 2,66% dos 271 milímetros esperados para todo o mês. Segundo o meteorologista Hugo Carvalho, coordenador do Centro Integrado de Meteorologia e Recursos Hídricos de Alagoas (Cimadec), a quantidade de chuva prevista para um mês não precisa ocorrer de forma uniforme — em alguns anos, boa parte da precipitação mensal se concentra em apenas dois ou três dias, o que torna fundamental o acompanhamento diário do cenário. Para os próximos dias, a previsão indica predomínio de sol, com possibilidade de chuvas isoladas apenas na quarta-feira (15). Não há alertas vigentes emitidos pelo Inmet ou pelo Cemaden para a capital alagoana.',
@@ -222,7 +213,7 @@ if (newsCount === 0) {
       title: 'Pesquisa Paraná Pesquisas: aprovação do governo Paulo Dantas chega a 59,3%',
       summary: 'Levantamento contratado pela TV Pajuçara ouviu 1.400 eleitores em 52 municípios entre 28 de junho e 1º de julho.',
       content: 'Uma pesquisa do instituto Paraná Pesquisas, registrada no TSE sob o número AL-04491/2026, apontou que o governo de Paulo Dantas (MDB) é aprovado por 59,3% dos eleitores alagoanos. A desaprovação ficou em 36,8%, e 3,9% não souberam ou não opinaram. O levantamento ouviu 1.400 eleitores em 52 municípios de Alagoas, entre os dias 28 de junho e 1º de julho de 2026, com margem de erro de 2,7 pontos percentuais e nível de confiança de 95%. A metodologia utilizou seleção probabilística em três estágios, com cotas proporcionais por sexo, idade, escolaridade e renda familiar.',
-      image: img('palacio-governo-ia.jpg'),
+      image: img('paulo-dantas-2.jpg'),
       category: 'alagoas',
       featured: 0,
       date: '2026-07-04 10:00:00'
