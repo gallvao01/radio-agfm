@@ -5,11 +5,14 @@ const session = require('express-session');
 const bcrypt = require('bcryptjs');
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
+const compression = require('compression');
 const db = require('./db');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
-const ROOT = path.join(__dirname, '..');
+// Só o conteúdo de public/ é servido via HTTP — mantém server/, data/ (banco de dados),
+// .git/ e arquivos de configuração fora do alcance de qualquer requisição externa.
+const PUBLIC_DIR = path.join(__dirname, '..', 'public');
 const IS_PRODUCTION = process.env.NODE_ENV === 'production';
 
 // Necessário quando o site roda atrás de um proxy reverso (Render, Cloudflare etc.)
@@ -32,6 +35,7 @@ app.use(helmet({
   }
 }));
 
+app.use(compression());
 app.use(express.json({ limit: '1mb' }));
 
 app.use(session({
@@ -55,10 +59,12 @@ const loginLimiter = rateLimit({
   message: { error: 'Muitas tentativas de login. Tente novamente em alguns minutos.' }
 });
 
-// Limite geral de requisições por IP, para proteger o servidor de sobrecarga/abuso
+// Limite geral de requisições por IP, para proteger o servidor de sobrecarga/abuso.
+// Valor alto o suficiente para não travar IPs compartilhados (redes de escola/escritório)
+// em dias de muito acesso, mas ainda capaz de barrar automações abusivas.
 const apiLimiter = rateLimit({
   windowMs: 60 * 1000,
-  limit: 120,
+  limit: 600,
   standardHeaders: true,
   legacyHeaders: false,
   message: { error: 'Muitas requisições. Aguarde um instante e tente novamente.' }
@@ -139,6 +145,19 @@ app.get('/api/news/:id', (req, res) => {
   res.json(row);
 });
 
+// ---------- News (métricas públicas: cliques e visualizações) ----------
+app.post('/api/news/:id/view', (req, res) => {
+  const info = db.prepare('UPDATE news SET views = views + 1 WHERE id = ?').run(req.params.id);
+  if (info.changes === 0) return res.status(404).json({ error: 'Notícia não encontrada' });
+  res.json({ ok: true });
+});
+
+app.post('/api/news/:id/click', (req, res) => {
+  const info = db.prepare('UPDATE news SET clicks = clicks + 1 WHERE id = ?').run(req.params.id);
+  if (info.changes === 0) return res.status(404).json({ error: 'Notícia não encontrada' });
+  res.json({ ok: true });
+});
+
 // ---------- News (admin write) ----------
 app.post('/api/news', requireAuth, (req, res) => {
   const { title, summary, content, image, category, featured } = req.body || {};
@@ -180,6 +199,60 @@ app.delete('/api/news/:id', requireAuth, (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Ingestão automática (curadoria de pautas do BR104) ----------
+// Endpoint dedicado para a rotina agendada que monitora o BR104 e publica
+// matérias ORIGINAIS da AGFM (nunca cópia literal) inspiradas nas pautas de lá,
+// sempre com created_at atual e crédito da fonte em source_url/source_name.
+const ALLOWED_CATEGORIES = ['alagoas', 'interior', 'entretenimento', 'saude', 'esportes'];
+
+function requireIngestToken(req, res, next) {
+  const token = process.env.INGEST_TOKEN;
+  if (!token) {
+    return res.status(503).json({ error: 'Ingestão automática não configurada (defina INGEST_TOKEN no ambiente do servidor)' });
+  }
+  const provided = req.get('X-Ingest-Token') || '';
+  const expected = Buffer.from(token);
+  const given = Buffer.from(provided);
+  const valid = expected.length === given.length && crypto.timingSafeEqual(expected, given);
+  if (!valid) {
+    return res.status(401).json({ error: 'Token de ingestão inválido' });
+  }
+  next();
+}
+
+// Lista as fontes (source_url) já publicadas, para a rotina comparar de uma vez
+// com as pautas atuais do BR104 e evitar reprocessar a mesma matéria.
+app.get('/api/ingest/known-sources', requireIngestToken, (req, res) => {
+  const rows = db.prepare('SELECT source_url FROM news WHERE source_url IS NOT NULL').all();
+  res.json({ source_urls: rows.map((r) => r.source_url) });
+});
+
+app.post('/api/ingest/news', requireIngestToken, (req, res) => {
+  const { title, summary, content, image, category, featured, source_url, source_name } = req.body || {};
+  if (!title || !summary || !content || !category || !source_url) {
+    return res.status(400).json({ error: 'Preencha título, resumo, conteúdo, categoria e source_url' });
+  }
+  if (!ALLOWED_CATEGORIES.includes(category)) {
+    return res.status(400).json({ error: `Categoria inválida. Use uma de: ${ALLOWED_CATEGORIES.join(', ')}` });
+  }
+
+  const existing = db.prepare('SELECT id FROM news WHERE source_url = ?').get(source_url);
+  if (existing) {
+    return res.json({ ok: true, duplicate: true, id: existing.id });
+  }
+
+  const img = image || `data:image/svg+xml;base64,${Buffer.from(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
+  ).toString('base64')}`;
+
+  const info = db.prepare(`
+    INSERT INTO news (title, summary, content, image, category, featured, source_url, source_name, created_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, datetime('now'))
+  `).run(title, summary, content, img, category, featured ? 1 : 0, source_url, source_name || null);
+
+  res.json({ ok: true, duplicate: false, id: info.lastInsertRowid });
+});
+
 // ---------- Comprovantes de irradiação (admin only) ----------
 app.get('/api/comprovantes', requireAuth, (req, res) => {
   const rows = db.prepare('SELECT * FROM comprovantes ORDER BY created_at DESC').all();
@@ -211,7 +284,20 @@ app.delete('/api/comprovantes/:id', requireAuth, (req, res) => {
 });
 
 // ---------- Static site ----------
-app.use(express.static(ROOT));
+// Fotos de notícia têm nome único por arquivo, então podem ficar em cache por muito
+// tempo sem risco. CSS/JS mudam no mesmo nome de arquivo, então usam "no-cache":
+// o navegador ainda guarda uma cópia local, mas sempre confere com o servidor antes
+// de reusá-la (resposta 304 barata) — assim uma correção aparece na hora pra quem
+// já visitou o site, sem perder o ganho de performance em dias de muito acesso.
+app.use(express.static(PUBLIC_DIR, {
+  setHeaders: (res, filePath) => {
+    if (/\.(png|jpe?g|webp|svg|gif|ico)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
+    } else if (/\.(css|js)$/i.test(filePath)) {
+      res.setHeader('Cache-Control', 'no-cache');
+    }
+  }
+}));
 
 app.listen(PORT, () => {
   console.log(`AG FM site rodando em http://localhost:${PORT}`);

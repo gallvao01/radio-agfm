@@ -7,7 +7,7 @@ const newsTableBody = document.getElementById('newsTableBody');
 const filterCategory = document.getElementById('filterCategory');
 
 const CATEGORY_LABELS = {
-  alagoas: 'Alagoas', interior: 'União dos Palmares', brasil: 'Brasil',
+  alagoas: 'Alagoas', interior: 'União dos Palmares',
   entretenimento: 'Entretenimento', saude: 'Saúde', esportes: 'Esportes'
 };
 
@@ -78,12 +78,14 @@ async function loadNews() {
       <td>${escapeHtml(n.title)}</td>
       <td>${CATEGORY_LABELS[n.category] || n.category}</td>
       <td>${new Date(n.created_at).toLocaleDateString('pt-BR')}</td>
+      <td>${n.views || 0}</td>
+      <td>${n.clicks || 0}</td>
       <td class="actions">
         <button class="btn-admin btn-admin--outline btn-sm" data-edit="${n.id}">Editar</button>
         <button class="btn-admin btn-admin--danger btn-sm" data-delete="${n.id}">Excluir</button>
       </td>
     </tr>
-  `).join('') || '<tr><td colspan="5">Nenhuma notícia cadastrada.</td></tr>';
+  `).join('') || '<tr><td colspan="7">Nenhuma notícia cadastrada.</td></tr>';
 
   newsTableBody.querySelectorAll('[data-edit]').forEach((btn) => {
     btn.addEventListener('click', () => openNewsModal(items.find((n) => n.id === Number(btn.dataset.edit))));

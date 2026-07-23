@@ -5,6 +5,11 @@ const bcrypt = require('bcryptjs');
 const dbPath = path.join(__dirname, '..', 'data', 'agfm.db');
 const db = new DatabaseSync(dbPath);
 
+// WAL permite leituras concorrentes enquanto uma escrita acontece — importante
+// para o site aguentar muitos acessos simultâneos às notícias sem fila/travamento.
+db.exec('PRAGMA journal_mode = WAL');
+db.exec('PRAGMA synchronous = NORMAL');
+
 db.exec(`
   CREATE TABLE IF NOT EXISTS news (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -35,6 +40,22 @@ db.exec(`
     created_at TEXT NOT NULL DEFAULT (datetime('now'))
   );
 `);
+
+// Migração leve: adiciona colunas de rastreio da fonte original (usadas pela
+// automação de curadoria do BR104) em bancos criados antes desses campos existirem.
+const newsColumns = db.prepare("PRAGMA table_info(news)").all().map((c) => c.name);
+if (!newsColumns.includes('source_url')) {
+  db.exec('ALTER TABLE news ADD COLUMN source_url TEXT');
+}
+if (!newsColumns.includes('source_name')) {
+  db.exec('ALTER TABLE news ADD COLUMN source_name TEXT');
+}
+if (!newsColumns.includes('views')) {
+  db.exec('ALTER TABLE news ADD COLUMN views INTEGER NOT NULL DEFAULT 0');
+}
+if (!newsColumns.includes('clicks')) {
+  db.exec('ALTER TABLE news ADD COLUMN clicks INTEGER NOT NULL DEFAULT 0');
+}
 
 const newsCount = db.prepare('SELECT COUNT(*) AS c FROM news').get().c;
 
@@ -245,15 +266,6 @@ if (newsCount === 0) {
       featured: 0,
       date: '2026-07-13 20:00:00'
     },
-    {
-      title: '[EXEMPLO] Principais destaques do noticiário nacional',
-      summary: 'Espaço reservado para notícias de abrangência nacional — atualize com as manchetes do dia.',
-      content: 'Este espaço foi reservado para notícias de abrangência nacional (Brasil). Assim que houver interesse em manchetes específicas, é só pedir para atualizar esta seção com o conteúdo real.',
-      image: img('congresso-nacional.jpg'),
-      category: 'brasil',
-      featured: 0,
-      date: '2025-01-01 00:00:00'
-    }
   ];
 
   seed.forEach((n) => {

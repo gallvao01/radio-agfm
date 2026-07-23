@@ -1,4 +1,8 @@
 node_modules/
-data/*.db
+data/
 .env
 .env.admin
+.env.production.hostinger
+*.db
+*.db-shm
+*.db-wal

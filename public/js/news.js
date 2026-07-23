@@ -1,7 +1,6 @@
 const CATEGORY_LABELS = {
   alagoas: 'Alagoas',
   interior: 'União dos Palmares',
-  brasil: 'Brasil',
   entretenimento: 'Entretenimento',
   saude: 'Saúde',
   esportes: 'Esportes'
@@ -26,30 +25,36 @@ function aiBadge(n) {
   return isAiImage(n.image) ? '<span class="ai-badge" title="Imagem ilustrativa gerada por IA">IA</span>' : '';
 }
 
+function dateLabel(n) {
+  const date = new Date((n.created_at || '').replace(' ', 'T'));
+  return isNaN(date) ? '' : 'Publicado em ' + date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+}
+
 function cardBig(n) {
-  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card card--big">
-    <div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div>
-    <div class="card__body">
-      <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
-      <h3>${escapeHtml(n.title)}</h3>
-      <p>${escapeHtml(n.summary)}</p>
+  return `<a class="hero__main" href="noticia.html?id=${n.id}">
+    <div class="hero__main-media card__media">${aiBadge(n)}<img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}"></div>
+    <div class="hero__main-content">
+      <p class="hero__cat">${CATEGORY_LABELS[n.category] || n.category}</p>
+      <h2 class="hero__title">${escapeHtml(n.title)}</h2>
+      <p class="hero__date">${dateLabel(n)}</p>
+      <p class="hero__summary">${escapeHtml(n.summary)}</p>
     </div>
-  </article></a>`;
+  </a>`;
 }
 
 function cardSmall(n) {
-  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card card--small">
-    <div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div>
-    <div class="card__body">
-      <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
-      <h3>${escapeHtml(n.title)}</h3>
+  return `<a class="hero__side-item" href="noticia.html?id=${n.id}">
+    <div class="hero__side-media card__media">${aiBadge(n)}<img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}"></div>
+    <div class="hero__side-content">
+      <p class="hero__side-cat">${CATEGORY_LABELS[n.category] || n.category}</p>
+      <h3 class="hero__side-title">${escapeHtml(n.title)}</h3>
     </div>
-  </article></a>`;
+  </a>`;
 }
 
 function cardRow(n) {
   return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card card--row">
-    <div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div>
+    <div class="card__media">${aiBadge(n)}<img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}"></div>
     <div class="card__body">
       <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
       <h3>${escapeHtml(n.title)}</h3>
@@ -58,7 +63,7 @@ function cardRow(n) {
 }
 
 function rankingItem(n, index) {
-  return `<li><span>${index + 1}</span><a href="noticia.html?id=${n.id}">${escapeHtml(n.title)}</a></li>`;
+  return `<li><span class="rank-number">${index + 1}</span><a href="noticia.html?id=${n.id}">${escapeHtml(n.title)}</a></li>`;
 }
 
 function emptyState(message) {
@@ -70,7 +75,22 @@ function isAiImage(imagePath) {
 }
 
 function fourUpCard(n, tagLabel) {
-  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><div class="card__media">${aiBadge(n)}<img src="${n.image}" alt="${escapeHtml(n.title)}"></div><div class="card__body"><span class="card__tag">${tagLabel}</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`;
+  return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><div class="card__media">${aiBadge(n)}<img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}"></div><div class="card__body"><span class="card__tag">${tagLabel}</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`;
+}
+
+const AUTORIDADES = ['Júnior Menezes', 'Paulo Dantas', 'Renan Filho'];
+
+async function renderAutoridades() {
+  const grid = document.getElementById('autoridadesGrid');
+  if (!grid) return;
+
+  const all = await fetchNews({ limit: 50 });
+  const cards = AUTORIDADES
+    .map((nome) => all.find((n) => n.title.includes(nome) || n.content.includes(nome)))
+    .filter(Boolean)
+    .map((n) => fourUpCard(n, AUTORIDADES.find((nome) => n.title.includes(nome) || n.content.includes(nome))));
+
+  grid.innerHTML = cards.length ? cards.join('') : emptyState('Nenhuma notícia de autoridades cadastrada ainda.');
 }
 
 async function renderHome() {
@@ -92,7 +112,7 @@ async function renderHome() {
       featuredBig.innerHTML = emptyState('Nenhuma notícia cadastrada ainda.');
     }
 
-    const rest = all.filter((n) => n.id !== (featured[0] ? featured[0].id : -1)).slice(0, 3);
+    const rest = all.filter((n) => n.id !== (featured[0] ? featured[0].id : -1)).slice(0, 2);
     if (featuredSmall) {
       featuredSmall.innerHTML = rest.length ? rest.map(cardSmall).join('') : '';
     }
@@ -141,15 +161,13 @@ async function renderArticle() {
   }
   const n = await res.json();
   document.title = n.title + ' - AG FM 99,9';
-
-  const date = new Date(n.created_at.replace(' ', 'T'));
-  const dateLabel = isNaN(date) ? '' : date.toLocaleDateString('pt-BR', { day: '2-digit', month: 'long', year: 'numeric' });
+  fetch(`/api/news/${id}/view`, { method: 'POST' }).catch(() => {});
 
   container.innerHTML = `
     <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
     <h1>${escapeHtml(n.title)}</h1>
-    <p class="article__meta">${dateLabel}</p>
-    <img class="article__image" src="${n.image}" alt="${escapeHtml(n.title)}">
+    <p class="article__meta">${dateLabel(n)}</p>
+    <img class="article__image" src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}">
     ${isAiImage(n.image) ? '<p class="article__image-caption">Imagem ilustrativa gerada por IA — não retrata o local ou os envolvidos reais.</p>' : ''}
     <p class="article__summary">${escapeHtml(n.summary)}</p>
     <div class="article__body">${escapeHtml(n.content).split('\n').map((p) => `<p>${p}</p>`).join('')}</div>
@@ -175,8 +193,26 @@ async function renderCategory() {
     : emptyState('Nenhuma notícia cadastrada nesta categoria ainda.');
 }
 
+function trackClick(id) {
+  const url = `/api/news/${id}/click`;
+  if (navigator.sendBeacon) {
+    navigator.sendBeacon(url);
+  } else {
+    fetch(url, { method: 'POST', keepalive: true }).catch(() => {});
+  }
+}
+
+// Rastreia cliques em qualquer link de notícia da página (home, categoria, destaque, mais ouvidas etc.)
+document.addEventListener('click', (e) => {
+  const link = e.target.closest('a[href*="noticia.html?id="]');
+  if (!link) return;
+  const id = new URL(link.href, window.location.origin).searchParams.get('id');
+  if (id) trackClick(id);
+});
+
 document.addEventListener('DOMContentLoaded', () => {
   renderHome();
+  renderAutoridades();
   renderCategory();
   renderArticle();
 });
