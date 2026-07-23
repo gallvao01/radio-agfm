@@ -1,8 +1,10 @@
+const fs = require('node:fs');
 const path = require('node:path');
 const { DatabaseSync } = require('node:sqlite');
 const bcrypt = require('bcryptjs');
 
 const dbPath = path.join(__dirname, '..', 'data', 'agfm.db');
+fs.mkdirSync(path.dirname(dbPath), { recursive: true });
 const db = new DatabaseSync(dbPath);
 
 // WAL permite leituras concorrentes enquanto uma escrita acontece — importante
