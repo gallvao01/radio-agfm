@@ -46,7 +46,7 @@ async function renderComprovante() {
       <img src="assets/img/logo.png" alt="AG FM 99,9">
       <div>
         <h1>AG FM 99,9</h1>
-        <p>O tempo todo em todo lugar! — União dos Palmares/AL — contato@agfm.com.br</p>
+        <p>O tempo todo em todo lugar! — União dos Palmares/AL — mitonorimm@hotmail.com</p>
       </div>
     </div>
 
