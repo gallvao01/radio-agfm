@@ -167,8 +167,8 @@ async function renderArticle() {
     <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
     <h1>${escapeHtml(n.title)}</h1>
     <p class="article__meta">${dateLabel(n)}</p>
-    <img class="article__image" src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}">
-    ${isAiImage(n.image) ? '<p class="article__image-caption">Imagem ilustrativa gerada por IA — não retrata o local ou os envolvidos reais.</p>' : ''}
+    ${n.video ? `<video class="article__video" src="${escapeHtml(n.video)}" poster="${escapeHtml(n.image)}" controls playsinline></video>` : `<img class="article__image" src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}">`}
+    ${!n.video && isAiImage(n.image) ? '<p class="article__image-caption">Imagem ilustrativa gerada por IA — não retrata o local ou os envolvidos reais.</p>' : ''}
     <p class="article__summary">${escapeHtml(n.summary)}</p>
     <div class="article__body">${escapeHtml(n.content).split('\n').map((p) => `<p>${p}</p>`).join('')}</div>
     <a href="categoria.html?c=${encodeURIComponent(n.category)}" class="btn btn--back">&larr; Voltar para ${CATEGORY_LABELS[n.category] || n.category}</a>

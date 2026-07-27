@@ -37,6 +37,7 @@ async function init() {
       summary TEXT NOT NULL,
       content LONGTEXT NOT NULL,
       image TEXT NOT NULL,
+      video TEXT,
       category VARCHAR(50) NOT NULL,
       featured TINYINT NOT NULL DEFAULT 0,
       source_url TEXT,
@@ -46,6 +47,14 @@ async function init() {
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
+
+  // ALTER separado porque a tabela news já existe em produção sem a coluna video
+  // (CREATE TABLE IF NOT EXISTS não adiciona colunas novas a uma tabela existente).
+  try {
+    await pool.query('ALTER TABLE news ADD COLUMN video TEXT');
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME') throw err;
+  }
 
   await pool.query(`
     CREATE TABLE IF NOT EXISTS admin_users (

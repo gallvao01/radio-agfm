@@ -160,7 +160,7 @@ app.post('/api/news/:id/click', async (req, res) => {
 
 // ---------- News (admin write) ----------
 app.post('/api/news', requireAuth, async (req, res) => {
-  const { title, summary, content, image, category, featured } = req.body || {};
+  const { title, summary, content, image, video, category, featured } = req.body || {};
   if (!title || !summary || !content || !category) {
     return res.status(400).json({ error: 'Preencha título, resumo, conteúdo e categoria' });
   }
@@ -168,8 +168,8 @@ app.post('/api/news', requireAuth, async (req, res) => {
     `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
   ).toString('base64')}`;
   const info = await db.run(
-    'INSERT INTO news (title, summary, content, image, category, featured, created_at) VALUES (?, ?, ?, ?, ?, ?, NOW())',
-    [title, summary, content, img, category, featured ? 1 : 0]
+    'INSERT INTO news (title, summary, content, image, video, category, featured, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, NOW())',
+    [title, summary, content, img, video || null, category, featured ? 1 : 0]
   );
   res.json({ ok: true, id: info.lastInsertRowid });
 });
@@ -177,14 +177,15 @@ app.post('/api/news', requireAuth, async (req, res) => {
 app.put('/api/news/:id', requireAuth, async (req, res) => {
   const existing = await db.get('SELECT * FROM news WHERE id = ?', [req.params.id]);
   if (!existing) return res.status(404).json({ error: 'Notícia não encontrada' });
-  const { title, summary, content, image, category, featured } = req.body || {};
+  const { title, summary, content, image, video, category, featured } = req.body || {};
   await db.run(
-    'UPDATE news SET title = ?, summary = ?, content = ?, image = ?, category = ?, featured = ? WHERE id = ?',
+    'UPDATE news SET title = ?, summary = ?, content = ?, image = ?, video = ?, category = ?, featured = ? WHERE id = ?',
     [
       title ?? existing.title,
       summary ?? existing.summary,
       content ?? existing.content,
       image ?? existing.image,
+      video !== undefined ? (video || null) : existing.video,
       category ?? existing.category,
       featured !== undefined ? (featured ? 1 : 0) : existing.featured,
       req.params.id
@@ -228,7 +229,7 @@ app.get('/api/ingest/known-sources', requireIngestToken, async (req, res) => {
 });
 
 app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
-  const { title, summary, content, image, category, featured, source_url, source_name } = req.body || {};
+  const { title, summary, content, image, video, category, featured, source_url, source_name } = req.body || {};
   if (!title || !summary || !content || !category || !source_url) {
     return res.status(400).json({ error: 'Preencha título, resumo, conteúdo, categoria e source_url' });
   }
@@ -246,8 +247,8 @@ app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
   ).toString('base64')}`;
 
   const info = await db.run(
-    'INSERT INTO news (title, summary, content, image, category, featured, source_url, source_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-    [title, summary, content, img, category, featured ? 1 : 0, source_url, source_name || null]
+    'INSERT INTO news (title, summary, content, image, video, category, featured, source_url, source_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+    [title, summary, content, img, video || null, category, featured ? 1 : 0, source_url, source_name || null]
   );
 
   res.json({ ok: true, duplicate: false, id: info.lastInsertRowid });
@@ -291,7 +292,7 @@ app.delete('/api/comprovantes/:id', requireAuth, async (req, res) => {
 // já visitou o site, sem perder o ganho de performance em dias de muito acesso.
 app.use(express.static(PUBLIC_DIR, {
   setHeaders: (res, filePath) => {
-    if (/\.(png|jpe?g|webp|svg|gif|ico)$/i.test(filePath)) {
+    if (/\.(png|jpe?g|webp|svg|gif|ico|mp4|webm)$/i.test(filePath)) {
       res.setHeader('Cache-Control', 'public, max-age=2592000, immutable');
     } else if (/\.(css|js)$/i.test(filePath)) {
       res.setHeader('Cache-Control', 'no-cache');
