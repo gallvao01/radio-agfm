@@ -367,7 +367,7 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 
 /* Cards em grade (Autoridades, União dos Palmares, Alagoas) - padrão BR104: foto uniforme e centralizada */
 .grid--four .card__media { aspect-ratio: 16 / 10; overflow: hidden; }
-.grid--four .card__media img { width: 100%; height: 100%; object-fit: cover; object-position: center; display: block; }
+.grid--four .card__media img { width: 100%; height: 100%; object-fit: cover; object-position: center 20%; display: block; }
 
 /* Sidebar "MAIS OUVIDAS" (padrão BR104: numeros grandes) */
 .sticky-sidebar { position: sticky; top: 130px; }
