@@ -38,6 +38,7 @@ async function init() {
       content LONGTEXT NOT NULL,
       image TEXT NOT NULL,
       video TEXT,
+      gallery TEXT,
       category VARCHAR(50) NOT NULL,
       featured TINYINT NOT NULL DEFAULT 0,
       source_url TEXT,
@@ -52,6 +53,11 @@ async function init() {
   // (CREATE TABLE IF NOT EXISTS não adiciona colunas novas a uma tabela existente).
   try {
     await pool.query('ALTER TABLE news ADD COLUMN video TEXT');
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME') throw err;
+  }
+  try {
+    await pool.query('ALTER TABLE news ADD COLUMN gallery TEXT');
   } catch (err) {
     if (err.code !== 'ER_DUP_FIELDNAME') throw err;
   }

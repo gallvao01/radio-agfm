@@ -74,6 +74,19 @@ function isAiImage(imagePath) {
   return /-ia\.(jpg|jpeg|png|webp)$/i.test(imagePath || '');
 }
 
+function renderGallery(galleryField) {
+  if (!galleryField) return '';
+  let photos;
+  try {
+    photos = JSON.parse(galleryField);
+  } catch (e) {
+    return '';
+  }
+  if (!Array.isArray(photos) || !photos.length) return '';
+  const items = photos.map((src) => `<img src="${escapeHtml(src)}" alt="" loading="lazy">`).join('');
+  return `<div class="article__gallery">${items}</div>`;
+}
+
 function fourUpCard(n, tagLabel) {
   return `<a class="card-link" href="noticia.html?id=${n.id}"><article class="card"><div class="card__media">${aiBadge(n)}<img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}"></div><div class="card__body"><span class="card__tag">${tagLabel}</span><h3>${escapeHtml(n.title)}</h3></div></article></a>`;
 }
@@ -171,6 +184,7 @@ async function renderArticle() {
     ${!n.video && isAiImage(n.image) ? '<p class="article__image-caption">Imagem ilustrativa gerada por IA — não retrata o local ou os envolvidos reais.</p>' : ''}
     <p class="article__summary">${escapeHtml(n.summary)}</p>
     <div class="article__body">${escapeHtml(n.content).split('\n').map((p) => `<p>${p}</p>`).join('')}</div>
+    ${renderGallery(n.gallery)}
     <a href="categoria.html?c=${encodeURIComponent(n.category)}" class="btn btn--back">&larr; Voltar para ${CATEGORY_LABELS[n.category] || n.category}</a>
   `;
 }
