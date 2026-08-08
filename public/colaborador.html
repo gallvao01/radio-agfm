@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel do Colaborador - AG FM News</title>
+<link rel="icon" href="assets/img/logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css?v=2026080900">
+<link rel="stylesheet" href="css/admin.css?v=2026080900">
+</head>
+<body class="admin-body">
+
+<header class="admin-header">
+  <img src="assets/img/logo.png" alt="AG FM News">
+  <strong>Painel do Colaborador</strong>
+  <a href="index.html" class="admin-header__back">&larr; Voltar ao site</a>
+</header>
+
+<!-- Tela de login -->
+<section id="loginScreen" class="admin-login">
+  <form id="loginForm" class="admin-login__box">
+    <h1>Entrar</h1>
+    <p class="admin-hint">Acesso da equipe de apresentadores da AG FM News.</p>
+    <div id="loginError" class="admin-error" hidden></div>
+    <label>Usuário
+      <input type="text" name="username" autocomplete="username" required>
+    </label>
+    <label>Senha
+      <input type="password" name="password" autocomplete="current-password" required>
+    </label>
+    <button type="submit" class="btn-admin">Entrar</button>
+  </form>
+</section>
+
+<!-- Painel -->
+<section id="dashboard" class="contributor-dashboard" hidden>
+  <div class="contributor-profile">
+    <img id="profilePhoto" class="contributor-profile__photo" src="assets/img/logo.png" alt="">
+    <div>
+      <p class="contributor-profile__greeting">Olá, <strong id="profileName"></strong>!</p>
+      <p class="contributor-profile__hint">Manda aí sua pauta — depois de enviada, a equipe revisa antes de publicar.</p>
+    </div>
+    <button id="btnLogout" class="btn-admin btn-admin--outline btn-sm contributor-profile__logout">Sair</button>
+  </div>
+
+  <form id="submitForm" class="contributor-form">
+    <h2>Nova pauta</h2>
+    <label>Título
+      <input type="text" name="title" placeholder="Do que se trata?" required>
+    </label>
+    <label>Categoria
+      <select name="category" required>
+        <option value="interior">União dos Palmares</option>
+        <option value="alagoas">Alagoas</option>
+        <option value="entretenimento">Entretenimento</option>
+        <option value="saude">Saúde</option>
+        <option value="esportes">Esportes</option>
+      </select>
+    </label>
+    <label>Resumo curto <em>(aparece no card da notícia)</em>
+      <textarea name="summary" rows="2" placeholder="Um resumo de 1-2 frases" required></textarea>
+    </label>
+    <label>Conteúdo completo
+      <textarea name="content" rows="8" placeholder="Escreva com suas palavras, com o máximo de detalhes que puder" required></textarea>
+    </label>
+    <label>URL de uma foto <em>(opcional)</em>
+      <input type="url" name="image" placeholder="https://...">
+    </label>
+    <div id="submitError" class="admin-error" hidden></div>
+    <div id="submitSuccess" class="contributor-success" hidden>Pauta enviada! Já está na fila de revisão da equipe.</div>
+    <button type="submit" class="btn-admin">Enviar pauta</button>
+  </form>
+
+  <div class="contributor-history">
+    <h2>Meus envios recentes</h2>
+    <div id="submissionsList" class="submissions-list"></div>
+  </div>
+</section>
+
+<script src="js/colaborador.js?v=2026080900"></script>
+</body>
+</html>

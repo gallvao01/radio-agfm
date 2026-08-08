@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260808z">
-<link rel="stylesheet" href="css/admin.css?v=20260808z">
+<link rel="stylesheet" href="css/style.css?v=2026080900">
+<link rel="stylesheet" href="css/admin.css?v=2026080900">
 </head>
 <body class="admin-body">
 
@@ -50,6 +50,7 @@
   <div class="admin-tabs">
     <button type="button" class="admin-tab admin-tab--active" data-tab="news">Notícias</button>
     <button type="button" class="admin-tab" data-tab="pending">Pendentes de revisão <span id="pendingCount" class="badge-pending" hidden></span></button>
+    <button type="button" class="admin-tab" data-tab="contributors">Colaboradores</button>
     <button type="button" class="admin-tab" data-tab="comprovantes">Comprovantes de Irradiação</button>
   </div>
 
@@ -69,6 +70,7 @@
           <option value="esportes">Esportes</option>
         </select>
       </label>
+      <input type="search" id="searchNews" class="admin-search" placeholder="Buscar por título...">
     </div>
 
     <table class="admin-table">
@@ -90,6 +92,11 @@
   <div id="tabPending" hidden>
     <p class="admin-hint">Pautas geradas automaticamente a partir do BR104. Nada aqui aparece no site até ser aprovado.</p>
     <div id="pendingList" class="pending-list"></div>
+  </div>
+
+  <div id="tabContributors" hidden>
+    <p class="admin-hint">Contas de acesso dos apresentadores em <code>/colaborador.html</code>.</p>
+    <div id="contributorsGrid" class="contributors-grid"></div>
   </div>
 
   <div id="tabComprovantes" hidden>
@@ -218,6 +225,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260808z"></script>
+<script src="js/admin.js?v=2026080900"></script>
 </body>
 </html>

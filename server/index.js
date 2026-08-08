@@ -284,6 +284,78 @@ app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
   res.json({ ok: true, duplicate: false, pending: status === 'pending', id: info.lastInsertRowid });
 });
 
+// ---------- Colaboradores (apresentadores) ----------
+// Login próprio por apresentador, separado do admin — só podem enviar pautas,
+// que entram como 'pending' igual a ingestão automática, aguardando revisão.
+function requireContributorAuth(req, res, next) {
+  if (req.session && req.session.contributorId) return next();
+  return res.status(401).json({ error: 'Não autenticado' });
+}
+
+app.post('/api/contributor/login', loginLimiter, async (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password) {
+    return res.status(400).json({ error: 'Informe usuário e senha' });
+  }
+  const contributor = await db.get('SELECT * FROM contributors WHERE username = ?', [username]);
+  if (!contributor || !bcrypt.compareSync(password, contributor.password_hash)) {
+    return res.status(401).json({ error: 'Usuário ou senha inválidos' });
+  }
+  req.session.contributorId = contributor.id;
+  req.session.contributorName = contributor.name;
+  res.json({ ok: true, name: contributor.name, photo: contributor.photo });
+});
+
+app.post('/api/contributor/logout', (req, res) => {
+  req.session.destroy(() => res.json({ ok: true }));
+});
+
+app.get('/api/contributor/session', (req, res) => {
+  if (req.session && req.session.contributorId) {
+    return res.json({ loggedIn: true, name: req.session.contributorName });
+  }
+  res.json({ loggedIn: false });
+});
+
+app.get('/api/contributor/profile', requireContributorAuth, async (req, res) => {
+  const contributor = await db.get('SELECT id, username, name, photo FROM contributors WHERE id = ?', [req.session.contributorId]);
+  res.json(contributor);
+});
+
+// Últimos envios do próprio colaborador (pra ele acompanhar o status).
+app.get('/api/contributor/submissions', requireContributorAuth, async (req, res) => {
+  const rows = await db.all(
+    'SELECT id, title, category, status, created_at FROM news WHERE source_name = ? ORDER BY created_at DESC LIMIT 20',
+    [req.session.contributorName]
+  );
+  res.json(rows);
+});
+
+app.post('/api/contributor/submit', requireContributorAuth, async (req, res) => {
+  const { title, summary, content, category, image } = req.body || {};
+  if (!title || !summary || !content || !category) {
+    return res.status(400).json({ error: 'Preencha título, resumo, conteúdo e categoria' });
+  }
+  if (!ALLOWED_CATEGORIES.includes(category)) {
+    return res.status(400).json({ error: `Categoria inválida. Use uma de: ${ALLOWED_CATEGORIES.join(', ')}` });
+  }
+  const img = image || `data:image/svg+xml;base64,${Buffer.from(
+    `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
+  ).toString('base64')}`;
+
+  const info = await db.run(
+    "INSERT INTO news (title, summary, content, image, category, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())",
+    [title, summary, content, img, category, req.session.contributorName]
+  );
+  res.json({ ok: true, id: info.lastInsertRowid });
+});
+
+// Lista de colaboradores pro painel admin (perfil: nome, usuário, foto — nunca senha).
+app.get('/api/admin/contributors', requireAuth, async (req, res) => {
+  const rows = await db.all('SELECT id, username, name, photo FROM contributors ORDER BY name');
+  res.json(rows);
+});
+
 // ---------- Comprovantes de irradiação (admin only) ----------
 app.get('/api/comprovantes', requireAuth, async (req, res) => {
   const rows = await db.all('SELECT * FROM comprovantes ORDER BY created_at DESC');

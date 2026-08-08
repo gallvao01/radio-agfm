@@ -80,6 +80,17 @@ async function init() {
   `);
 
   await pool.query(`
+    CREATE TABLE IF NOT EXISTS contributors (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      username VARCHAR(100) NOT NULL UNIQUE,
+      name VARCHAR(255) NOT NULL,
+      photo TEXT,
+      password_hash VARCHAR(255) NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
+  `);
+
+  await pool.query(`
     CREATE TABLE IF NOT EXISTS comprovantes (
       id INT AUTO_INCREMENT PRIMARY KEY,
       anunciante VARCHAR(255) NOT NULL,
@@ -133,6 +144,31 @@ async function init() {
     console.log('----------------------------------------------------');
     console.log('Usuário admin criado. Login: admin | Senha: AGFM@2026');
     console.log('Troque a senha assim que possível pelo painel /admin.html');
+    console.log('----------------------------------------------------');
+  }
+
+  // Login de cada apresentador = primeiro nome (sem acento, minúsculo);
+  // senha = AG + número de 01 a 09, um por pessoa (definido pela direção da rádio).
+  const contributorCountRow = await get('SELECT COUNT(*) AS c FROM contributors');
+  if (contributorCountRow.c === 0) {
+    const presenters = [
+      { username: 'joao', name: 'João Pires', password: 'AG01' },
+      { username: 'antonio', name: 'Antônio Bahiano', password: 'AG02' },
+      { username: 'mario', name: 'Mário Sérgio', password: 'AG03' },
+      { username: 'celio', name: 'Célio Martins', password: 'AG04' },
+      { username: 'tassia', name: 'Tássia Carla', password: 'AG05' },
+      { username: 'ricardo', name: 'Ricardo Valério', password: 'AG06' },
+      { username: 'hermes', name: 'Hermes Marques', password: 'AG07' },
+      { username: 'kleber', name: 'Kleber Marques', password: 'AG08' },
+      { username: 'jackson', name: 'Jackson Valery', password: 'AG09' }
+    ];
+    for (const p of presenters) {
+      const hash = bcrypt.hashSync(p.password, 10);
+      await run('INSERT INTO contributors (username, name, photo, password_hash) VALUES (?, ?, ?, ?)', [p.username, p.name, 'assets/img/logo.png', hash]);
+    }
+    console.log('----------------------------------------------------');
+    console.log('Contas de colaboradores criadas (login em /colaborador.html):');
+    presenters.forEach((p) => console.log(`  ${p.name}: usuário "${p.username}" | senha "${p.password}"`));
     console.log('----------------------------------------------------');
   }
 }

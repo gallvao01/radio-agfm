@@ -5,6 +5,7 @@ const loginError = document.getElementById('loginError');
 const loggedUser = document.getElementById('loggedUser');
 const newsTableBody = document.getElementById('newsTableBody');
 const filterCategory = document.getElementById('filterCategory');
+const searchNews = document.getElementById('searchNews');
 
 const CATEGORY_LABELS = {
   alagoas: 'Alagoas', interior: 'União dos Palmares',
@@ -28,6 +29,7 @@ async function checkSession() {
     loggedUser.textContent = data.username;
     loadNews();
     loadPending();
+    loadContributors();
     loadComprovantes();
   } else {
     loginScreen.hidden = false;
@@ -42,6 +44,7 @@ document.querySelectorAll('.admin-tab').forEach((tab) => {
     tab.classList.add('admin-tab--active');
     document.getElementById('tabNews').hidden = tab.dataset.tab !== 'news';
     document.getElementById('tabPending').hidden = tab.dataset.tab !== 'pending';
+    document.getElementById('tabContributors').hidden = tab.dataset.tab !== 'contributors';
     document.getElementById('tabComprovantes').hidden = tab.dataset.tab !== 'comprovantes';
   });
 });
@@ -73,7 +76,9 @@ async function loadNews() {
   const category = filterCategory.value;
   const qs = category ? '?category=' + encodeURIComponent(category) : '';
   const res = await fetch('/api/news' + qs);
-  const items = await res.json();
+  let items = await res.json();
+  const search = searchNews.value.trim().toLowerCase();
+  if (search) items = items.filter((n) => n.title.toLowerCase().includes(search));
   newsTableBody.innerHTML = items.map((n) => `
     <tr>
       <td>${n.featured ? '<span class="badge-featured">Destaque</span>' : ''}</td>
@@ -102,6 +107,25 @@ function escapeHtml(str) {
 }
 
 filterCategory.addEventListener('change', loadNews);
+searchNews.addEventListener('input', loadNews);
+
+// ---- Colaboradores (somente leitura) ----
+const contributorsGrid = document.getElementById('contributorsGrid');
+
+async function loadContributors() {
+  const res = await fetch('/api/admin/contributors');
+  if (!res.ok) return;
+  const items = await res.json();
+  contributorsGrid.innerHTML = items.length ? items.map((c) => `
+    <div class="contributor-card">
+      <img class="contributor-card__photo" src="${escapeHtml(c.photo || 'assets/img/logo.png')}" alt="">
+      <div>
+        <p class="contributor-card__name">${escapeHtml(c.name)}</p>
+        <p class="contributor-card__username">usuário: ${escapeHtml(c.username)}</p>
+      </div>
+    </div>
+  `).join('') : '<p class="admin-hint">Nenhum colaborador cadastrado.</p>';
+}
 
 // ---- Fila de revisão (ingestão automática) ----
 const pendingList = document.getElementById('pendingList');
@@ -126,7 +150,11 @@ async function loadPending() {
         <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
         <h3>${escapeHtml(n.title)}</h3>
         <p class="pending-card__summary">${escapeHtml(n.summary)}</p>
-        ${n.source_url ? `<a href="${escapeHtml(n.source_url)}" target="_blank" rel="noopener" class="pending-card__source">Fonte: ${escapeHtml(n.source_name || n.source_url)}</a>` : ''}
+        ${n.source_url
+          ? `<a href="${escapeHtml(n.source_url)}" target="_blank" rel="noopener" class="pending-card__source">Fonte: ${escapeHtml(n.source_name || n.source_url)}</a>`
+          : n.source_name
+            ? `<span class="pending-card__source">Enviado por: ${escapeHtml(n.source_name)}</span>`
+            : ''}
         <div class="admin-dashboard__actions">
           <button class="btn-admin btn-admin--outline btn-sm" data-edit-pending="${n.id}">Editar antes de aprovar</button>
           <button class="btn-admin btn-sm" data-approve="${n.id}">Aprovar e publicar</button>
