@@ -178,6 +178,7 @@ function openNewsModal(news, opts = {}) {
     newsForm.summary.value = news.summary;
     newsForm.content.value = news.content;
     newsForm.image.value = news.image && /^https?:\/\//.test(news.image) ? news.image : '';
+    newsForm.video.value = news.video || '';
     newsForm.featured.checked = !!news.featured;
   } else {
     newsModalTitle.textContent = 'Nova notícia';
@@ -200,6 +201,7 @@ newsForm.addEventListener('submit', async (e) => {
     summary: fd.get('summary'),
     content: fd.get('content'),
     image: fd.get('image') || undefined,
+    video: fd.get('video') || undefined,
     featured: fd.get('featured') === 'on'
   };
   const res = await fetch(id ? `/api/news/${id}` : '/api/news', {
