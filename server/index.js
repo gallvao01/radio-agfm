@@ -265,14 +265,23 @@ app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
     `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
   ).toString('base64')}`;
 
-  // Entra como 'pending' — nunca vai direto pro ar. Só aparece pro público depois
-  // que alguém da equipe revisar e aprovar pelo painel admin (fila de revisão).
+  // Pautas de rotina publicam direto. Só entram como 'pending' (aguardando
+  // aprovação humana no painel admin) as que tocam em política/eleição —
+  // decisão explícita da direção da rádio, por causa do risco em ano eleitoral.
+  const SENSITIVE_TERMS = [
+    'júnior menezes', 'junior menezes', 'ricardo praxedes', 'renan calheiros',
+    'eleição', 'eleições', 'eleitoral', 'candidato', 'candidata', 'candidatura', 'campanha eleitoral'
+  ];
+  const haystack = `${title} ${summary} ${content}`.toLowerCase();
+  const isSensitive = SENSITIVE_TERMS.some((term) => haystack.includes(term));
+  const status = isSensitive ? 'pending' : 'published';
+
   const info = await db.run(
-    "INSERT INTO news (title, summary, content, image, video, gallery, category, featured, source_url, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())",
-    [title, summary, content, img, video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0, source_url, source_name || null]
+    'INSERT INTO news (title, summary, content, image, video, gallery, category, featured, source_url, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+    [title, summary, content, img, video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0, source_url, source_name || null, status]
   );
 
-  res.json({ ok: true, duplicate: false, pending: true, id: info.lastInsertRowid });
+  res.json({ ok: true, duplicate: false, pending: status === 'pending', id: info.lastInsertRowid });
 });
 
 // ---------- Comprovantes de irradiação (admin only) ----------
