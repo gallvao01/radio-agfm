@@ -117,19 +117,19 @@ app.post('/api/change-password', requireAuth, async (req, res) => {
 });
 
 // ---------- News (public read) ----------
+// Só notícias com status='published' aparecem aqui — as pendentes (vindas da
+// ingestão automática) ficam invisíveis pro público até alguém aprovar no painel.
 app.get('/api/news', async (req, res) => {
   const { category, featured, limit } = req.query;
-  let sql = 'SELECT * FROM news';
-  const clauses = [];
+  let sql = "SELECT * FROM news WHERE status = 'published'";
   const params = [];
   if (category) {
-    clauses.push('category = ?');
+    sql += ' AND category = ?';
     params.push(category);
   }
   if (featured === '1') {
-    clauses.push('featured = 1');
+    sql += ' AND featured = 1';
   }
-  if (clauses.length) sql += ' WHERE ' + clauses.join(' AND ');
   sql += ' ORDER BY created_at DESC';
   if (limit) {
     sql += ' LIMIT ?';
@@ -140,7 +140,7 @@ app.get('/api/news', async (req, res) => {
 });
 
 app.get('/api/news/:id', async (req, res) => {
-  const row = await db.get('SELECT * FROM news WHERE id = ?', [req.params.id]);
+  const row = await db.get("SELECT * FROM news WHERE id = ? AND status = 'published'", [req.params.id]);
   if (!row) return res.status(404).json({ error: 'Notícia não encontrada' });
   res.json(row);
 });
@@ -201,6 +201,24 @@ app.delete('/api/news/:id', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Fila de revisão (pautas da ingestão automática aguardando aprovação) ----------
+app.get('/api/admin/news/pending', requireAuth, async (req, res) => {
+  const rows = await db.all("SELECT * FROM news WHERE status = 'pending' ORDER BY created_at DESC");
+  res.json(rows);
+});
+
+app.post('/api/news/:id/approve', requireAuth, async (req, res) => {
+  const info = await db.run("UPDATE news SET status = 'published' WHERE id = ? AND status = 'pending'", [req.params.id]);
+  if (info.changes === 0) return res.status(404).json({ error: 'Pauta pendente não encontrada' });
+  res.json({ ok: true });
+});
+
+app.post('/api/news/:id/reject', requireAuth, async (req, res) => {
+  const info = await db.run("UPDATE news SET status = 'rejected' WHERE id = ? AND status = 'pending'", [req.params.id]);
+  if (info.changes === 0) return res.status(404).json({ error: 'Pauta pendente não encontrada' });
+  res.json({ ok: true });
+});
+
 // ---------- Ingestão automática (curadoria de pautas do BR104) ----------
 // Endpoint dedicado para a rotina agendada que monitora o BR104 e publica
 // matérias ORIGINAIS da AGFM (nunca cópia literal) inspiradas nas pautas de lá,
@@ -247,12 +265,14 @@ app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
     `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
   ).toString('base64')}`;
 
+  // Entra como 'pending' — nunca vai direto pro ar. Só aparece pro público depois
+  // que alguém da equipe revisar e aprovar pelo painel admin (fila de revisão).
   const info = await db.run(
-    'INSERT INTO news (title, summary, content, image, video, gallery, category, featured, source_url, source_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+    "INSERT INTO news (title, summary, content, image, video, gallery, category, featured, source_url, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'pending', NOW())",
     [title, summary, content, img, video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0, source_url, source_name || null]
   );
 
-  res.json({ ok: true, duplicate: false, id: info.lastInsertRowid });
+  res.json({ ok: true, duplicate: false, pending: true, id: info.lastInsertRowid });
 });
 
 // ---------- Comprovantes de irradiação (admin only) ----------

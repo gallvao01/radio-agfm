@@ -133,6 +133,28 @@
 .admin-table .btn-sm { padding: 6px 12px; font-size: 12px; border-radius: 6px; }
 .admin-table .badge-featured { background: var(--orange); color: var(--dark); font-weight: 700; padding: 2px 8px; border-radius: 10px; font-size: 11px; }
 
+.badge-pending { background: #e63946; color: var(--white); font-weight: 700; padding: 1px 7px; border-radius: 10px; font-size: 11px; margin-left: 4px; }
+
+.pending-list { display: flex; flex-direction: column; gap: 14px; }
+.pending-card {
+  display: flex;
+  gap: 16px;
+  background: var(--white);
+  border: var(--border);
+  border-left: 4px solid var(--orange);
+  border-radius: var(--radius);
+  padding: 16px;
+}
+.pending-card__img { width: 140px; height: 100px; object-fit: cover; border-radius: 4px; flex-shrink: 0; background: var(--bg); }
+.pending-card__body { min-width: 0; flex: 1; }
+.pending-card__body h3 { margin: 6px 0; font-size: 16px; }
+.pending-card__summary { color: var(--muted); font-size: 13px; margin: 0 0 8px; }
+.pending-card__source { display: inline-block; font-size: 12px; color: var(--green-dark); font-weight: 600; margin-bottom: 10px; }
+@media (max-width: 640px) {
+  .pending-card { flex-direction: column; }
+  .pending-card__img { width: 100%; height: 160px; }
+}
+
 .admin-modal {
   position: fixed;
   inset: 0;

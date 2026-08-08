@@ -33,7 +33,7 @@ async function renderComprovante() {
   }
 
   const c = await res.json();
-  document.title = `Comprovante - ${c.anunciante} - AG FM 99,9`;
+  document.title = `Comprovante - ${c.anunciante} - AG FM News`;
 
   const rows = c.insercoes
     .slice()
@@ -43,9 +43,9 @@ async function renderComprovante() {
 
   container.innerHTML = `
     <div class="comprovante-doc__header">
-      <img src="assets/img/logo.png" alt="AG FM 99,9">
+      <img src="assets/img/logo.png" alt="AG FM News">
       <div>
-        <h1>AG FM 99,9</h1>
+        <h1>AG FM News</h1>
         <p>O tempo todo em todo lugar! — União dos Palmares/AL — mitonorimm@hotmail.com</p>
       </div>
     </div>
@@ -66,7 +66,7 @@ async function renderComprovante() {
     <p class="comprovante-doc__total">Total de inserções: ${c.insercoes.length}</p>
 
     <p class="comprovante-doc__declaracao">
-      A Rádio AG FM 99,9 declara, para os devidos fins, que o material publicitário acima identificado foi
+      A Rádio AG FM News declara, para os devidos fins, que o material publicitário acima identificado foi
       efetivamente irradiado nas datas e horários listados, dentro do período de veiculação informado,
       conforme controle interno de programação da emissora.
     </p>
@@ -74,12 +74,12 @@ async function renderComprovante() {
     <div class="comprovante-doc__signature">
       <div class="line">
         <strong>${escapeHtml(c.responsavel_nome)}</strong>
-        <span>${escapeHtml(c.responsavel_cargo)} — AG FM 99,9</span>
+        <span>${escapeHtml(c.responsavel_cargo)} — AG FM News</span>
       </div>
     </div>
 
     <div class="comprovante-doc__footer">
-      AG FM 99,9 — Comprovante gerado eletronicamente em ${new Date().toLocaleDateString('pt-BR')}
+      AG FM News — Comprovante gerado eletronicamente em ${new Date().toLocaleDateString('pt-BR')}
     </div>
   `;
 }

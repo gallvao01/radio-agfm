@@ -3,18 +3,18 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Painel Administrativo - AG FM 99,9</title>
+<title>Painel Administrativo - AG FM News</title>
 <link rel="icon" href="assets/img/logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="css/style.css?v=20260731a">
-<link rel="stylesheet" href="css/admin.css?v=20260731a">
+<link rel="stylesheet" href="css/style.css?v=20260808i">
+<link rel="stylesheet" href="css/admin.css?v=20260808i">
 </head>
 <body class="admin-body">
 
 <header class="admin-header">
-  <img src="assets/img/logo.png" alt="AG FM 99,9">
+  <img src="assets/img/logo.png" alt="AG FM News">
   <strong>Painel Administrativo</strong>
   <a href="index.html" class="admin-header__back">&larr; Voltar ao site</a>
 </header>
@@ -23,7 +23,7 @@
 <section id="loginScreen" class="admin-login">
   <form id="loginForm" class="admin-login__box">
     <h1>Entrar</h1>
-    <p class="admin-hint">Acesso restrito à equipe da AG FM 99,9.</p>
+    <p class="admin-hint">Acesso restrito à equipe da AG FM News.</p>
     <div id="loginError" class="admin-error" hidden></div>
     <label>Usuário
       <input type="text" name="username" autocomplete="username" required>
@@ -49,6 +49,7 @@
 
   <div class="admin-tabs">
     <button type="button" class="admin-tab admin-tab--active" data-tab="news">Notícias</button>
+    <button type="button" class="admin-tab" data-tab="pending">Pendentes de revisão <span id="pendingCount" class="badge-pending" hidden></span></button>
     <button type="button" class="admin-tab" data-tab="comprovantes">Comprovantes de Irradiação</button>
   </div>
 
@@ -84,6 +85,11 @@
       </thead>
       <tbody id="newsTableBody"></tbody>
     </table>
+  </div>
+
+  <div id="tabPending" hidden>
+    <p class="admin-hint">Pautas geradas automaticamente a partir do BR104. Nada aqui aparece no site até ser aprovado.</p>
+    <div id="pendingList" class="pending-list"></div>
   </div>
 
   <div id="tabComprovantes" hidden>
@@ -209,6 +215,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=20260731a"></script>
+<script src="js/admin.js?v=20260808i"></script>
 </body>
 </html>

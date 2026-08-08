@@ -173,7 +173,7 @@ async function renderArticle() {
     return;
   }
   const n = await res.json();
-  document.title = n.title + ' - AG FM 99,9';
+  document.title = n.title + ' - AG FM News';
   fetch(`/api/news/${id}/view`, { method: 'POST' }).catch(() => {});
 
   container.innerHTML = `
@@ -199,7 +199,7 @@ async function renderCategory() {
 
   const titleEl = document.getElementById('catTitle');
   if (titleEl) titleEl.textContent = catLabel;
-  document.title = catLabel + ' - AG FM 99,9';
+  document.title = catLabel + ' - AG FM News';
 
   const items = await fetchNews(catKey ? { category: catKey } : {});
   catList.innerHTML = items.length

@@ -27,6 +27,7 @@ async function checkSession() {
     dashboard.hidden = false;
     loggedUser.textContent = data.username;
     loadNews();
+    loadPending();
     loadComprovantes();
   } else {
     loginScreen.hidden = false;
@@ -40,6 +41,7 @@ document.querySelectorAll('.admin-tab').forEach((tab) => {
     document.querySelectorAll('.admin-tab').forEach((t) => t.classList.remove('admin-tab--active'));
     tab.classList.add('admin-tab--active');
     document.getElementById('tabNews').hidden = tab.dataset.tab !== 'news';
+    document.getElementById('tabPending').hidden = tab.dataset.tab !== 'pending';
     document.getElementById('tabComprovantes').hidden = tab.dataset.tab !== 'comprovantes';
   });
 });
@@ -101,17 +103,75 @@ function escapeHtml(str) {
 
 filterCategory.addEventListener('change', loadNews);
 
+// ---- Fila de revisão (ingestão automática) ----
+const pendingList = document.getElementById('pendingList');
+const pendingCount = document.getElementById('pendingCount');
+
+async function loadPending() {
+  const res = await fetch('/api/admin/news/pending');
+  if (!res.ok) return;
+  const items = await res.json();
+
+  if (items.length) {
+    pendingCount.textContent = items.length;
+    pendingCount.hidden = false;
+  } else {
+    pendingCount.hidden = true;
+  }
+
+  pendingList.innerHTML = items.length ? items.map((n) => `
+    <article class="pending-card">
+      <img src="${n.image}" alt="" class="pending-card__img">
+      <div class="pending-card__body">
+        <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
+        <h3>${escapeHtml(n.title)}</h3>
+        <p class="pending-card__summary">${escapeHtml(n.summary)}</p>
+        ${n.source_url ? `<a href="${escapeHtml(n.source_url)}" target="_blank" rel="noopener" class="pending-card__source">Fonte: ${escapeHtml(n.source_name || n.source_url)}</a>` : ''}
+        <div class="admin-dashboard__actions">
+          <button class="btn-admin btn-admin--outline btn-sm" data-edit-pending="${n.id}">Editar antes de aprovar</button>
+          <button class="btn-admin btn-sm" data-approve="${n.id}">Aprovar e publicar</button>
+          <button class="btn-admin btn-admin--danger btn-sm" data-reject="${n.id}">Rejeitar</button>
+        </div>
+      </div>
+    </article>
+  `).join('') : '<p class="admin-hint">Nenhuma pauta pendente no momento.</p>';
+
+  pendingList.querySelectorAll('[data-approve]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      await fetch(`/api/news/${btn.dataset.approve}/approve`, { method: 'POST' });
+      loadPending();
+      loadNews();
+    });
+  });
+  pendingList.querySelectorAll('[data-reject]').forEach((btn) => {
+    btn.addEventListener('click', async () => {
+      if (!confirm('Rejeitar esta pauta? Ela não será publicada.')) return;
+      await fetch(`/api/news/${btn.dataset.reject}/reject`, { method: 'POST' });
+      loadPending();
+    });
+  });
+  pendingList.querySelectorAll('[data-edit-pending]').forEach((btn) => {
+    btn.addEventListener('click', () => {
+      const n = items.find((item) => item.id === Number(btn.dataset.editPending));
+      openNewsModal(n, { approveOnSave: true });
+    });
+  });
+}
+
 // ---- Modal notícia ----
 const newsModal = document.getElementById('newsModal');
 const newsForm = document.getElementById('newsForm');
 const newsModalTitle = document.getElementById('newsModalTitle');
 const newsFormError = document.getElementById('newsFormError');
 
-function openNewsModal(news) {
+let newsModalApproveOnSave = false;
+
+function openNewsModal(news, opts = {}) {
   hideError(newsFormError);
   newsForm.reset();
+  newsModalApproveOnSave = !!opts.approveOnSave;
   if (news) {
-    newsModalTitle.textContent = 'Editar notícia';
+    newsModalTitle.textContent = newsModalApproveOnSave ? 'Revisar pauta pendente' : 'Editar notícia';
     newsForm.id.value = news.id;
     newsForm.title.value = news.title;
     newsForm.category.value = news.category;
@@ -151,6 +211,10 @@ newsForm.addEventListener('submit', async (e) => {
   if (!res.ok) {
     showError(newsFormError, data.error || 'Erro ao salvar notícia');
     return;
+  }
+  if (newsModalApproveOnSave && id) {
+    await fetch(`/api/news/${id}/approve`, { method: 'POST' });
+    loadPending();
   }
   newsModal.hidden = true;
   loadNews();

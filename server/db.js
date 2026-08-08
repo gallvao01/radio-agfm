@@ -43,13 +43,14 @@ async function init() {
       featured TINYINT NOT NULL DEFAULT 0,
       source_url TEXT,
       source_name VARCHAR(255),
+      status VARCHAR(20) NOT NULL DEFAULT 'published',
       views INT NOT NULL DEFAULT 0,
       clicks INT NOT NULL DEFAULT 0,
       created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
     ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4
   `);
 
-  // ALTER separado porque a tabela news já existe em produção sem a coluna video
+  // ALTER separado porque a tabela news já existe em produção sem essas colunas
   // (CREATE TABLE IF NOT EXISTS não adiciona colunas novas a uma tabela existente).
   try {
     await pool.query('ALTER TABLE news ADD COLUMN video TEXT');
@@ -58,6 +59,14 @@ async function init() {
   }
   try {
     await pool.query('ALTER TABLE news ADD COLUMN gallery TEXT');
+  } catch (err) {
+    if (err.code !== 'ER_DUP_FIELDNAME') throw err;
+  }
+  // status: 'published' (visível no site) ou 'pending' (aguardando revisão humana no
+  // painel admin — usado pela ingestão automática de pautas, nunca fica público sozinho)
+  // ou 'rejected' (revisado e descartado, mantido só para auditoria).
+  try {
+    await pool.query("ALTER TABLE news ADD COLUMN status VARCHAR(20) NOT NULL DEFAULT 'published'");
   } catch (err) {
     if (err.code !== 'ER_DUP_FIELDNAME') throw err;
   }
