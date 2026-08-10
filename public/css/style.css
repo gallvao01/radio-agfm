@@ -743,7 +743,7 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 }
 
 @media (max-width: 760px) {
-  .site-header { top: 0; }
+  .site-header { top: 56px; }
   .live-bar__volume { display: none; }
   .logo img { height: 42px; }
   .onair__inner { padding: 10px 16px; gap: 10px; }
