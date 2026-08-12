@@ -232,7 +232,7 @@ function scheduleCard(item, isLive) {
     ? `<span class="schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="schedule-card__live-btn">Assistir agora &rarr;</a>`
     : '';
   return `<div class="schedule-card${isLive ? ' schedule-card--live' : ''}" style="--accent:${accent}">
-    <img class="schedule-card__photo" src="assets/img/logo.png" alt="${names}">
+    <img class="schedule-card__photo" src="assets/img/logo-ag-news.png" alt="${names}">
     <div class="schedule-card__body">
       <h3 class="schedule-card__program">${item.program}</h3>
       <p class="schedule-card__presenters">${names}</p>
@@ -258,6 +258,31 @@ function renderSchedule() {
   });
 }
 renderSchedule();
+
+// Programação do dia na home — mesma grade, cards compactos empilhados à esquerda.
+function homeScheduleCard(item, isLive) {
+  const names = item.presenters.length ? item.presenters.join(', ') : 'Programação gravada';
+  const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
+  return `<div class="home-schedule-card${isLive ? ' home-schedule-card--live' : ''}" style="--accent:${accent}">
+    <img class="home-schedule-card__photo" src="assets/img/logo-ag-news.png" alt="">
+    <div class="home-schedule-card__body">
+      <p class="home-schedule-card__program">${item.program}</p>
+      <p class="home-schedule-card__presenters">${names}</p>
+      <p class="home-schedule-card__time">${item.start} às ${item.end}</p>
+      ${isLive ? '<span class="home-schedule-card__live">AO VIVO</span>' : ''}
+    </div>
+  </div>`;
+}
+
+function renderHomeSchedule() {
+  const container = document.getElementById('homeScheduleList');
+  if (!container) return;
+  const todayKey = dayKeyFor(new Date());
+  const current = getCurrentProgram();
+  const items = SCHEDULE.filter((i) => i.day === todayKey);
+  container.innerHTML = items.map((item) => homeScheduleCard(item, current === item)).join('');
+}
+renderHomeSchedule();
 
 // Destaque "No ar agora" da home — usa o mesmo cálculo de programa atual da
 // página de Programação, com foto do apresentador em cartaz.

@@ -134,7 +134,7 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 .search-button svg { color: var(--green-dark); }
 
 .logo { display: flex; align-items: center; gap: 12px; }
-.logo img { height: 48px; width: 48px; object-fit: contain; display: block; flex-shrink: 0; }
+.logo img { height: 48px; width: auto; object-fit: contain; display: block; flex-shrink: 0; }
 .logo__text { display: flex; flex-direction: column; line-height: 1.2; }
 .logo__text strong { color: var(--green-dark); font-size: 20px; font-weight: 800; }
 .logo__text span { font-size: 11px; color: var(--muted); }
@@ -142,7 +142,7 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 @media (max-width: 768px) {
   .top-left { gap: 10px; }
   .logo { gap: 8px; }
-  .logo img { height: 38px; width: 38px; }
+  .logo img { height: 38px; width: auto; }
   .logo__text strong { font-size: 16px; }
   .logo__text span { font-size: 10px; }
 }
@@ -422,6 +422,36 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 
 /* Main layout */
 .main__content { max-width: 1200px; margin: 0 auto; padding: 30px 20px 60px; }
+
+/* Programação na home — coluna fixa à esquerda, cards um abaixo do outro */
+.home-layout { display: flex; align-items: flex-start; gap: 32px; }
+.home-main-col { flex: 1; min-width: 0; }
+.home-programacao { width: 260px; flex-shrink: 0; }
+.home-programacao__list { display: flex; flex-direction: column; gap: 10px; margin-bottom: 12px; }
+.home-schedule-card {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  background: var(--white);
+  border: var(--border);
+  border-left: 4px solid var(--accent, var(--green));
+  border-radius: var(--radius);
+  padding: 10px 12px;
+}
+.home-schedule-card--live { box-shadow: 0 0 0 2px var(--accent, var(--orange)); }
+.home-schedule-card__photo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+.home-schedule-card__body { min-width: 0; }
+.home-schedule-card__program { margin: 0; font-size: 13px; font-weight: 700; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-schedule-card__presenters { margin: 1px 0 0; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.home-schedule-card__time { margin: 2px 0 0; font-size: 11px; font-weight: 700; color: var(--accent, var(--green)); }
+.home-schedule-card__live { display: inline-block; margin-top: 3px; background: #e63946; color: var(--white); font-size: 9px; font-weight: 800; letter-spacing: .3px; padding: 1px 6px; border-radius: 3px; animation: pulse-dot 1.4s infinite; }
+
+@media (max-width: 900px) {
+  .home-layout { flex-direction: column; }
+  .home-programacao { width: 100%; }
+  .home-programacao__list { flex-direction: row; overflow-x: auto; padding-bottom: 6px; }
+  .home-schedule-card { flex-direction: column; align-items: flex-start; min-width: 160px; }
+}
 .section { margin-bottom: 46px; }
 .section__title {
   font-size: 13px;
