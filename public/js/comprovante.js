@@ -43,7 +43,7 @@ async function renderComprovante() {
 
   container.innerHTML = `
     <div class="comprovante-doc__header">
-      <img src="assets/img/logo-ag-news.png" alt="AG FM News">
+      <img src="assets/img/logo-ag-news.png?v=2026081202" alt="AG FM News">
       <div>
         <h1>AG FM News</h1>
         <p>O tempo todo em todo lugar! — União dos Palmares/AL — mitonorimm@hotmail.com</p>

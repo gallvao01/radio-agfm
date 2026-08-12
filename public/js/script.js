@@ -232,7 +232,7 @@ function scheduleCard(item, isLive) {
     ? `<span class="schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="schedule-card__live-btn">Assistir agora &rarr;</a>`
     : '';
   return `<div class="schedule-card${isLive ? ' schedule-card--live' : ''}" style="--accent:${accent}">
-    <img class="schedule-card__photo" src="assets/img/logo-ag-news.png" alt="${names}">
+    <img class="schedule-card__photo" src="assets/img/logo-ag-news.png?v=2026081202" alt="${names}">
     <div class="schedule-card__body">
       <h3 class="schedule-card__program">${item.program}</h3>
       <p class="schedule-card__presenters">${names}</p>
@@ -264,7 +264,7 @@ function homeScheduleCard(item, isLive) {
   const names = item.presenters.length ? item.presenters.join(', ') : 'Programação gravada';
   const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
   return `<div class="home-schedule-card${isLive ? ' home-schedule-card--live' : ''}" style="--accent:${accent}">
-    <img class="home-schedule-card__photo" src="assets/img/logo-ag-news.png" alt="">
+    <img class="home-schedule-card__photo" src="assets/img/logo-ag-news.png?v=2026081202" alt="">
     <div class="home-schedule-card__body">
       <p class="home-schedule-card__program">${item.program}</p>
       <p class="home-schedule-card__presenters">${names}</p>

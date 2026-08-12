@@ -118,7 +118,7 @@ async function loadContributors() {
   const items = await res.json();
   contributorsGrid.innerHTML = items.length ? items.map((c) => `
     <div class="contributor-card">
-      <img class="contributor-card__photo" src="${escapeHtml(c.photo || 'assets/img/logo-ag-news.png')}" alt="">
+      <img class="contributor-card__photo" src="${escapeHtml(c.photo || 'assets/img/logo-ag-news.png?v=2026081202')}" alt="">
       <div>
         <p class="contributor-card__name">${escapeHtml(c.name)}</p>
         <p class="contributor-card__username">usuário: ${escapeHtml(c.username)}</p>
