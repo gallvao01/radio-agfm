@@ -133,11 +133,12 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 }
 .search-button svg { color: var(--green-dark); }
 
-.logo { display: flex; align-items: center; gap: 12px; }
+.top-left { min-width: 0; }
+.logo { display: flex; align-items: center; gap: 12px; min-width: 0; }
 .logo img { height: 48px; width: auto; object-fit: contain; display: block; flex-shrink: 0; }
-.logo__text { display: flex; flex-direction: column; line-height: 1.2; }
-.logo__text strong { color: var(--green-dark); font-size: 20px; font-weight: 800; }
-.logo__text span { font-size: 11px; color: var(--muted); }
+.logo__text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
+.logo__text strong { color: var(--green-dark); font-size: 20px; font-weight: 700; font-family: "Baloo 2", "Poppins", "Segoe UI", Roboto, Arial, sans-serif; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.logo__text span { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 @media (max-width: 768px) {
   .top-left { gap: 10px; }
@@ -147,8 +148,15 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   .logo__text span { font-size: 10px; }
 }
 
+@media (max-width: 480px) {
+  .menu-button__label,
+  .search-button span { display: none; }
+  .top-left, .top-right { gap: 8px; }
+}
+
 @media (max-width: 420px) {
   .logo__text span { display: none; }
+  .logo__text strong { font-size: 15px; }
 }
 
 /* Botão "No Estúdio" (live do YouTube) */
