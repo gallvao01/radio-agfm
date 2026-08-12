@@ -155,7 +155,7 @@ const SCHEDULE = [
   { day: 'weekday', start: '07:00', end: '07:30', program: 'Tambores de Angola', presenters: ['Antônio Bahiano'] },
   { day: 'weekday', start: '07:30', end: '09:00', program: 'AG Notícias', presenters: ['Mário Sérgio'] },
   { day: 'weekday', start: '09:00', end: '11:30', program: 'Sintonia Total', presenters: ['Célio Martins', 'Tássia Carla', 'Ricardo Valério'] },
-  { day: 'weekday', start: '11:30', end: '13:00', program: 'União Notícias', presenters: ['Célio Martins', 'Tássia Carla'] },
+  { day: 'weekday', start: '11:30', end: '13:00', program: 'União Notícias', presenters: ['Célio Martins', 'Tássia Carla'], photo: 'assets/img/presenters/uniao-noticias-dupla.jpg' },
   { day: 'weekday', start: '13:00', end: '14:00', program: 'Sintonia Direta', presenters: ['Hermes Marques'] },
   { day: 'weekday', start: '14:00', end: '16:00', program: 'Ritmo da 99', presenters: ['Célio Martins', 'Tássia Carla', 'Ricardo Valério'] },
   { day: 'weekday', start: '16:00', end: '18:00', program: 'Feedback Digital', presenters: ['Kleber Marques'] },
@@ -242,7 +242,7 @@ function presenterPhotoFor(presenters) {
 function scheduleCard(item, isLive) {
   const names = item.presenters.length ? item.presenters.join(', ') : 'Programação gravada';
   const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
-  const photo = presenterPhotoFor(item.presenters);
+  const photo = item.photo || presenterPhotoFor(item.presenters);
   const liveMarkup = isLive
     ? `<span class="schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="schedule-card__live-btn">Assistir agora &rarr;</a>`
     : '';
@@ -278,7 +278,7 @@ renderSchedule();
 function homeScheduleCard(item, isLive) {
   const names = item.presenters.length ? item.presenters.join(', ') : 'Programação gravada';
   const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
-  const photo = presenterPhotoFor(item.presenters);
+  const photo = item.photo || presenterPhotoFor(item.presenters);
   return `<div class="home-schedule-card${isLive ? ' home-schedule-card--live' : ''}" style="--accent:${accent}">
     <img class="home-schedule-card__photo" src="${photo}" alt="">
     <div class="home-schedule-card__body">
