@@ -225,14 +225,29 @@ function getCurrentProgram(date = new Date()) {
   return findInDay(dayKeyFor(yesterday), nowMin + 24 * 60) || null;
 }
 
+// Fotos reais dos apresentadores — quem não está aqui usa a logo como placeholder.
+const PRESENTER_PHOTOS = {
+  'Carlinhos Laje': 'assets/img/presenters/carlinhos-laje.jpg',
+  'Célio Martins': 'assets/img/presenters/celio-martins.jpg',
+  'Ricardo Valério': 'assets/img/presenters/ricardo-valerio.jpg',
+  'Tássia Carla': 'assets/img/presenters/tassia-carla.jpg',
+  'Kleber Marques': 'assets/img/presenters/kleber-marques.jpg'
+};
+
+function presenterPhotoFor(presenters) {
+  const found = presenters.find((p) => PRESENTER_PHOTOS[p]);
+  return found ? PRESENTER_PHOTOS[found] : 'assets/img/logo-ag-news.png?v=2026081202';
+}
+
 function scheduleCard(item, isLive) {
   const names = item.presenters.length ? item.presenters.join(', ') : 'Programação gravada';
   const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
+  const photo = presenterPhotoFor(item.presenters);
   const liveMarkup = isLive
     ? `<span class="schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="schedule-card__live-btn">Assistir agora &rarr;</a>`
     : '';
   return `<div class="schedule-card${isLive ? ' schedule-card--live' : ''}" style="--accent:${accent}">
-    <img class="schedule-card__photo" src="assets/img/logo-ag-news.png?v=2026081202" alt="${names}">
+    <img class="schedule-card__photo" src="${photo}" alt="${names}">
     <div class="schedule-card__body">
       <h3 class="schedule-card__program">${item.program}</h3>
       <p class="schedule-card__presenters">${names}</p>
@@ -263,8 +278,9 @@ renderSchedule();
 function homeScheduleCard(item, isLive) {
   const names = item.presenters.length ? item.presenters.join(', ') : 'Programação gravada';
   const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
+  const photo = presenterPhotoFor(item.presenters);
   return `<div class="home-schedule-card${isLive ? ' home-schedule-card--live' : ''}" style="--accent:${accent}">
-    <img class="home-schedule-card__photo" src="assets/img/logo-ag-news.png?v=2026081202" alt="">
+    <img class="home-schedule-card__photo" src="${photo}" alt="">
     <div class="home-schedule-card__body">
       <p class="home-schedule-card__program">${item.program}</p>
       <p class="home-schedule-card__presenters">${names}</p>
