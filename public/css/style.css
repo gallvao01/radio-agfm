@@ -751,6 +751,15 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   line-height: 1.4;
 }
 .article__body p { margin-bottom: 14px; line-height: 1.7; }
+
+.article__share { display: flex; align-items: center; flex-wrap: wrap; gap: 10px; margin: 20px 0; padding: 14px 16px; background: var(--white); border: var(--border); border-radius: var(--radius); }
+.article__share-label { font-size: 13px; font-weight: 700; color: var(--muted); }
+.article__share-btn { display: inline-flex; align-items: center; gap: 6px; padding: 7px 14px; border-radius: 3px; font-size: 13px; font-weight: 700; border: 1.5px solid var(--green); background: transparent; color: var(--green-dark); cursor: pointer; font-family: inherit; }
+.article__share-btn--whatsapp { border-color: #25d366; color: #1a9e4f; }
+.article__share-btn--whatsapp:hover { background: #25d366; color: var(--white); }
+.article__share-btn--copy:hover { background: var(--green); color: var(--white); }
+.article__share-btn--done { border-color: var(--green-dark); background: var(--green-dark); color: var(--white); }
+
 .btn--back { background: var(--green); color: var(--white); margin-top: 10px; }
 .btn--back:hover { background: var(--green-dark); }
 

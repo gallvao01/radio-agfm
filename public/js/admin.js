@@ -89,6 +89,7 @@ async function loadNews() {
       <td>${n.clicks || 0}</td>
       <td class="actions">
         <button class="btn-admin btn-admin--outline btn-sm" data-edit="${n.id}">Editar</button>
+        <button class="btn-admin btn-admin--outline btn-sm" data-link="${n.id}">Copiar link</button>
         <button class="btn-admin btn-admin--danger btn-sm" data-delete="${n.id}">Excluir</button>
       </td>
     </tr>
@@ -100,6 +101,25 @@ async function loadNews() {
   newsTableBody.querySelectorAll('[data-delete]').forEach((btn) => {
     btn.addEventListener('click', () => deleteNews(Number(btn.dataset.delete)));
   });
+  newsTableBody.querySelectorAll('[data-link]').forEach((btn) => {
+    btn.addEventListener('click', () => copyNewsLink(Number(btn.dataset.link), btn));
+  });
+}
+
+function copyNewsLink(id, btn) {
+  const url = `${window.location.origin}/noticia.html?id=${id}`;
+  const done = () => {
+    const original = btn.textContent;
+    btn.textContent = 'Copiado!';
+    setTimeout(() => { btn.textContent = original; }, 1500);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(url).then(done).catch(() => {
+      window.prompt('Copie o link da matéria:', url);
+    });
+  } else {
+    window.prompt('Copie o link da matéria:', url);
+  }
 }
 
 function escapeHtml(str) {

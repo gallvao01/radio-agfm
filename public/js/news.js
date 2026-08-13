@@ -176,6 +176,9 @@ async function renderArticle() {
   document.title = n.title + ' - AG FM News';
   fetch(`/api/news/${id}/view`, { method: 'POST' }).catch(() => {});
 
+  const shareUrl = `${window.location.origin}/noticia.html?id=${id}`;
+  const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(n.title + ' - ' + shareUrl)}`;
+
   container.innerHTML = `
     <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
     <h1>${escapeHtml(n.title)}</h1>
@@ -185,8 +188,46 @@ async function renderArticle() {
     <p class="article__summary">${escapeHtml(n.summary)}</p>
     <div class="article__body">${escapeHtml(n.content).split('\n').map((p) => `<p>${p}</p>`).join('')}</div>
     ${renderGallery(n.gallery)}
+    <div class="article__share">
+      <span class="article__share-label">Compartilhar:</span>
+      <a class="article__share-btn article__share-btn--whatsapp" href="${whatsappUrl}" target="_blank" rel="noopener">WhatsApp</a>
+      <button type="button" class="article__share-btn article__share-btn--copy" data-share-url="${escapeHtml(shareUrl)}">Copiar link</button>
+    </div>
     <a href="categoria.html?c=${encodeURIComponent(n.category)}" class="btn btn--back">&larr; Voltar para ${CATEGORY_LABELS[n.category] || n.category}</a>
   `;
+
+  const copyBtn = container.querySelector('.article__share-btn--copy');
+  if (copyBtn) {
+    copyBtn.addEventListener('click', () => copyToClipboard(shareUrl, copyBtn));
+  }
+}
+
+function copyToClipboard(text, btn) {
+  const done = () => {
+    const original = btn.textContent;
+    btn.textContent = 'Link copiado!';
+    btn.classList.add('article__share-btn--done');
+    setTimeout(() => {
+      btn.textContent = original;
+      btn.classList.remove('article__share-btn--done');
+    }, 1800);
+  };
+  if (navigator.clipboard && window.isSecureContext) {
+    navigator.clipboard.writeText(text).then(done).catch(() => fallbackCopy(text, done));
+  } else {
+    fallbackCopy(text, done);
+  }
+}
+
+function fallbackCopy(text, done) {
+  const input = document.createElement('textarea');
+  input.value = text;
+  input.style.position = 'fixed';
+  input.style.opacity = '0';
+  document.body.appendChild(input);
+  input.select();
+  try { document.execCommand('copy'); done(); } catch (e) { /* ignora */ }
+  document.body.removeChild(input);
 }
 
 async function renderCategory() {
