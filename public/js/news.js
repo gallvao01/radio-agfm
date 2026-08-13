@@ -98,10 +98,15 @@ async function renderAutoridades() {
   if (!grid) return;
 
   const all = await fetchNews({ limit: 50 });
+  const usedIds = new Set();
   const cards = AUTORIDADES
-    .map((nome) => all.find((n) => n.title.includes(nome) || n.content.includes(nome)))
+    .map((nome) => {
+      const found = all.find((n) => !usedIds.has(n.id) && (n.title.includes(nome) || n.content.includes(nome)));
+      if (found) usedIds.add(found.id);
+      return found ? { n: found, nome } : null;
+    })
     .filter(Boolean)
-    .map((n) => fourUpCard(n, AUTORIDADES.find((nome) => n.title.includes(nome) || n.content.includes(nome))));
+    .map(({ n, nome }) => fourUpCard(n, nome));
 
   grid.innerHTML = cards.length ? cards.join('') : emptyState('Nenhuma notícia de autoridades cadastrada ainda.');
 }
