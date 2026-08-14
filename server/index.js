@@ -177,9 +177,9 @@ app.post('/api/news', requireAuth, async (req, res) => {
 app.put('/api/news/:id', requireAuth, async (req, res) => {
   const existing = await db.get('SELECT * FROM news WHERE id = ?', [req.params.id]);
   if (!existing) return res.status(404).json({ error: 'Notícia não encontrada' });
-  const { title, summary, content, image, video, gallery, category, featured } = req.body || {};
+  const { title, summary, content, image, video, gallery, category, featured, source_url, source_name } = req.body || {};
   await db.run(
-    'UPDATE news SET title = ?, summary = ?, content = ?, image = ?, video = ?, gallery = ?, category = ?, featured = ? WHERE id = ?',
+    'UPDATE news SET title = ?, summary = ?, content = ?, image = ?, video = ?, gallery = ?, category = ?, featured = ?, source_url = ?, source_name = ? WHERE id = ?',
     [
       title ?? existing.title,
       summary ?? existing.summary,
@@ -189,6 +189,8 @@ app.put('/api/news/:id', requireAuth, async (req, res) => {
       gallery !== undefined ? (gallery ? JSON.stringify(gallery) : null) : existing.gallery,
       category ?? existing.category,
       featured !== undefined ? (featured ? 1 : 0) : existing.featured,
+      source_url !== undefined ? (source_url || null) : existing.source_url,
+      source_name !== undefined ? (source_name || null) : existing.source_name,
       req.params.id
     ]
   );
