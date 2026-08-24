@@ -447,7 +447,7 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   padding: 10px 12px;
 }
 .home-schedule-card--live { box-shadow: 0 0 0 2px var(--accent, var(--orange)); }
-.home-schedule-card__photo { width: 36px; height: 36px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg); }
+.home-schedule-card__photo { width: 56px; height: 56px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg); }
 .home-schedule-card__body { min-width: 0; }
 .home-schedule-card__program { margin: 0; font-size: 13px; font-weight: 700; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .home-schedule-card__presenters { margin: 1px 0 0; font-size: 11px; color: var(--muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
@@ -682,12 +682,12 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   border-left: 5px solid var(--accent, var(--green));
 }
 .schedule-card__photo {
-  width: 54px;
-  height: 54px;
+  width: 84px;
+  height: 84px;
   border-radius: 50%;
   object-fit: cover;
   flex-shrink: 0;
-  border: 2px solid var(--accent, var(--green));
+  border: 3px solid var(--accent, var(--green));
   background: var(--bg);
   padding: 4px;
 }
