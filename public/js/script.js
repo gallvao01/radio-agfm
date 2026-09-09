@@ -164,10 +164,12 @@ if (playBtn && audio) {
 // a esteira antiga, menor, que ficava logo abaixo do topo do cabeçalho.
 
 // ==================== Botão "No Estúdio" (live do YouTube) ====================
-// TODO: substituir pela URL real da live do YouTube quando for enviada.
-// Uma única constante alimenta o botão em todas as páginas e também o botão
-// "ao vivo" da página de Programação — trocar aqui atualiza o site inteiro.
-const YOUTUBE_LIVE_URL = '#';
+// Canal oficial da Rádio AG FM no YouTube (@radioagfm6489). A URL /live do
+// canal redireciona sozinha pra transmissão ao vivo quando ele estiver ao
+// vivo, e mostra a live/vídeo mais recente quando não estiver — dispensa
+// atualização manual daqui pra frente. Uma única constante alimenta o botão
+// em todas as páginas e também o botão "ao vivo" da página de Programação.
+const YOUTUBE_LIVE_URL = 'https://www.youtube.com/@radioagfm6489/live';
 
 const studioBtn = document.getElementById('studioBtn');
 if (studioBtn) studioBtn.href = YOUTUBE_LIVE_URL;
