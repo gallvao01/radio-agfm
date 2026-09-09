@@ -149,7 +149,6 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   /* Logo bem maior agora domina a barra — some só o rótulo de texto do
      botão do YouTube abaixo do desktop cheio, pra sobrar espaço pro nome. */
   .btn--studio span:not(.btn--studio__dot) { display: none; }
-  .btn--studio { gap: 5px; }
 }
 
 @media (max-width: 480px) {
@@ -188,6 +187,9 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   animation: pulse-dot 1.4s infinite;
 }
 .btn--studio__yt { flex-shrink: 0; }
+@media (max-width: 768px) {
+  .btn--studio { gap: 5px; }
+}
 @keyframes pulse-dot {
   0%, 100% { opacity: 1; transform: scale(1); }
   50% { opacity: .4; transform: scale(.7); }
