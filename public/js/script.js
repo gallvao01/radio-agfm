@@ -74,17 +74,35 @@ const iconPause = document.getElementById('iconPause');
 const volumeRange = document.getElementById('volumeRange');
 
 if (playBtn && audio) {
+  function showPlayingIcon() {
+    iconPlay.style.display = 'none';
+    iconPause.style.display = 'inline';
+  }
+  function showPausedIcon() {
+    iconPlay.style.display = 'inline';
+    iconPause.style.display = 'none';
+  }
+
+  let starting = false;
+  function startPlayback() {
+    if (starting || !audio.paused) return;
+    starting = true;
+    audio.play()
+      .then(showPlayingIcon)
+      .catch(() => {
+        // Autoplay bloqueado pelo navegador (ou sem interação do usuário ainda) —
+        // o player some no estado pausado normal, botão Play continua funcionando.
+        showPausedIcon();
+      })
+      .finally(() => { starting = false; });
+  }
+
   playBtn.addEventListener('click', () => {
     if (audio.paused) {
-      audio.play().catch(() => {
-        alert('Não foi possível iniciar a transmissão. Verifique se a URL do stream foi configurada em index.html.');
-      });
-      iconPlay.style.display = 'none';
-      iconPause.style.display = 'inline';
+      startPlayback();
     } else {
       audio.pause();
-      iconPlay.style.display = 'inline';
-      iconPause.style.display = 'none';
+      showPausedIcon();
     }
   });
 
@@ -92,7 +110,76 @@ if (playBtn && audio) {
     audio.volume = e.target.value / 100;
   });
   audio.volume = volumeRange.value / 100;
+
+  // Início automático da rádio ao carregar a página. Navegadores que bloqueiam
+  // autoplay com som (Safari/iOS, alguns Chrome sem interação prévia) rejeitam a
+  // Promise silenciosamente e o catch acima já deixa o player pronto no botão Play,
+  // sem tentar de novo sozinho — evita múltiplas conexões simultâneas com o stream.
+  startPlayback();
 }
+
+// ==================== Slider do cabeçalho (banner principal, com notícias reais) ====================
+// As telas são injetadas por news.js (busca as notícias mais recentes com foto) —
+// aqui só ficamos com o comportamento genérico do carrossel, chamado via
+// window.initHeaderSlider() assim que o HTML das notícias estiver pronto no DOM.
+function initHeaderSlider() {
+  const headerSlider = document.getElementById('headerSlider');
+  if (!headerSlider) return;
+  const slides = Array.from(headerSlider.querySelectorAll('.header-slider__slide'));
+  if (!slides.length) return;
+  const dotsWrap = document.getElementById('headerSliderDots');
+  const prevBtn = headerSlider.querySelector('.header-slider__arrow--prev');
+  const nextBtn = headerSlider.querySelector('.header-slider__arrow--next');
+  let current = slides.findIndex((s) => s.classList.contains('is-active'));
+  if (current < 0) current = 0;
+  let sliderTimer = null;
+
+  function goToSlide(index) {
+    slides[current].classList.remove('is-active');
+    if (dotsWrap && dotsWrap.children[current]) dotsWrap.children[current].classList.remove('is-active');
+    current = (index + slides.length) % slides.length;
+    slides[current].classList.add('is-active');
+    if (dotsWrap && dotsWrap.children[current]) dotsWrap.children[current].classList.add('is-active');
+  }
+
+  function stopSliderAutoplay() {
+    if (sliderTimer) clearInterval(sliderTimer);
+  }
+  function startSliderAutoplay() {
+    stopSliderAutoplay();
+    sliderTimer = setInterval(() => goToSlide(current + 1), 6000);
+  }
+
+  if (dotsWrap) dotsWrap.innerHTML = '';
+  if (slides.length > 1) {
+    if (dotsWrap) {
+      slides.forEach((_, i) => {
+        const dot = document.createElement('button');
+        dot.type = 'button';
+        dot.setAttribute('aria-label', `Ir para slide ${i + 1}`);
+        if (i === current) dot.classList.add('is-active');
+        dot.addEventListener('click', () => { goToSlide(i); startSliderAutoplay(); });
+        dotsWrap.appendChild(dot);
+      });
+    }
+    if (prevBtn) {
+      prevBtn.style.display = '';
+      prevBtn.addEventListener('click', () => { goToSlide(current - 1); startSliderAutoplay(); });
+    }
+    if (nextBtn) {
+      nextBtn.style.display = '';
+      nextBtn.addEventListener('click', () => { goToSlide(current + 1); startSliderAutoplay(); });
+    }
+
+    headerSlider.addEventListener('mouseenter', stopSliderAutoplay);
+    headerSlider.addEventListener('mouseleave', startSliderAutoplay);
+    startSliderAutoplay();
+  } else {
+    if (prevBtn) prevBtn.style.display = 'none';
+    if (nextBtn) nextBtn.style.display = 'none';
+  }
+}
+window.initHeaderSlider = initHeaderSlider;
 
 // ==================== Esteira de notícias no cabeçalho ====================
 // Roda em todas as páginas (script.js é carregado em todas), diferente de news.js
@@ -244,7 +331,7 @@ function scheduleCard(item, isLive) {
   const accent = accentColorFor(item.presenters[0]) || 'var(--green)';
   const photo = item.photo || presenterPhotoFor(item.presenters);
   const liveMarkup = isLive
-    ? `<span class="schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="schedule-card__live-btn">Assistir agora &rarr;</a>`
+    ? `<span class="schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="schedule-card__live-btn">ASSISTIR AO VIVO</a>`
     : '';
   return `<div class="schedule-card${isLive ? ' schedule-card--live' : ''}" style="--accent:${accent}">
     <img class="schedule-card__photo" src="${photo}" alt="${names}">
@@ -285,7 +372,7 @@ function homeScheduleCard(item, isLive) {
       <p class="home-schedule-card__program">${item.program}</p>
       <p class="home-schedule-card__presenters">${names}</p>
       <p class="home-schedule-card__time">${item.start} às ${item.end}</p>
-      ${isLive ? '<span class="home-schedule-card__live">AO VIVO</span>' : ''}
+      ${isLive ? `<span class="home-schedule-card__live">AO VIVO</span><a href="${YOUTUBE_LIVE_URL}" target="_blank" rel="noopener" class="home-schedule-card__live-btn">ASSISTIR AO VIVO</a>` : ''}
     </div>
   </div>`;
 }

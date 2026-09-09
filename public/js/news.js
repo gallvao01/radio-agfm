@@ -111,6 +111,29 @@ async function renderAutoridades() {
   grid.innerHTML = cards.length ? cards.join('') : emptyState('Nenhuma notícia de autoridades cadastrada ainda.');
 }
 
+function headerSliderSlide(n, index) {
+  return `<div class="header-slider__slide${index === 0 ? ' is-active' : ''}">
+    <a href="noticia.html?id=${n.id}">
+      <img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}" loading="${index === 0 ? 'eager' : 'lazy'}">
+      <div class="header-slider__caption"><strong>${escapeHtml(n.title)}</strong><span>${CATEGORY_LABELS[n.category] || n.category}</span></div>
+    </a>
+  </div>`;
+}
+
+function renderHeaderSlider(all) {
+  const headerSlider = document.getElementById('headerSlider');
+  const track = document.getElementById('headerSliderTrack');
+  if (!headerSlider || !track) return;
+  const items = all.filter((n) => n.image).slice(0, 5);
+  if (!items.length) {
+    headerSlider.style.display = 'none';
+    return;
+  }
+  track.innerHTML = items.map(headerSliderSlide).join('');
+  headerSlider.style.display = '';
+  if (window.initHeaderSlider) window.initHeaderSlider();
+}
+
 async function renderHome() {
   const featuredBig = document.getElementById('featuredBig');
   const featuredSmall = document.getElementById('featuredSmall');
@@ -122,6 +145,7 @@ async function renderHome() {
   if (featuredBig) {
     const featured = await fetchNews({ featured: '1', limit: 1 });
     const all = await fetchNews({ limit: 30 });
+    renderHeaderSlider(all);
     if (featured[0]) {
       featuredBig.innerHTML = cardBig(featured[0]);
     } else if (all[0]) {
