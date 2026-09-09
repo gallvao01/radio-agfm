@@ -73,6 +73,8 @@ const iconPlay = document.getElementById('iconPlay');
 const iconPause = document.getElementById('iconPause');
 const volumeRange = document.getElementById('volumeRange');
 
+const radioPlayHint = document.getElementById('radioPlayHint');
+
 if (playBtn && audio) {
   function showPlayingIcon() {
     iconPlay.style.display = 'none';
@@ -82,40 +84,78 @@ if (playBtn && audio) {
     iconPlay.style.display = 'inline';
     iconPause.style.display = 'none';
   }
+  function showPlayHint() {
+    if (radioPlayHint) radioPlayHint.hidden = false;
+  }
+  function hidePlayHint() {
+    if (radioPlayHint) radioPlayHint.hidden = true;
+  }
 
   let starting = false;
-  function startPlayback() {
-    if (starting || !audio.paused) return;
-    starting = true;
+
+  // Tenta tocar mudo — navegadores quase sempre permitem autoplay sem som,
+  // então isso deixa o stream carregado e pronto. O som de verdade só liga
+  // no primeiro toque da pessoa na página (abaixo), que conta como interação
+  // real e libera o autoplay com áudio nos navegadores que bloqueiam.
+  function tryMutedFallback() {
+    audio.muted = true;
     audio.play()
-      .then(showPlayingIcon)
-      .catch(() => {
-        // Autoplay bloqueado pelo navegador (ou sem interação do usuário ainda) —
-        // o player some no estado pausado normal, botão Play continua funcionando.
+      .catch(() => {})
+      .finally(() => {
         showPausedIcon();
+        showPlayHint();
+      });
+  }
+
+  function startPlayback() {
+    if (starting || (!audio.paused && !audio.muted)) return;
+    starting = true;
+    audio.muted = false;
+    audio.play()
+      .then(() => { showPlayingIcon(); hidePlayHint(); })
+      .catch(() => {
+        // Autoplay com som bloqueado pelo navegador (comum no Safari/iOS e em
+        // Chrome sem interação prévia) — cai no fallback mudo acima.
+        tryMutedFallback();
       })
       .finally(() => { starting = false; });
   }
 
-  playBtn.addEventListener('click', () => {
+  function unmuteAndPlay() {
+    audio.muted = false;
     if (audio.paused) {
-      startPlayback();
+      audio.play().then(showPlayingIcon).catch(() => {});
+    } else {
+      showPlayingIcon();
+    }
+    hidePlayHint();
+  }
+
+  playBtn.addEventListener('click', () => {
+    if (audio.paused || audio.muted) {
+      unmuteAndPlay();
     } else {
       audio.pause();
       showPausedIcon();
     }
   });
 
+  if (radioPlayHint) radioPlayHint.addEventListener('click', unmuteAndPlay);
+
   volumeRange.addEventListener('input', (e) => {
     audio.volume = e.target.value / 100;
   });
   audio.volume = volumeRange.value / 100;
 
-  // Início automático da rádio ao carregar a página. Navegadores que bloqueiam
-  // autoplay com som (Safari/iOS, alguns Chrome sem interação prévia) rejeitam a
-  // Promise silenciosamente e o catch acima já deixa o player pronto no botão Play,
-  // sem tentar de novo sozinho — evita múltiplas conexões simultâneas com o stream.
+  // Início automático da rádio ao carregar a página, sem precisar apertar Play.
   startPlayback();
+
+  // Primeiro toque/clique/scroll da pessoa em qualquer lugar da página libera
+  // o som de verdade, caso o autoplay direto acima tenha sido bloqueado — sem
+  // isso, quem não notasse o aviso flutuante nunca ligaria o som manualmente.
+  ['click', 'touchstart', 'keydown', 'scroll'].forEach((evt) => {
+    document.addEventListener(evt, unmuteAndPlay, { once: true, passive: true });
+  });
 }
 
 // A esteira de notícias do cabeçalho (faixa contínua com as notícias reais, cards
