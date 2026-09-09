@@ -276,6 +276,43 @@ async function deleteNews(id) {
   loadNews();
 }
 
+// ---- Modal novo administrador ----
+const adminUserModal = document.getElementById('adminUserModal');
+const adminUserForm = document.getElementById('adminUserForm');
+const adminUserFormError = document.getElementById('adminUserFormError');
+const adminUserList = document.getElementById('adminUserList');
+
+document.getElementById('btnNewAdmin').addEventListener('click', async () => {
+  hideError(adminUserFormError);
+  adminUserForm.reset();
+  adminUserList.textContent = 'Carregando...';
+  adminUserModal.hidden = false;
+  const res = await fetch('/api/admin/users');
+  const users = res.ok ? await res.json() : [];
+  adminUserList.textContent = users.length
+    ? `Administradores atuais: ${users.map((u) => u.username).join(', ')}`
+    : '';
+});
+document.getElementById('btnCancelAdminUser').addEventListener('click', () => { adminUserModal.hidden = true; });
+
+adminUserForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideError(adminUserFormError);
+  const fd = new FormData(adminUserForm);
+  const res = await fetch('/api/admin/users', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ username: fd.get('username'), password: fd.get('password') })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    showError(adminUserFormError, data.error || 'Erro ao criar administrador');
+    return;
+  }
+  adminUserModal.hidden = true;
+  alert('Administrador criado com sucesso!');
+});
+
 // ---- Modal troca de senha ----
 const passwordModal = document.getElementById('passwordModal');
 const passwordForm = document.getElementById('passwordForm');

@@ -42,6 +42,7 @@
       Logado como <strong id="loggedUser"></strong>
     </div>
     <div class="admin-dashboard__actions">
+      <button id="btnNewAdmin" class="btn-admin btn-admin--outline">Novo administrador</button>
       <button id="btnChangePassword" class="btn-admin btn-admin--outline">Trocar senha</button>
       <button id="btnLogout" class="btn-admin btn-admin--danger">Sair</button>
     </div>
@@ -163,6 +164,27 @@
   </div>
 </div>
 
+<!-- Modal de novo administrador -->
+<div id="adminUserModal" class="admin-modal" hidden>
+  <div class="admin-modal__box">
+    <h2>Novo administrador</h2>
+    <p id="adminUserList" class="admin-hint"></p>
+    <form id="adminUserForm">
+      <label>Usuário
+        <input type="text" name="username" required>
+      </label>
+      <label>Senha (mín. 6 caracteres)
+        <input type="password" name="password" required minlength="6">
+      </label>
+      <div id="adminUserFormError" class="admin-error" hidden></div>
+      <div class="admin-modal__actions">
+        <button type="button" id="btnCancelAdminUser" class="btn-admin btn-admin--outline">Cancelar</button>
+        <button type="submit" class="btn-admin">Criar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
 <!-- Modal de troca de senha -->
 <div id="passwordModal" class="admin-modal" hidden>
   <div class="admin-modal__box">
@@ -225,6 +247,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=2026082401"></script>
+<script src="js/admin.js?v=2026090901"></script>
 </body>
 </html>

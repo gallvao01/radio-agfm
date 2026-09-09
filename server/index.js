@@ -116,6 +116,27 @@ app.post('/api/change-password', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
+// Lista os administradores com acesso ao painel (nunca a senha) e permite
+// cadastrar um novo — qualquer admin logado pode criar outro.
+app.get('/api/admin/users', requireAuth, async (req, res) => {
+  const rows = await db.all('SELECT id, username FROM admin_users ORDER BY username');
+  res.json(rows);
+});
+
+app.post('/api/admin/users', requireAuth, async (req, res) => {
+  const { username, password } = req.body || {};
+  if (!username || !password || password.length < 6) {
+    return res.status(400).json({ error: 'Usuário e senha (mín. 6 caracteres) são obrigatórios' });
+  }
+  const existing = await db.get('SELECT id FROM admin_users WHERE username = ?', [username]);
+  if (existing) {
+    return res.status(409).json({ error: 'Já existe um administrador com esse usuário' });
+  }
+  const hash = bcrypt.hashSync(password, 10);
+  const info = await db.run('INSERT INTO admin_users (username, password_hash) VALUES (?, ?)', [username, hash]);
+  res.json({ ok: true, id: info.lastInsertRowid });
+});
+
 // ---------- News (public read) ----------
 // Só notícias com status='published' aparecem aqui — as pendentes (vindas da
 // ingestão automática) ficam invisíveis pro público até alguém aprovar no painel.
