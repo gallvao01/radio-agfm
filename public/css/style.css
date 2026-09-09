@@ -203,7 +203,7 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
    pausa só quando o mouse passa por cima. Substitui a esteira antiga (mais simples)
    e o slider de crossfade — um único carrossel, maior e mais elegante. */
 .header-slider {
-  background: var(--dark);
+  background: var(--white);
   position: relative;
   overflow: hidden;
   padding: 22px 0;
@@ -218,8 +218,8 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   z-index: 2;
   pointer-events: none;
 }
-.header-slider::before { left: 0; background: linear-gradient(90deg, var(--dark), transparent); }
-.header-slider::after { right: 0; background: linear-gradient(270deg, var(--dark), transparent); }
+.header-slider::before { left: 0; background: linear-gradient(90deg, var(--white), transparent); }
+.header-slider::after { right: 0; background: linear-gradient(270deg, var(--white), transparent); }
 .header-slider__track {
   display: flex;
   width: max-content;
