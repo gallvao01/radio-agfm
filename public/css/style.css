@@ -134,18 +134,22 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 .top-left { min-width: 0; }
 /* Logo bem maior à esquerda (padrão UOL): vira o elemento dominante do cabeçalho,
    destacado do restante da barra em vez de dividir espaço igual com menu/busca. */
-.logo { display: flex; align-items: center; gap: 14px; min-width: 0; }
-.logo img { height: 72px; width: auto; object-fit: contain; display: block; flex-shrink: 0; }
+.logo { display: flex; align-items: center; gap: 16px; min-width: 0; }
+.logo img { height: 96px; width: auto; object-fit: contain; display: block; flex-shrink: 0; }
 .logo__text { display: flex; flex-direction: column; line-height: 1.2; min-width: 0; }
-.logo__text strong { color: var(--green-dark); font-size: 26px; font-weight: 800; font-family: "Baloo 2", "Poppins", "Segoe UI", Roboto, Arial, sans-serif; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-.logo__text span { font-size: 11px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.logo__text strong { color: var(--green-dark); font-size: 32px; font-weight: 800; font-family: "Baloo 2", "Poppins", "Segoe UI", Roboto, Arial, sans-serif; letter-spacing: .2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.logo__text span { font-size: 12px; color: var(--muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 
 @media (max-width: 768px) {
   .top-left { gap: 10px; }
   .logo { gap: 10px; }
-  .logo img { height: 56px; width: auto; }
-  .logo__text strong { font-size: 20px; }
+  .logo img { height: 76px; width: auto; }
+  .logo__text strong { font-size: 22px; }
   .logo__text span { font-size: 10px; }
+  /* Logo bem maior agora domina a barra — some só o rótulo de texto do
+     botão do YouTube abaixo do desktop cheio, pra sobrar espaço pro nome. */
+  .btn--studio span:not(.btn--studio__dot) { display: none; }
+  .btn--studio { gap: 5px; }
 }
 
 @media (max-width: 480px) {
@@ -156,8 +160,8 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 
 @media (max-width: 420px) {
   .logo__text span { display: none; }
-  .logo__text strong { font-size: 18px; }
-  .logo img { height: 48px; }
+  .logo__text strong { font-size: 20px; }
+  .logo img { height: 60px; }
 }
 
 /* Botão "No Estúdio" (live do YouTube) */
@@ -194,104 +198,57 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 
 /* Slider do cabeçalho (banner principal) — fotos reais da equipe/programação da AG FM,
    troca automática com fade, setas e indicadores. Fica logo abaixo do header fixo. */
+/* Esteira de notícias do cabeçalho — cards reais rolando em faixa contínua e suave
+   (sem parada entre um card e outro, loop via translateX -50% numa trilha duplicada),
+   pausa só quando o mouse passa por cima. Substitui a esteira antiga (mais simples)
+   e o slider de crossfade — um único carrossel, maior e mais elegante. */
 .header-slider {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 21 / 7;
-  max-height: 380px;
-  overflow: hidden;
   background: var(--dark);
+  position: relative;
+  overflow: hidden;
+  padding: 22px 0;
 }
-.header-slider__track { position: relative; width: 100%; height: 100%; }
-.header-slider__slide {
-  position: absolute;
-  inset: 0;
-  opacity: 0;
-  transition: opacity .9s ease;
-  pointer-events: none;
-}
-.header-slider__slide.is-active { opacity: 1; pointer-events: auto; }
-.header-slider__slide > a { display: block; width: 100%; height: 100%; }
-.header-slider__slide img { width: 100%; height: 100%; object-fit: cover; object-position: center 25%; }
-.header-slider__caption {
-  position: absolute;
-  left: 0; right: 0; bottom: 0;
-  padding: 14px 24px 16px;
-  background: linear-gradient(to top, rgba(0,0,0,.72), rgba(0,0,0,0));
-  color: var(--white);
-}
-.header-slider__caption strong { display: block; font-size: 17px; font-family: "Baloo 2", "Poppins", "Segoe UI", Roboto, Arial, sans-serif; }
-.header-slider__caption span { font-size: 12px; opacity: .85; }
-.header-slider__arrow {
-  position: absolute;
-  top: 50%;
-  transform: translateY(-50%);
-  background: rgba(0,0,0,.4);
-  color: var(--white);
-  border: none;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  z-index: 2;
-  font-size: 14px;
-}
-.header-slider__arrow--prev { left: 12px; }
-.header-slider__arrow--next { right: 12px; }
-.header-slider__arrow:hover { background: var(--orange); }
-.header-slider__dots { position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); display: flex; gap: 6px; z-index: 2; }
-.header-slider__dots button { width: 8px; height: 8px; border-radius: 50%; border: none; background: rgba(255,255,255,.55); cursor: pointer; padding: 0; }
-.header-slider__dots button.is-active { background: var(--orange); width: 20px; border-radius: 4px; }
-@media (max-width: 768px) {
-  .header-slider { aspect-ratio: 4 / 3; max-height: 260px; }
-  .header-slider__arrow { width: 30px; height: 30px; font-size: 12px; }
-  .header-slider__caption strong { font-size: 15px; }
-}
-@media (max-width: 480px) {
-  .header-slider { aspect-ratio: 1 / 1; max-height: 220px; }
-}
-
-/* Esteira contínua de notícias no cabeçalho — várias passando ao mesmo tempo,
-   sem parar (loop via translateX -50% numa trilha duplicada), pausa no hover. */
-.news-marquee { background: var(--dark); position: relative; overflow: hidden; padding: 10px 0; }
-.news-marquee::before,
-.news-marquee::after {
+.header-slider::before,
+.header-slider::after {
   content: '';
   position: absolute;
   top: 0;
   bottom: 0;
-  width: 70px;
+  width: 90px;
   z-index: 2;
   pointer-events: none;
 }
-.news-marquee::before { left: 0; background: linear-gradient(90deg, var(--dark), transparent); }
-.news-marquee::after { right: 0; background: linear-gradient(270deg, var(--dark), transparent); }
-.news-marquee__track {
+.header-slider::before { left: 0; background: linear-gradient(90deg, var(--dark), transparent); }
+.header-slider::after { right: 0; background: linear-gradient(270deg, var(--dark), transparent); }
+.header-slider__track {
   display: flex;
   width: max-content;
-  animation-name: marquee-scroll;
+  animation-name: header-slider-scroll;
   animation-timing-function: linear;
   animation-iteration-count: infinite;
 }
-.news-marquee:hover .news-marquee__track { animation-play-state: paused; }
-@keyframes marquee-scroll {
+.header-slider:hover .header-slider__track { animation-play-state: paused; }
+@keyframes header-slider-scroll {
   from { transform: translateX(0); }
   to { transform: translateX(-50%); }
 }
-.news-marquee__item {
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  width: 210px;
+.header-slider__card {
+  display: block;
+  width: 340px;
   flex-shrink: 0;
-  margin-right: 20px;
+  margin-right: 24px;
+  background: var(--white);
+  border-radius: 12px;
+  overflow: hidden;
+  box-shadow: 0 6px 18px rgba(0,0,0,.25);
+  transition: transform .25s ease;
 }
-.news-marquee__thumb { width: 100%; height: 104px; border-radius: 3px; overflow: hidden; background: #000; }
-.news-marquee__thumb img { width: 100%; height: 100%; object-fit: cover; }
-.news-marquee__tag {
+.header-slider__card:hover { transform: translateY(-3px); }
+.header-slider__media { position: relative; width: 100%; height: 190px; overflow: hidden; background: #000; }
+.header-slider__media img { width: 100%; height: 100%; object-fit: cover; transition: transform .5s ease; }
+.header-slider__card:hover .header-slider__media img { transform: scale(1.05); }
+.header-slider__body { padding: 12px 16px 16px; }
+.header-slider__tag {
   display: inline-block;
   background: var(--orange);
   color: var(--dark);
@@ -299,26 +256,28 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: .3px;
-  padding: 2px 7px;
-  border-radius: 2px;
-  width: fit-content;
+  padding: 3px 9px;
+  border-radius: 3px;
+  margin-bottom: 8px;
 }
-.news-marquee__title {
-  font-size: 13px;
+.header-slider__title {
+  font-size: 16px;
   font-weight: 700;
-  color: var(--white);
+  color: var(--dark);
   line-height: 1.3;
+  margin: 0;
   display: -webkit-box;
   -webkit-line-clamp: 2;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  font-family: "Baloo 2", "Poppins", "Segoe UI", Roboto, Arial, sans-serif;
 }
-@media (max-width: 640px) {
-  .news-marquee { padding: 8px 0; }
-  .news-marquee__item { width: 140px; margin-right: 12px; }
-  .news-marquee__thumb { height: 78px; }
-  .news-marquee__title { font-size: 12px; }
-  .news-marquee::before, .news-marquee::after { width: 36px; }
+@media (max-width: 768px) {
+  .header-slider { padding: 16px 0; }
+  .header-slider::before, .header-slider::after { width: 48px; }
+  .header-slider__card { width: 250px; margin-right: 16px; }
+  .header-slider__media { height: 140px; }
+  .header-slider__title { font-size: 14px; }
 }
 
 .main-nav {
@@ -871,7 +830,6 @@ h1, h2, h3, h4 { margin: 0 0 .5em; color: var(--dark); }
 @media (max-width: 760px) {
   .site-header { top: 0; }
   .live-bar__volume { display: none; }
-  .logo img { height: 56px; }
   .onair__inner { padding: 10px 16px; gap: 10px; }
   .onair h2 { font-size: 14px; }
   .onair p { display: none; }

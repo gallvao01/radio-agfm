@@ -111,27 +111,32 @@ async function renderAutoridades() {
   grid.innerHTML = cards.length ? cards.join('') : emptyState('Nenhuma notícia de autoridades cadastrada ainda.');
 }
 
-function headerSliderSlide(n, index) {
-  return `<div class="header-slider__slide${index === 0 ? ' is-active' : ''}">
-    <a href="noticia.html?id=${n.id}">
-      <img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}" loading="${index === 0 ? 'eager' : 'lazy'}">
-      <div class="header-slider__caption"><strong>${escapeHtml(n.title)}</strong><span>${CATEGORY_LABELS[n.category] || n.category}</span></div>
-    </a>
-  </div>`;
+function headerSliderCard(n, index) {
+  return `<a class="header-slider__card" href="noticia.html?id=${n.id}">
+    <div class="header-slider__media"><img src="${escapeHtml(n.image)}" alt="${escapeHtml(n.title)}" loading="${index === 0 ? 'eager' : 'lazy'}"></div>
+    <div class="header-slider__body">
+      <span class="header-slider__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
+      <h3 class="header-slider__title">${escapeHtml(n.title)}</h3>
+    </div>
+  </a>`;
 }
 
+// Esteira contínua (mesma técnica da antiga esteira de notícias, removida por ser
+// redundante): trilha duplicada + translateX -50% pra fechar o loop sem salto visível.
 function renderHeaderSlider(all) {
   const headerSlider = document.getElementById('headerSlider');
   const track = document.getElementById('headerSliderTrack');
   if (!headerSlider || !track) return;
-  const items = all.filter((n) => n.image).slice(0, 5);
-  if (!items.length) {
+  const items = all.filter((n) => n.image).slice(0, 8);
+  if (items.length < 2) {
     headerSlider.style.display = 'none';
     return;
   }
-  track.innerHTML = items.map(headerSliderSlide).join('');
+  const html = items.map(headerSliderCard).join('');
+  track.innerHTML = html + html;
   headerSlider.style.display = '';
-  if (window.initHeaderSlider) window.initHeaderSlider();
+  const secondsPerItem = 4.5;
+  track.style.animationDuration = Math.max(items.length * secondsPerItem, 18) + 's';
 }
 
 async function renderHome() {
