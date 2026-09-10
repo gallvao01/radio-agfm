@@ -293,6 +293,7 @@ app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
   // decisão explícita da direção da rádio, por causa do risco em ano eleitoral.
   const SENSITIVE_TERMS = [
     'júnior menezes', 'junior menezes', 'ricardo praxedes', 'renan calheiros', 'renan filho',
+    'alexandre de moraes',
     'eleição', 'eleições', 'eleitoral', 'candidato', 'candidata', 'candidatura', 'campanha eleitoral'
   ];
   const haystack = `${title} ${summary} ${content}`.toLowerCase();
