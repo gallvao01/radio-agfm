@@ -3,7 +3,9 @@ const CATEGORY_LABELS = {
   interior: 'União dos Palmares',
   entretenimento: 'Entretenimento',
   saude: 'Saúde',
-  esportes: 'Esportes'
+  esportes: 'Esportes',
+  brasil: 'Brasil',
+  mundo: 'Mundo'
 };
 
 function escapeHtml(str) {
@@ -146,6 +148,8 @@ async function renderHome() {
   const rankingList = document.getElementById('rankingList');
   const interiorGrid = document.getElementById('interiorGrid');
   const alagoasGrid = document.getElementById('alagoasGrid');
+  const brasilGrid = document.getElementById('brasilGrid');
+  const mundoGrid = document.getElementById('mundoGrid');
 
   if (featuredBig) {
     const featured = await fetchNews({ featured: '1', limit: 1 });
@@ -187,6 +191,20 @@ async function renderHome() {
     alagoasGrid.innerHTML = items.length
       ? items.map((n) => fourUpCard(n, 'Alagoas')).join('')
       : emptyState('Nenhuma notícia de Alagoas cadastrada ainda.');
+  }
+
+  if (brasilGrid) {
+    const items = await fetchNews({ category: 'brasil', limit: 4 });
+    brasilGrid.innerHTML = items.length
+      ? items.map((n) => fourUpCard(n, 'Brasil')).join('')
+      : emptyState('Nenhuma notícia do Brasil cadastrada ainda.');
+  }
+
+  if (mundoGrid) {
+    const items = await fetchNews({ category: 'mundo', limit: 4 });
+    mundoGrid.innerHTML = items.length
+      ? items.map((n) => fourUpCard(n, 'Mundo')).join('')
+      : emptyState('Nenhuma notícia do Mundo cadastrada ainda.');
   }
 }
 

@@ -246,7 +246,7 @@ app.post('/api/news/:id/reject', requireAuth, async (req, res) => {
 // Endpoint dedicado para a rotina agendada que monitora o BR104 e publica
 // matérias ORIGINAIS da AGFM (nunca cópia literal) inspiradas nas pautas de lá,
 // sempre com created_at atual e crédito da fonte em source_url/source_name.
-const ALLOWED_CATEGORIES = ['alagoas', 'interior', 'entretenimento', 'saude', 'esportes'];
+const ALLOWED_CATEGORIES = ['alagoas', 'interior', 'entretenimento', 'saude', 'esportes', 'brasil', 'mundo'];
 
 function requireIngestToken(req, res, next) {
   const token = process.env.INGEST_TOKEN;
