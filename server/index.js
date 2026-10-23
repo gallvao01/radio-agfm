@@ -7,6 +7,7 @@ const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const db = require('./db');
+const pauta = require('./pauta');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
@@ -179,18 +180,30 @@ app.post('/api/news/:id/click', async (req, res) => {
   res.json({ ok: true });
 });
 
+// ---------- Regra da redação: nenhuma matéria sem foto ----------
+// Vale para o painel, a aprovação de pendentes, os colaboradores, a ingestão e a
+// pauta automática. A antiga imagem padrão (SVG verde "AG FM") não conta como foto.
+const NO_PHOTO_ERROR = 'Toda matéria precisa de foto. Coloque o link de uma foto que mostre o fato da notícia, com o crédito no texto.';
+
+function hasRealPhoto(image) {
+  if (typeof image !== 'string') return false;
+  const img = image.trim();
+  if (!img || img.startsWith('data:image/svg')) return false;
+  return /^https?:\/\//i.test(img) || /^data:image\/(jpeg|png|webp|gif);base64,/i.test(img) || /^\/?assets\/img\//i.test(img);
+}
+
 // ---------- News (admin write) ----------
 app.post('/api/news', requireAuth, async (req, res) => {
   const { title, summary, content, image, video, gallery, category, featured } = req.body || {};
   if (!title || !summary || !content || !category) {
     return res.status(400).json({ error: 'Preencha título, resumo, conteúdo e categoria' });
   }
-  const img = image || `data:image/svg+xml;base64,${Buffer.from(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
-  ).toString('base64')}`;
+  if (!hasRealPhoto(image)) {
+    return res.status(400).json({ error: NO_PHOTO_ERROR });
+  }
   const info = await db.run(
     'INSERT INTO news (title, summary, content, image, video, gallery, category, featured, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-    [title, summary, content, img, video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0]
+    [title, summary, content, image.trim(), video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0]
   );
   res.json({ ok: true, id: info.lastInsertRowid });
 });
@@ -199,6 +212,9 @@ app.put('/api/news/:id', requireAuth, async (req, res) => {
   const existing = await db.get('SELECT * FROM news WHERE id = ?', [req.params.id]);
   if (!existing) return res.status(404).json({ error: 'Notícia não encontrada' });
   const { title, summary, content, image, video, gallery, category, featured, source_url, source_name } = req.body || {};
+  if (!hasRealPhoto(image ?? existing.image)) {
+    return res.status(400).json({ error: NO_PHOTO_ERROR });
+  }
   await db.run(
     'UPDATE news SET title = ?, summary = ?, content = ?, image = ?, video = ?, gallery = ?, category = ?, featured = ?, source_url = ?, source_name = ? WHERE id = ?',
     [
@@ -231,7 +247,11 @@ app.get('/api/admin/news/pending', requireAuth, async (req, res) => {
 });
 
 app.post('/api/news/:id/approve', requireAuth, async (req, res) => {
-  const info = await db.run("UPDATE news SET status = 'published' WHERE id = ? AND status = 'pending'", [req.params.id]);
+  const pending = await db.get("SELECT image FROM news WHERE id = ? AND status = 'pending'", [req.params.id]);
+  if (!pending) return res.status(404).json({ error: 'Pauta pendente não encontrada' });
+  if (!hasRealPhoto(pending.image)) return res.status(400).json({ error: NO_PHOTO_ERROR });
+  // A matéria aprovada entra no site com o horário da aprovação, não o da criação da pauta.
+  const info = await db.run("UPDATE news SET status = 'published', created_at = NOW() WHERE id = ? AND status = 'pending'", [req.params.id]);
   if (info.changes === 0) return res.status(404).json({ error: 'Pauta pendente não encontrada' });
   res.json({ ok: true });
 });
@@ -240,6 +260,26 @@ app.post('/api/news/:id/reject', requireAuth, async (req, res) => {
   const info = await db.run("UPDATE news SET status = 'rejected' WHERE id = ? AND status = 'pending'", [req.params.id]);
   if (info.changes === 0) return res.status(404).json({ error: 'Pauta pendente não encontrada' });
   res.json({ ok: true });
+});
+
+// ---------- Pauta automática (pesquisa com o Claude, revisão no painel) ----------
+app.get('/api/admin/pauta', requireAuth, async (req, res) => {
+  res.json(await pauta.status());
+});
+
+app.put('/api/admin/pauta/config', requireAuth, async (req, res) => {
+  const config = await pauta.saveConfig(req.body || {});
+  res.json({ ok: true, config });
+});
+
+app.post('/api/admin/pauta/run', requireAuth, async (req, res) => {
+  try {
+    const { categorias, quantidade, foco } = req.body || {};
+    const id = await pauta.runPauta({ origem: 'manual', categorias, quantidade: Number(quantidade), foco });
+    res.json({ ok: true, id });
+  } catch (err) {
+    res.status(err.status || 500).json({ error: err.message });
+  }
 });
 
 // ---------- Ingestão automática (curadoria de pautas do BR104) ----------
@@ -284,9 +324,10 @@ app.post('/api/ingest/news', requireIngestToken, async (req, res) => {
     return res.json({ ok: true, duplicate: true, id: existing.id });
   }
 
-  const img = image || `data:image/svg+xml;base64,${Buffer.from(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
-  ).toString('base64')}`;
+  if (!hasRealPhoto(image)) {
+    return res.status(400).json({ error: NO_PHOTO_ERROR });
+  }
+  const img = image.trim();
 
   // Pautas de rotina publicam direto. Só entram como 'pending' (aguardando
   // aprovação humana no painel admin) as que tocam em política/eleição —
@@ -363,9 +404,10 @@ app.post('/api/contributor/submit', requireContributorAuth, async (req, res) => 
   if (!ALLOWED_CATEGORIES.includes(category)) {
     return res.status(400).json({ error: `Categoria inválida. Use uma de: ${ALLOWED_CATEGORIES.join(', ')}` });
   }
-  const img = image || `data:image/svg+xml;base64,${Buffer.from(
-    `<svg xmlns='http://www.w3.org/2000/svg' width='700' height='420'><rect width='100%' height='100%' fill='#2fa84f'/><text x='50%' y='50%' font-family='sans-serif' font-size='20' fill='#ffffff' text-anchor='middle' dominant-baseline='middle'>AG FM</text></svg>`
-  ).toString('base64')}`;
+  if (!hasRealPhoto(image)) {
+    return res.status(400).json({ error: NO_PHOTO_ERROR });
+  }
+  const img = image.trim();
 
   const info = await db.run(
     "INSERT INTO news (title, summary, content, image, category, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())",
@@ -427,7 +469,9 @@ app.use(express.static(PUBLIC_DIR, {
 }));
 
 db.init()
+  .then(() => pauta.init())
   .then(() => {
+    pauta.startScheduler();
     app.listen(PORT, () => {
       console.log(`AG FM site rodando em http://localhost:${PORT}`);
     });
