@@ -9,7 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700;800&family=Baloo+2:wght@600;700;800&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css?v=2026090907">
-<link rel="stylesheet" href="css/admin.css?v=2026082401">
+<link rel="stylesheet" href="css/admin.css?v=2026102301">
 </head>
 <body class="admin-body">
 
@@ -50,6 +50,7 @@
 
   <div class="admin-tabs">
     <button type="button" class="admin-tab admin-tab--active" data-tab="news">Notícias</button>
+    <button type="button" class="admin-tab" data-tab="pauta">Pauta automática</button>
     <button type="button" class="admin-tab" data-tab="pending">Pendentes de revisão <span id="pendingCount" class="badge-pending" hidden></span></button>
     <button type="button" class="admin-tab" data-tab="contributors">Colaboradores</button>
     <button type="button" class="admin-tab" data-tab="comprovantes">Comprovantes de Irradiação</button>
@@ -92,8 +93,65 @@
     </table>
   </div>
 
+  <div id="tabPauta" hidden>
+    <div id="pautaAviso" class="admin-error" hidden></div>
+
+    <section class="pauta-box">
+      <h2>Buscar notícias agora</h2>
+      <p class="admin-hint">O Claude pesquisa as notícias mais recentes, confere nas fontes, escreve matérias próprias e escolhe uma foto livre com crédito. Elas entram em <strong>Pendentes de revisão</strong> para você aprovar. Leva de 3 a 10 minutos.</p>
+      <form id="pautaRunForm">
+        <fieldset class="pauta-cats" id="pautaCats">
+          <legend>Categorias</legend>
+        </fieldset>
+        <div class="admin-form-row">
+          <label>Matérias por categoria
+            <select name="quantidade" id="pautaQtd">
+              <option value="1">1</option>
+              <option value="2" selected>2</option>
+              <option value="3">3</option>
+              <option value="4">4</option>
+              <option value="5">5</option>
+            </select>
+          </label>
+        </div>
+        <label>Orientação para esta busca <em>(opcional)</em>
+          <textarea name="foco" id="pautaFoco" rows="2" maxlength="500" placeholder="Ex.: priorizar notícias da Prefeitura de União e do Hospital Regional"></textarea>
+        </label>
+        <button type="submit" class="btn-admin" id="btnPautaRun">Buscar notícias agora</button>
+      </form>
+      <div id="pautaRodando" class="pauta-rodando" hidden>
+        <span class="pauta-spinner" aria-hidden="true"></span>
+        <span>Pesquisando e escrevendo as matérias… pode fechar esta tela, a busca continua no servidor.</span>
+      </div>
+    </section>
+
+    <section class="pauta-box">
+      <h2>Busca automática programada</h2>
+      <form id="pautaConfigForm">
+        <label class="admin-checkbox">
+          <input type="checkbox" name="ativo" id="pautaAtivo">
+          Buscar notícias sozinho todos os dias nos horários abaixo
+        </label>
+        <div id="pautaHorarios" class="pauta-horarios"></div>
+        <button type="button" id="btnAddHorario" class="btn-admin btn-admin--outline btn-sm">+ Adicionar horário</button>
+        <p class="admin-hint">Usa as categorias e a quantidade escolhidas acima. Horário de Alagoas.</p>
+        <label class="admin-checkbox">
+          <input type="checkbox" name="autopublicar" id="pautaAutopublicar">
+          Publicar direto, sem revisão (notícias de política e eleição sempre vão para revisão)
+        </label>
+        <div id="pautaConfigMsg" class="admin-hint" hidden></div>
+        <button type="submit" class="btn-admin">Salvar programação</button>
+      </form>
+    </section>
+
+    <section class="pauta-box">
+      <h2>Últimas buscas</h2>
+      <div id="pautaHistorico" class="pauta-historico"></div>
+    </section>
+  </div>
+
   <div id="tabPending" hidden>
-    <p class="admin-hint">Pautas geradas automaticamente a partir do BR104. Nada aqui aparece no site até ser aprovado.</p>
+    <p class="admin-hint">Pautas da busca automática e dos colaboradores. Nada aqui aparece no site até ser aprovado.</p>
     <div id="pendingList" class="pending-list"></div>
   </div>
 
@@ -149,7 +207,7 @@
       <label>Conteúdo completo
         <textarea name="content" rows="6" required></textarea>
       </label>
-      <label>URL da imagem <em>(opcional — ao editar, deixe em branco para manter a imagem atual)</em>
+      <label>URL da foto <em>(obrigatória: foto do fato, com o crédito no fim do texto. Ao editar, deixe em branco para manter a foto atual)</em>
         <input type="url" name="image" placeholder="https://...">
       </label>
       <label>URL do vídeo <em>(opcional — mostra um player de vídeo na matéria em vez da imagem)</em>
@@ -251,6 +309,6 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=2026090901"></script>
+<script src="js/admin.js?v=2026102301"></script>
 </body>
 </html>
