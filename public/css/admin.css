@@ -258,3 +258,57 @@
 .contributor-card__photo { width: 44px; height: 44px; border-radius: 50%; object-fit: cover; flex-shrink: 0; background: var(--bg); }
 .contributor-card__name { margin: 0; font-size: 14px; font-weight: 700; color: var(--dark); }
 .contributor-card__username { margin: 2px 0 0; font-size: 12px; color: var(--muted); }
+
+/* Aba "Pauta automática" no painel admin */
+.admin-tabs { overflow-x: auto; scrollbar-width: none; }
+.admin-tabs::-webkit-scrollbar { display: none; }
+.admin-tab { white-space: nowrap; flex-shrink: 0; }
+.pauta-box {
+  background: var(--white);
+  border: var(--border);
+  border-radius: var(--radius);
+  padding: 18px;
+  margin-bottom: 16px;
+}
+.pauta-box h2 { margin: 0 0 6px; font-size: 18px; color: var(--dark); }
+.pauta-box form { display: flex; flex-direction: column; gap: 14px; }
+.pauta-box label { display: flex; flex-direction: column; gap: 6px; font-size: 14px; font-weight: 600; color: var(--dark); }
+.pauta-box label em { font-weight: 400; color: var(--muted); }
+.pauta-box select,
+.pauta-box textarea,
+.pauta-box input[type="time"] {
+  font: inherit;
+  font-size: 16px;
+  padding: 10px 12px;
+  border: 1px solid #d6d9d4;
+  border-radius: var(--radius);
+  background: var(--white);
+  color: var(--text);
+}
+.pauta-box .btn-admin { align-self: flex-start; }
+.pauta-cats { border: 1px solid #e7e7e5; border-radius: var(--radius); padding: 10px 14px 12px; margin: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(170px, 1fr)); gap: 8px 14px; }
+.pauta-cats legend { font-size: 14px; font-weight: 600; color: var(--dark); padding: 0 4px; }
+.pauta-cats .admin-checkbox, .pauta-box .admin-checkbox { font-weight: 500; }
+.pauta-cats input, .pauta-box .admin-checkbox input { width: 18px; height: 18px; accent-color: var(--green); }
+.pauta-horarios { display: flex; flex-direction: column; gap: 8px; }
+.pauta-horarios .insercao-row input { max-width: 160px; }
+.pauta-rodando { display: flex; align-items: center; gap: 10px; margin-top: 14px; padding: 12px 14px; background: #e6f6ea; color: var(--green-dark); border-radius: var(--radius); font-size: 14px; font-weight: 600; }
+.pauta-spinner { width: 18px; height: 18px; border-radius: 50%; border: 3px solid rgba(31, 122, 58, .25); border-top-color: var(--green-dark); animation: pauta-spin 1s linear infinite; flex-shrink: 0; }
+@keyframes pauta-spin { to { transform: rotate(360deg); } }
+@media (prefers-reduced-motion: reduce) { .pauta-spinner { animation: none; } }
+.pauta-historico { display: flex; flex-direction: column; gap: 8px; }
+.pauta-run { border: var(--border); border-left: 4px solid var(--muted); border-radius: var(--radius); padding: 10px 12px; font-size: 13px; }
+.pauta-run--concluida { border-left-color: var(--green); }
+.pauta-run--erro { border-left-color: #b3261e; }
+.pauta-run--rodando { border-left-color: var(--orange); }
+.pauta-run__top { display: flex; justify-content: space-between; gap: 8px; flex-wrap: wrap; color: var(--dark); }
+.pauta-run__top span { color: var(--muted); }
+.pauta-run__cats { color: var(--muted); margin-top: 2px; }
+.pauta-run__msg { margin-top: 4px; color: var(--text); }
+@media (max-width: 600px) {
+  .pauta-box { padding: 14px; }
+  .pauta-box .btn-admin { align-self: stretch; text-align: center; }
+}
+.pending-card__nophoto { display: grid; place-items: center; background: #fdecea; color: #b3261e; font-weight: 700; font-size: 13px; }
+.pending-card .admin-error { margin: 0 0 10px; }
+.btn-admin:disabled { opacity: .5; cursor: not-allowed; }
