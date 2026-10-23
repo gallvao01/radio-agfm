@@ -9,7 +9,8 @@ const searchNews = document.getElementById('searchNews');
 
 const CATEGORY_LABELS = {
   alagoas: 'Alagoas', interior: 'União dos Palmares',
-  entretenimento: 'Entretenimento', saude: 'Saúde', esportes: 'Esportes'
+  entretenimento: 'Entretenimento', saude: 'Saúde', esportes: 'Esportes',
+  brasil: 'Brasil', mundo: 'Mundo'
 };
 
 function showError(el, message) {
@@ -31,6 +32,7 @@ async function checkSession() {
     loadPending();
     loadContributors();
     loadComprovantes();
+    loadPauta();
   } else {
     loginScreen.hidden = false;
     dashboard.hidden = true;
@@ -43,6 +45,7 @@ document.querySelectorAll('.admin-tab').forEach((tab) => {
     document.querySelectorAll('.admin-tab').forEach((t) => t.classList.remove('admin-tab--active'));
     tab.classList.add('admin-tab--active');
     document.getElementById('tabNews').hidden = tab.dataset.tab !== 'news';
+    document.getElementById('tabPauta').hidden = tab.dataset.tab !== 'pauta';
     document.getElementById('tabPending').hidden = tab.dataset.tab !== 'pending';
     document.getElementById('tabContributors').hidden = tab.dataset.tab !== 'contributors';
     document.getElementById('tabComprovantes').hidden = tab.dataset.tab !== 'comprovantes';
@@ -122,6 +125,12 @@ function copyNewsLink(id, btn) {
   }
 }
 
+// Mesma regra do servidor: a antiga imagem padrão (SVG verde "AG FM") não conta como foto.
+function hasPhoto(image) {
+  const img = String(image || '').trim();
+  return !!img && !img.startsWith('data:image/svg');
+}
+
 function escapeHtml(str) {
   return String(str ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 }
@@ -165,7 +174,9 @@ async function loadPending() {
 
   pendingList.innerHTML = items.length ? items.map((n) => `
     <article class="pending-card">
-      <img src="${n.image}" alt="" class="pending-card__img">
+      ${hasPhoto(n.image)
+        ? `<img src="${escapeHtml(n.image)}" alt="" class="pending-card__img">`
+        : '<div class="pending-card__img pending-card__nophoto">Sem foto</div>'}
       <div class="pending-card__body">
         <span class="card__tag">${CATEGORY_LABELS[n.category] || n.category}</span>
         <h3>${escapeHtml(n.title)}</h3>
@@ -175,9 +186,10 @@ async function loadPending() {
           : n.source_name
             ? `<span class="pending-card__source">Enviado por: ${escapeHtml(n.source_name)}</span>`
             : ''}
+        ${hasPhoto(n.image) ? '' : '<p class="admin-error">Sem foto: use "Editar antes de aprovar" e coloque o link de uma foto do fato.</p>'}
         <div class="admin-dashboard__actions">
           <button class="btn-admin btn-admin--outline btn-sm" data-edit-pending="${n.id}">Editar antes de aprovar</button>
-          <button class="btn-admin btn-sm" data-approve="${n.id}">Aprovar e publicar</button>
+          <button class="btn-admin btn-sm" data-approve="${n.id}" ${hasPhoto(n.image) ? '' : 'disabled'}>Aprovar e publicar</button>
           <button class="btn-admin btn-admin--danger btn-sm" data-reject="${n.id}">Rejeitar</button>
         </div>
       </div>
@@ -186,7 +198,11 @@ async function loadPending() {
 
   pendingList.querySelectorAll('[data-approve]').forEach((btn) => {
     btn.addEventListener('click', async () => {
-      await fetch(`/api/news/${btn.dataset.approve}/approve`, { method: 'POST' });
+      const res = await fetch(`/api/news/${btn.dataset.approve}/approve`, { method: 'POST' });
+      if (!res.ok) {
+        const data = await res.json().catch(() => ({}));
+        alert(data.error || 'Não foi possível aprovar.');
+      }
       loadPending();
       loadNews();
     });
@@ -205,6 +221,144 @@ async function loadPending() {
     });
   });
 }
+
+// ---- Pauta automática (pesquisa com o Claude) ----
+const pautaAviso = document.getElementById('pautaAviso');
+const pautaCats = document.getElementById('pautaCats');
+const pautaQtd = document.getElementById('pautaQtd');
+const pautaFoco = document.getElementById('pautaFoco');
+const pautaRunForm = document.getElementById('pautaRunForm');
+const btnPautaRun = document.getElementById('btnPautaRun');
+const pautaRodando = document.getElementById('pautaRodando');
+const pautaConfigForm = document.getElementById('pautaConfigForm');
+const pautaAtivo = document.getElementById('pautaAtivo');
+const pautaAutopublicar = document.getElementById('pautaAutopublicar');
+const pautaHorarios = document.getElementById('pautaHorarios');
+const pautaConfigMsg = document.getElementById('pautaConfigMsg');
+const pautaHistorico = document.getElementById('pautaHistorico');
+let pautaPoll = null;
+let pautaCatsRendered = false;
+
+const PAUTA_STATUS = { rodando: 'Em andamento', concluida: 'Concluída', erro: 'Erro' };
+const PAUTA_ORIGEM = { manual: 'Manual', agendada: 'Programada' };
+
+function addHorarioRow(value = '') {
+  const row = document.createElement('div');
+  row.className = 'insercao-row';
+  row.innerHTML = `
+    <input type="time" class="pauta-horario" value="${escapeHtml(value)}" required>
+    <button type="button" class="btn-admin btn-admin--danger btn-sm">Remover</button>
+  `;
+  row.querySelector('button').addEventListener('click', () => row.remove());
+  pautaHorarios.appendChild(row);
+}
+
+function selectedPautaCats() {
+  return [...pautaCats.querySelectorAll('input[type="checkbox"]:checked')].map((i) => i.value);
+}
+
+function formatDateTimeBR(value) {
+  if (!value) return '';
+  const d = new Date(String(value).replace(' ', 'T'));
+  return isNaN(d) ? '' : d.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
+}
+
+async function loadPauta() {
+  const res = await fetch('/api/admin/pauta');
+  if (!res.ok) return;
+  const data = await res.json();
+
+  if (!data.configurado) {
+    showError(pautaAviso, 'A pauta automática ainda não está ligada: falta configurar a chave ANTHROPIC_API_KEY nas variáveis de ambiente do site na Hostinger.');
+  } else {
+    hideError(pautaAviso);
+  }
+
+  if (!pautaCatsRendered) {
+    pautaCatsRendered = true;
+    pautaCats.insertAdjacentHTML('beforeend', data.categoriasDisponiveis.map((k) => `
+      <label class="admin-checkbox"><input type="checkbox" value="${k}" ${data.config.categorias.includes(k) ? 'checked' : ''}> ${CATEGORY_LABELS[k] || k}</label>
+    `).join(''));
+    pautaQtd.value = String(data.config.quantidade);
+    pautaAtivo.checked = !!data.config.ativo;
+    pautaAutopublicar.checked = !!data.config.autopublicar;
+    pautaHorarios.innerHTML = '';
+    data.config.horarios.forEach((h) => addHorarioRow(h));
+  }
+
+  const rodando = !!data.rodando;
+  pautaRodando.hidden = !rodando;
+  btnPautaRun.disabled = rodando || !data.configurado;
+
+  pautaHistorico.innerHTML = data.execucoes.length ? data.execucoes.map((r) => `
+    <div class="pauta-run pauta-run--${escapeHtml(r.status)}">
+      <div class="pauta-run__top">
+        <strong>${PAUTA_STATUS[r.status] || escapeHtml(r.status)}</strong>
+        <span>${formatDateTimeBR(r.started_at)} · ${PAUTA_ORIGEM[r.origem] || escapeHtml(r.origem)}</span>
+      </div>
+      <div class="pauta-run__cats">${r.categorias.split(',').map((k) => CATEGORY_LABELS[k] || k).join(', ')}</div>
+      ${r.mensagem ? `<div class="pauta-run__msg">${escapeHtml(r.mensagem)}</div>` : ''}
+    </div>
+  `).join('') : '<p class="admin-hint">Nenhuma busca feita ainda.</p>';
+
+  clearTimeout(pautaPoll);
+  if (rodando) {
+    pautaPoll = setTimeout(() => { loadPauta(); loadPending(); }, 10000);
+  }
+}
+
+pautaRunForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  hideError(pautaAviso);
+  const categorias = selectedPautaCats();
+  if (!categorias.length) {
+    showError(pautaAviso, 'Escolha pelo menos uma categoria.');
+    return;
+  }
+  btnPautaRun.disabled = true;
+  const res = await fetch('/api/admin/pauta/run', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ categorias, quantidade: Number(pautaQtd.value), foco: pautaFoco.value.trim() })
+  });
+  const data = await res.json();
+  if (!res.ok) {
+    showError(pautaAviso, data.error || 'Não foi possível iniciar a busca.');
+    btnPautaRun.disabled = false;
+    return;
+  }
+  pautaFoco.value = '';
+  loadPauta();
+});
+
+document.getElementById('btnAddHorario').addEventListener('click', () => {
+  if (pautaHorarios.children.length < 6) addHorarioRow('12:00');
+});
+
+pautaConfigForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const horarios = [...pautaHorarios.querySelectorAll('.pauta-horario')].map((i) => i.value).filter(Boolean);
+  const res = await fetch('/api/admin/pauta/config', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      ativo: pautaAtivo.checked,
+      autopublicar: pautaAutopublicar.checked,
+      horarios,
+      categorias: selectedPautaCats(),
+      quantidade: Number(pautaQtd.value)
+    })
+  });
+  const data = await res.json();
+  pautaConfigMsg.hidden = false;
+  if (!res.ok) {
+    pautaConfigMsg.textContent = data.error || 'Erro ao salvar a programação.';
+    return;
+  }
+  pautaConfigMsg.textContent = data.config.ativo
+    ? `Programação salva: busca automática às ${data.config.horarios.join(', ')}.`
+    : 'Programação salva. A busca automática está desligada.';
+});
 
 // ---- Modal notícia ----
 const newsModal = document.getElementById('newsModal');
@@ -226,11 +380,13 @@ function openNewsModal(news, opts = {}) {
     newsForm.summary.value = news.summary;
     newsForm.content.value = news.content;
     newsForm.image.value = news.image && /^https?:\/\//.test(news.image) ? news.image : '';
+    newsForm.image.required = !hasPhoto(news.image);
     newsForm.video.value = news.video || '';
     newsForm.featured.checked = !!news.featured;
   } else {
     newsModalTitle.textContent = 'Nova notícia';
     newsForm.id.value = '';
+    newsForm.image.required = true;
   }
   newsModal.hidden = false;
 }
@@ -263,8 +419,13 @@ newsForm.addEventListener('submit', async (e) => {
     return;
   }
   if (newsModalApproveOnSave && id) {
-    await fetch(`/api/news/${id}/approve`, { method: 'POST' });
+    const approveRes = await fetch(`/api/news/${id}/approve`, { method: 'POST' });
     loadPending();
+    if (!approveRes.ok) {
+      const approveData = await approveRes.json().catch(() => ({}));
+      showError(newsFormError, approveData.error || 'Salvei, mas não foi possível aprovar.');
+      return;
+    }
   }
   newsModal.hidden = true;
   loadNews();
