@@ -240,6 +240,14 @@ app.delete('/api/news/:id', requireAuth, async (req, res) => {
   res.json({ ok: true });
 });
 
+// Regra da redação: só uma matéria em destaque por vez.
+app.post('/api/news/:id/feature', requireAuth, async (req, res) => {
+  const news = await db.get("SELECT id FROM news WHERE id = ? AND status = 'published'", [req.params.id]);
+  if (!news) return res.status(404).json({ error: 'Notícia publicada não encontrada' });
+  await db.run('UPDATE news SET featured = IF(id = ?, 1, 0)', [news.id]);
+  res.json({ ok: true });
+});
+
 // ---------- Fila de revisão (pautas da ingestão automática aguardando aprovação) ----------
 app.get('/api/admin/news/pending', requireAuth, async (req, res) => {
   const rows = await db.all("SELECT * FROM news WHERE status = 'pending' ORDER BY created_at DESC");
@@ -274,8 +282,8 @@ app.put('/api/admin/pauta/config', requireAuth, async (req, res) => {
 
 app.post('/api/admin/pauta/run', requireAuth, async (req, res) => {
   try {
-    const { categorias, quantidade, foco } = req.body || {};
-    const id = await pauta.runPauta({ origem: 'manual', categorias, quantidade: Number(quantidade), foco });
+    const { categorias, quantidade, foco, semPolitica } = req.body || {};
+    const id = await pauta.runPauta({ origem: 'manual', categorias, quantidade: Number(quantidade), foco, semPolitica: semPolitica === true });
     res.json({ ok: true, id });
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message });

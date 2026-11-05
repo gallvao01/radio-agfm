@@ -41,7 +41,17 @@ const SENSITIVE_TERMS = [
   'eleição', 'eleições', 'eleitoral', 'candidato', 'candidata', 'candidatura', 'campanha eleitoral'
 ];
 
+// Regra da rotina de atualização pedida pela redação: lote sem política.
+const REGRA_SEM_POLITICA = `Regra obrigatória desta busca: nada de política. Não escreva sobre eleição, governo, partidos, projetos de lei ou disputas políticas, e não cite nomes de políticos (presidente, governador, prefeito, vereador, deputado, senador, ministro, secretário). Vale inclusive para as categorias brasil e mundo. Prefira polícia, trânsito, serviços públicos, saúde, educação, esportes, cultura, clima, economia do dia a dia e comunidade.`;
+
 let currentRunId = null;
+// Passos da busca em andamento, mostrados ao vivo no app do celular.
+let progresso = [];
+
+function registrarPasso(texto) {
+  progresso.push(String(texto).slice(0, 160));
+  if (progresso.length > 40) progresso = progresso.slice(-40);
+}
 
 // ---------- Banco ----------
 async function init() {
@@ -104,10 +114,11 @@ async function saveConfig(input) {
 }
 
 async function status() {
-  const runs = await db.all('SELECT id, origem, categorias, status, criadas, mensagem, started_at, finished_at FROM pauta_runs ORDER BY id DESC LIMIT 10');
+  const runs = await db.all('SELECT id, origem, categorias, status, criadas, mensagem, log, started_at, finished_at FROM pauta_runs ORDER BY id DESC LIMIT 10');
   return {
     configurado: !!process.env.ANTHROPIC_API_KEY,
     rodando: currentRunId,
+    progresso,
     config: await getConfig(),
     categoriasDisponiveis: Object.keys(CATEGORIES),
     execucoes: runs
@@ -359,7 +370,7 @@ async function insertMaterias(materias, autopublicar, fotosPermitidas, log) {
   return criadas;
 }
 
-async function runPauta({ origem = 'manual', categorias, quantidade, foco = '' } = {}) {
+async function runPauta({ origem = 'manual', categorias, quantidade, foco = '', semPolitica = false } = {}) {
   if (!process.env.ANTHROPIC_API_KEY) {
     const err = new Error('A pauta automática não está configurada: falta a variável ANTHROPIC_API_KEY no servidor.');
     err.status = 503;
@@ -382,15 +393,17 @@ async function runPauta({ origem = 'manual', categorias, quantidade, foco = '' }
   const info = await db.run("INSERT INTO pauta_runs (origem, categorias, status, started_at) VALUES (?, ?, 'rodando', NOW())", [origem, cats.join(',')]);
   const runId = info.lastInsertRowid;
   currentRunId = runId;
+  progresso = [];
+  registrarPasso('Busca iniciada');
 
   // Roda em segundo plano: a resposta HTTP volta na hora e o painel acompanha pelo status.
-  execute(runId, cats, qtd, String(foco || '').slice(0, 500), config.autopublicar)
+  execute(runId, cats, qtd, String(foco || '').slice(0, 500), config.autopublicar, !!semPolitica)
     .catch(() => {})
     .finally(() => { currentRunId = null; });
   return runId;
 }
 
-async function execute(runId, cats, qtd, foco, autopublicar) {
+async function execute(runId, cats, qtd, foco, autopublicar, semPolitica) {
   const log = [];
   const finish = async (statusFinal, mensagem, criadas = 0) => {
     await db.run(
@@ -406,7 +419,7 @@ async function execute(runId, cats, qtd, foco, autopublicar) {
 
 Encontre e escreva as matérias abaixo:
 ${pedido}
-${foco ? `\nOrientação da redação para esta busca: ${foco}\n` : ''}
+${semPolitica ? `\n${REGRA_SEM_POLITICA}\n` : ''}${foco ? `\nOrientação da redação para esta busca: ${foco}\n` : ''}
 Matérias publicadas recentemente (não repita esses assuntos):
 ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
 
@@ -416,7 +429,8 @@ ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
     // Fotos que o Claude pode usar: só as devolvidas pelas ferramentas nesta busca.
     const fotosPermitidas = new Map();
 
-    for (let i = 0; i < 25 && !entregues; i++) {
+    // Lotes grandes (até 5 matérias em cada uma das 7 categorias) precisam de mais voltas.
+    for (let i = 0; i < 40 && !entregues; i++) {
       const stream = client.beta.messages.stream({
         model: MODEL,
         max_tokens: 64000,
@@ -428,6 +442,10 @@ ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
         messages
       });
       const message = await stream.finalMessage();
+
+      message.content
+        .filter((b) => b.type === 'server_tool_use' && b.name === 'web_search' && b.input?.query)
+        .forEach((b) => registrarPasso(`Pesquisando: ${b.input.query}`));
 
       if (message.stop_reason === 'refusal') {
         throw new Error('O Claude recusou o pedido desta busca.');
@@ -449,6 +467,7 @@ ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
       for (const tu of toolUses) {
         if (tu.name === 'buscar_foto') {
           const termo = typeof tu.input?.termo === 'string' ? tu.input.termo.slice(0, 120) : '';
+          registrarPasso(`Procurando foto: ${termo}`);
           try {
             const fotos = termo ? await searchCommons(termo) : [];
             fotos.forEach((f) => { if (!fotosPermitidas.has(f.url)) fotosPermitidas.set(f.url, { origem: 'commons', conferida: false }); });
@@ -458,6 +477,7 @@ ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
           }
         } else if (tu.name === 'fotos_da_pagina') {
           const url = typeof tu.input?.url === 'string' ? tu.input.url.trim() : '';
+          registrarPasso('Procurando foto em página oficial');
           try {
             const r = await photosFromOfficialPage(url);
             r.fotos.forEach((f) => { if (!fotosPermitidas.has(f.url)) fotosPermitidas.set(f.url, { origem: 'oficial', conferida: false }); });
@@ -471,6 +491,7 @@ ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
           if (!foto) {
             results.push({ type: 'tool_result', tool_use_id: tu.id, is_error: true, content: 'Esta URL não veio de fotos_da_pagina nem de buscar_foto nesta busca.' });
           } else {
+            registrarPasso('Conferindo uma foto');
             try {
               const img = await loadImageForReview(url);
               foto.conferida = true;
@@ -488,6 +509,7 @@ ${recentes.map((r) => `- ${r.title}`).join('\n') || '- (nenhuma)'}`;
             results.push({ type: 'tool_result', tool_use_id: tu.id, is_error: true, content: 'Envie o campo materias como lista.' });
           } else {
             entregues = materias;
+            registrarPasso(`Entregou ${materias.length} matéria(s) para gravar`);
             results.push({ type: 'tool_result', tool_use_id: tu.id, content: 'Recebido.' });
           }
         } else {
