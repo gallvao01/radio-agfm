@@ -195,7 +195,7 @@ function hasRealPhoto(image) {
 
 // ---------- News (admin write) ----------
 app.post('/api/news', requireAuth, async (req, res) => {
-  const { title, summary, content, image, video, gallery, category, featured } = req.body || {};
+  const { title, summary, content, image, video, gallery, category, featured, source_url, source_name } = req.body || {};
   if (!title || !summary || !content || !category) {
     return res.status(400).json({ error: 'Preencha título, resumo, conteúdo e categoria' });
   }
@@ -203,8 +203,8 @@ app.post('/api/news', requireAuth, async (req, res) => {
     return res.status(400).json({ error: NO_PHOTO_ERROR });
   }
   const info = await db.run(
-    'INSERT INTO news (title, summary, content, image, video, gallery, category, featured, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())',
-    [title, summary, content, image.trim(), video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0]
+    'INSERT INTO news (title, summary, content, image, video, gallery, category, featured, source_url, source_name, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())',
+    [title, summary, content, image.trim(), video || null, gallery ? JSON.stringify(gallery) : null, category, featured ? 1 : 0, source_url || null, source_name || null]
   );
   res.json({ ok: true, id: info.lastInsertRowid });
 });
@@ -312,6 +312,56 @@ app.get('/api/admin/fotos', requireAuth, async (req, res) => {
   } catch (err) {
     res.status(502).json({ error: 'A busca de fotos não respondeu. Tente de novo.' });
   }
+});
+
+// ---------- Botão "Atualizar notícias" do app (grátis, roda só no servidor) ----------
+// A busca continua aqui mesmo que o telefone feche o app; o app só consulta o andamento.
+const rodadaDoDia = { rodando: false, erro: null, resultado: null };
+
+async function atualizarNoticiasDoDia() {
+  const { dia, erros, falhas, prontas, aEscrever } = await fontes.noticiasDoDia();
+  const linhas = await db.all('SELECT source_url, status FROM news WHERE source_url IS NOT NULL');
+  const conhecidas = new Map(linhas.map((l) => [l.source_url, l.status]));
+  const lista = [];
+  let novas = 0;
+
+  for (const p of prontas) {
+    let status = conhecidas.get(p.url);
+    if (!status && hasRealPhoto(p.foto)) {
+      await db.run(
+        "INSERT INTO news (title, summary, content, image, category, source_url, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())",
+        [p.titulo, p.resumo, p.conteudo, p.foto.trim(), p.categoria, p.url, p.fonteNome]
+      );
+      status = 'pending';
+      novas += 1;
+    }
+    if (status !== 'rejected') lista.push({ url: p.url, titulo: p.titulo, fonteNome: p.fonteNome, categoria: p.categoria, foto: p.foto, status: status || 'escrever' });
+  }
+  for (const e of aEscrever) {
+    const status = conhecidas.get(e.url) || 'escrever';
+    if (status !== 'rejected') lista.push({ ...e, status });
+  }
+  return { dia, em: new Date().toISOString(), novas, erros, falhas, lista };
+}
+
+app.get('/api/admin/atualizar-dia', requireAuth, (req, res) => {
+  const { rodando, erro, resultado } = rodadaDoDia;
+  res.json({ rodando, erro, resultado: resultado && resultado.dia === fontes.diaDe(new Date()) ? resultado : null });
+});
+
+app.post('/api/admin/atualizar-dia', requireAuth, (req, res) => {
+  if (!rodadaDoDia.rodando) {
+    rodadaDoDia.rodando = true;
+    rodadaDoDia.erro = null;
+    atualizarNoticiasDoDia()
+      .then((resultado) => { rodadaDoDia.resultado = resultado; })
+      .catch((err) => {
+        console.error('Atualizar notícias:', err);
+        rodadaDoDia.erro = 'A busca parou no meio. As matérias que já entraram estão em Revisar. Toque de novo para continuar.';
+      })
+      .finally(() => { rodadaDoDia.rodando = false; });
+  }
+  res.status(202).json({ ok: true });
 });
 
 // ---------- Ingestão automática (curadoria de pautas do BR104) ----------

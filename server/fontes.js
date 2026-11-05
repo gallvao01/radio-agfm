@@ -194,6 +194,19 @@ function acharCredito(html) {
   return '';
 }
 
+const diaDe = (data) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Maceio' }).format(data);
+
+// Data de publicação no fuso de Alagoas. A Agência Alagoas não traz metadados:
+// lá a data é a primeira que aparece depois do título.
+function dataDaMateria(html) {
+  const iso = meta(html, 'article:published_time') || (html.match(/"datePublished"\s*:\s*"([^"]+)"/) || [])[1];
+  const data = iso ? new Date(iso) : null;
+  if (data && !Number.isNaN(data.getTime())) return diaDe(data);
+  const titulo = html.search(/<h1\b/i);
+  const m = html.slice(Math.max(titulo, 0)).match(/\b(\d{2})\/(\d{2})\/(\d{4})\b/);
+  return m ? `${m[3]}-${m[2]}-${m[1]}` : '';
+}
+
 async function abrir(urlBruta) {
   let u;
   try { u = new URL(urlBruta); } catch { throw new Error('Link inválido'); }
@@ -218,8 +231,63 @@ async function abrir(urlBruta) {
     paragrafos: extrairParagrafos(trecho, titulo),
     fotos: fotoProibida ? [] : extrairFotos(html, trecho, final, fonte),
     fotoProibida,
-    credito: fotoProibida ? '' : credito
+    credito: fotoProibida ? '' : credito,
+    data: dataDaMateria(html)
   };
 }
 
-module.exports = { listarTodas, abrir, FONTES };
+// O título do link pode não citar política; a matéria aberta mostra melhor o assunto.
+function tocaPolitica(m) {
+  if (/(^|[^\p{L}])(presidente|governo|mp|renúncia|renuncia|direita|esquerda|protesto)(?![\p{L}])/iu.test(m.titulo)) return true;
+  return POLITICA.test(m.titulo) || POLITICA.test(m.resumo) || m.paragrafos.slice(0, 2).some((p) => POLITICA.test(p));
+}
+
+async function emParalelo(itens, limite, tarefa) {
+  const resultados = new Array(itens.length);
+  let proximo = 0;
+  const trabalhador = async () => {
+    while (proximo < itens.length) {
+      const i = proximo;
+      proximo += 1;
+      resultados[i] = await tarefa(itens[i]);
+    }
+  };
+  await Promise.all(Array.from({ length: limite }, trabalhador));
+  return resultados;
+}
+
+function conteudoPronto(m) {
+  return [...m.paragrafos, `Com informações de ${m.fonteNome}.`, `Foto: ${m.credito || m.fonteNome}`].join('\n');
+}
+
+// Abre as notícias das quatro fontes e separa as de hoje, sem política. Texto de
+// agência pública vem pronto para revisão; portal tem texto com dono e fica para
+// o editor escrever. Uma notícia ou fonte que falhar não derruba as outras.
+async function noticiasDoDia() {
+  cache.clear();
+  const { noticias, erros } = await listarTodas();
+  const dia = diaDe(new Date());
+  let falhas = 0;
+  const abertas = await emParalelo(noticias.filter((n) => !n.politica), 5, async (n) => {
+    try {
+      return await abrir(n.url);
+    } catch {
+      falhas += 1;
+      return null;
+    }
+  });
+  const prontas = [];
+  const aEscrever = [];
+  for (const m of abertas) {
+    if (!m || m.data !== dia || tocaPolitica(m)) continue;
+    const base = { url: m.url, fonteNome: m.fonteNome, categoria: m.categoria, titulo: m.titulo, foto: m.fotos[0] ? m.fotos[0].url : '' };
+    if (m.textoLivre && base.foto && m.paragrafos.length >= 3) {
+      prontas.push({ ...base, resumo: (m.resumo || m.paragrafos[0]).slice(0, 280), conteudo: conteudoPronto(m) });
+    } else {
+      aEscrever.push(base);
+    }
+  }
+  return { dia, erros, falhas, prontas, aEscrever };
+}
+
+module.exports = { listarTodas, abrir, noticiasDoDia, diaDe, FONTES };
