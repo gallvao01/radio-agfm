@@ -71,6 +71,16 @@ async function init() {
     if (err.code !== 'ER_DUP_FIELDNAME') throw err;
   }
 
+  // Fotos enviadas pelo telefone. Ficam no banco porque a pasta do site é refeita a
+  // cada reimplantação, e o banco não.
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS fotos (
+      id INT AUTO_INCREMENT PRIMARY KEY,
+      dados MEDIUMBLOB NOT NULL,
+      created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
+    ) ENGINE=InnoDB
+  `);
+
   await pool.query(`
     CREATE TABLE IF NOT EXISTS admin_users (
       id INT AUTO_INCREMENT PRIMARY KEY,

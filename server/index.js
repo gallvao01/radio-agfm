@@ -191,8 +191,36 @@ function hasRealPhoto(image) {
   if (typeof image !== 'string') return false;
   const img = image.trim();
   if (!img || img.startsWith('data:image/svg')) return false;
-  return /^https?:\/\//i.test(img) || /^data:image\/(jpeg|png|webp|gif);base64,/i.test(img) || /^\/?assets\/img\//i.test(img);
+  return /^https?:\/\//i.test(img) || /^data:image\/(jpeg|png|webp|gif);base64,/i.test(img) || /^\/?assets\/img\//i.test(img) || /^\/fotos\/\d+\.jpg$/.test(img);
 }
+
+// ---------- Fotos enviadas pelo telefone (ficam no banco do próprio site) ----------
+app.post('/api/fotos', requireAuth, express.raw({ type: 'image/jpeg', limit: '1mb' }), async (req, res) => {
+  const dados = req.body;
+  const ehJpeg = Buffer.isBuffer(dados) && dados.length > 1000 && dados[0] === 0xff && dados[1] === 0xd8 && dados[2] === 0xff;
+  if (!ehJpeg) return res.status(400).json({ error: 'Esse arquivo não é uma foto válida.' });
+  try {
+    // execute manda o arquivo em binário; query dobraria o tamanho do pacote.
+    const [resultado] = await db.pool.execute('INSERT INTO fotos (dados) VALUES (?)', [dados]);
+    res.json({ ok: true, url: `/fotos/${resultado.insertId}.jpg` });
+  } catch (err) {
+    console.error('Foto:', err.message);
+    res.status(500).json({ error: 'O site não conseguiu guardar a foto. Tente de novo.' });
+  }
+});
+
+app.get('/fotos/:arquivo', async (req, res, next) => {
+  const m = /^(\d+)\.jpg$/.exec(req.params.arquivo);
+  if (!m) return next();
+  try {
+    const foto = await db.get('SELECT dados FROM fotos WHERE id = ?', [m[1]]);
+    if (!foto) return next();
+    res.set({ 'Content-Type': 'image/jpeg', 'Cache-Control': 'public, max-age=31536000, immutable' });
+    res.send(foto.dados);
+  } catch (err) {
+    next(err);
+  }
+});
 
 // ---------- News (admin write) ----------
 app.post('/api/news', requireAuth, async (req, res) => {
