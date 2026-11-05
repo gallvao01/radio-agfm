@@ -13,8 +13,6 @@
   const PADRAO_CATS = ['interior', 'alagoas', 'brasil', 'mundo'];
   const TITULOS = { hoje: 'Hoje', fontes: 'Fontes', escrever: 'Escrever', atualizar: 'Atualizar', revisar: 'Revisar', publicadas: 'No site' };
   const CHAVE_RASCUNHO = 'rascunhoMateria';
-  // A coluna da foto no banco guarda até 64 KB; a foto enviada pelo telefone precisa caber nisso.
-  const LIMITE_FOTO = 60000;
   const POLL_MS = 4000;
 
   const $ = (id) => document.getElementById(id);
@@ -401,16 +399,22 @@
     const arquivo = e.target.files[0];
     e.target.value = '';
     if (!arquivo) return;
+    $('btnPublicar').disabled = true;
+    $('btnPublicarDestaque').disabled = true;
+    toast('Enviando a foto…');
     try {
-      const { dados } = comprimirFoto(await carregarImagem(await lerArquivo(arquivo)));
-      estado.fotoEscrita = dados;
+      estado.fotoEscrita = await enviarFoto(arquivo);
       $('escImage').value = '';
       $('escCredito').value = '';
       mostrarFoto();
       guardarRascunho();
       $('escCredito').focus();
+      toast('Foto pronta. Agora coloque o crédito.');
     } catch (err) {
       toast(err.message);
+    } finally {
+      $('btnPublicar').disabled = false;
+      $('btnPublicarDestaque').disabled = false;
     }
   });
 
@@ -703,8 +707,11 @@
   // ---------- Editor ----------
   function abrirEditor(n) {
     estado.editando = n;
-    $('editImage').value = /^data:/i.test(n.image) ? '' : n.image;
-    $('editImage').placeholder = /^data:/i.test(n.image) ? 'Foto enviada pelo telefone' : 'https://...';
+    const doTelefone = /^(data:|\/fotos\/)/i.test(n.image);
+    $('editImage').value = doTelefone ? '' : n.image;
+    $('editImage').placeholder = doTelefone ? 'Foto enviada pelo telefone' : 'https://...';
+    $('editCredito').value = '';
+    $('editCreditoCampo').hidden = true;
     $('editFoto').src = fotoUrl(n.image);
     $('editTitle').value = n.title;
     $('editSummary').value = n.summary;
@@ -721,60 +728,44 @@
     if (/^https?:\/\//i.test($('editImage').value.trim())) $('editFoto').src = $('editImage').value.trim();
   });
 
-  function lerArquivo(arquivo) {
-    return new Promise((ok, falha) => {
-      const r = new FileReader();
-      r.onload = () => ok(r.result);
-      r.onerror = () => falha(new Error('Não consegui ler a foto.'));
-      r.readAsDataURL(arquivo);
-    });
-  }
-
-  function carregarImagem(src) {
-    return new Promise((ok, falha) => {
-      const i = new Image();
-      i.onload = () => ok(i);
-      i.onerror = () => falha(new Error('Esse arquivo não abriu como foto.'));
-      i.src = src;
-    });
-  }
-
-  // Reduz a foto até caber no banco, preservando o máximo de qualidade possível.
-  function comprimirFoto(img) {
-    for (const largura of [1000, 900, 800, 700, 600, 480]) {
-      const escala = Math.min(1, largura / img.naturalWidth);
-      const canvas = document.createElement('canvas');
-      canvas.width = Math.round(img.naturalWidth * escala);
-      canvas.height = Math.round(img.naturalHeight * escala);
-      canvas.getContext('2d').drawImage(img, 0, 0, canvas.width, canvas.height);
-      for (const qualidade of [0.72, 0.6, 0.5, 0.4]) {
-        const dados = canvas.toDataURL('image/jpeg', qualidade);
-        if (dados.length <= LIMITE_FOTO) return { dados, largura: canvas.width };
+  async function enviarFoto(arquivo) {
+    try {
+      return await window.fotoDoTelefone.enviar(arquivo);
+    } catch (err) {
+      if (err.status === 401) {
+        mostrarLogin();
+        throw new Error('Sua sessão terminou. Entre de novo e envie a foto.');
       }
+      throw err;
     }
-    throw new Error('Essa foto não coube mesmo reduzida. Tente outra.');
   }
 
   $('editArquivo').addEventListener('change', async (e) => {
     const arquivo = e.target.files[0];
     e.target.value = '';
     if (!arquivo) return;
+    $('btnEditSave').disabled = true;
+    $('fotoAviso').textContent = 'Enviando a foto…';
+    $('fotoAviso').hidden = false;
     try {
-      const { dados, largura } = comprimirFoto(await carregarImagem(await lerArquivo(arquivo)));
-      estado.fotoNova = dados;
+      estado.fotoNova = await enviarFoto(arquivo);
       $('editImage').value = '';
       $('editImage').placeholder = 'Foto enviada pelo telefone';
-      $('editFoto').src = dados;
-      $('fotoAviso').textContent = `Foto ajustada para ${largura}px. Coloque o crédito no fim do texto.`;
-      $('fotoAviso').hidden = false;
+      $('editFoto').src = estado.fotoNova;
+      $('editCreditoCampo').hidden = false;
+      $('fotoAviso').textContent = 'Foto pronta. Coloque o crédito dela.';
+      $('editCredito').focus();
     } catch (err) {
-      toast(err.message);
+      $('fotoAviso').textContent = err.message;
+    } finally {
+      $('btnEditSave').disabled = false;
     }
   });
 
   $('btnEditSave').addEventListener('click', async () => {
     const n = estado.editando;
     const link = $('editImage').value.trim();
+    const credito = $('editCredito').value.trim();
     const body = {
       title: $('editTitle').value.trim(),
       summary: $('editSummary').value.trim(),
@@ -786,6 +777,16 @@
       $('editError').textContent = 'Preencha título, resumo e texto.';
       $('editError').hidden = false;
       return;
+    }
+    if (estado.fotoNova) {
+      if (!credito) {
+        $('editError').textContent = 'Falta o crédito da foto nova.';
+        $('editError').hidden = false;
+        return;
+      }
+      // O crédito antigo era da foto que saiu: fica um só, o da foto nova.
+      const linhas = body.content.split('\n').filter((l) => !/^\s*foto:/i.test(l));
+      body.content = [...linhas, `Foto: ${credito}`].join('\n');
     }
     try {
       await api(`/api/news/${n.id}`, { method: 'PUT', body });

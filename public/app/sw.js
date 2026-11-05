@@ -1,5 +1,5 @@
 // Guarda só a casca do app para abrir rápido. Notícias e login sempre vêm do site.
-const CACHE = 'agfm-redacao-v4';
+const CACHE = 'agfm-redacao-v5';
 const SHELL = ['./', 'app.css', 'app.js', 'manifest.webmanifest', 'icon-192.png', 'icon-512.png'];
 
 self.addEventListener('install', (e) => {
