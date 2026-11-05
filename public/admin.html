@@ -207,7 +207,11 @@
       <label>Conteúdo completo
         <textarea name="content" rows="6" required></textarea>
       </label>
-      <label>URL da foto <em>(obrigatória: foto do fato, com o crédito no fim do texto. Ao editar, deixe em branco para manter a foto atual)</em>
+      <label>Foto do telefone ou do computador <em>(obrigatória, se não usar o link abaixo: foto do fato, com o crédito no fim do texto)</em>
+        <input type="file" id="newsFotoArquivo" accept="image/*">
+      </label>
+      <p id="newsFotoStatus" class="admin-hint" hidden></p>
+      <label>URL da foto <em>(ao editar, deixe em branco para manter a foto atual)</em>
         <input type="url" name="image" placeholder="https://...">
       </label>
       <label>URL do vídeo <em>(opcional — mostra um player de vídeo na matéria em vez da imagem)</em>
@@ -309,6 +313,7 @@
   </div>
 </div>
 
-<script src="js/admin.js?v=2026102301"></script>
+<script src="js/foto.js?v=2026110501"></script>
+<script src="js/admin.js?v=2026110501"></script>
 </body>
 </html>
