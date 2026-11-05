@@ -351,10 +351,28 @@ const MAX_REESCRITAS = 20;
 
 // Matérias de portal: o Claude escreve e elas vão para Revisar. Se a IA falhar,
 // a matéria só continua em "Para escrever", sem atrapalhar o resto da busca.
+function palavrasDoTitulo(titulo) {
+  const limpo = titulo.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  return new Set(limpo.split(/[^a-z0-9]+/).filter((p) => p.length > 3));
+}
+
+// Dois portais costumam dar o mesmo fato; a segunda versão fica para o editor decidir.
+function mesmoFato(a, b) {
+  const comuns = [...a].filter((p) => b.has(p)).length;
+  return comuns / Math.min(a.size, b.size || 1) >= 0.5;
+}
+
 async function reescreverPortais(itens, conhecidas) {
+  const vistos = itens.filter((e) => conhecidas.has(e.url)).map((e) => palavrasDoTitulo(e.titulo));
   const fila = itens
     .filter((e) => e.portal && e.foto && e.paragrafos.length >= 2 && !conhecidas.has(e.url) && hasRealPhoto(e.foto))
     .sort((a, b) => (b.categoria === 'interior') - (a.categoria === 'interior'))
+    .filter((e) => {
+      const palavras = palavrasDoTitulo(e.titulo);
+      if (!palavras.size || vistos.some((v) => mesmoFato(palavras, v))) return false;
+      vistos.push(palavras);
+      return true;
+    })
     .slice(0, MAX_REESCRITAS);
   let feitas = 0;
   let falhas = 0;
