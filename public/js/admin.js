@@ -368,9 +368,34 @@ const newsFormError = document.getElementById('newsFormError');
 
 let newsModalApproveOnSave = false;
 
+const newsFotoStatus = document.getElementById('newsFotoStatus');
+const newsSubmit = newsForm.querySelector('[type="submit"]');
+let newsFotoEnviada = null;
+
+document.getElementById('newsFotoArquivo').addEventListener('change', async (e) => {
+  const arquivo = e.target.files[0];
+  newsFotoEnviada = null;
+  if (!arquivo) return;
+  newsFotoStatus.textContent = 'Enviando a foto…';
+  newsFotoStatus.hidden = false;
+  newsSubmit.disabled = true;
+  try {
+    newsFotoEnviada = await window.fotoDoTelefone.enviar(arquivo);
+    newsForm.image.required = false;
+    newsFotoStatus.textContent = 'Foto pronta. Coloque o crédito no fim do texto.';
+  } catch (err) {
+    e.target.value = '';
+    newsFotoStatus.textContent = err.message;
+  } finally {
+    newsSubmit.disabled = false;
+  }
+});
+
 function openNewsModal(news, opts = {}) {
   hideError(newsFormError);
   newsForm.reset();
+  newsFotoEnviada = null;
+  newsFotoStatus.hidden = true;
   newsModalApproveOnSave = !!opts.approveOnSave;
   if (news) {
     newsModalTitle.textContent = newsModalApproveOnSave ? 'Revisar pauta pendente' : 'Editar notícia';
@@ -404,7 +429,7 @@ newsForm.addEventListener('submit', async (e) => {
     category: fd.get('category'),
     summary: fd.get('summary'),
     content: fd.get('content'),
-    image: fd.get('image') || undefined,
+    image: newsFotoEnviada || fd.get('image') || undefined,
     video: fd.get('video') || undefined,
     featured: fd.get('featured') === 'on'
   };
