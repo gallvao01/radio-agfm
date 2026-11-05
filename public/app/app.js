@@ -11,13 +11,14 @@
     entretenimento: 'Entretenimento'
   };
   const PADRAO_CATS = ['interior', 'alagoas', 'brasil', 'mundo'];
-  const TITULOS = { atualizar: 'Atualizar', revisar: 'Revisar', publicadas: 'No site' };
+  const TITULOS = { fontes: 'Fontes', escrever: 'Escrever', atualizar: 'Atualizar', revisar: 'Revisar', publicadas: 'No site' };
+  const CHAVE_RASCUNHO = 'rascunhoMateria';
   // A coluna da foto no banco guarda até 64 KB; a foto enviada pelo telefone precisa caber nisso.
   const LIMITE_FOTO = 60000;
   const POLL_MS = 4000;
 
   const $ = (id) => document.getElementById(id);
-  const estado = { cats: new Set(PADRAO_CATS), qtd: 5, pendentes: [], publicadas: [], editando: null, ultimaExecucao: null, timer: null, rodando: false };
+  const estado = { cats: new Set(PADRAO_CATS), qtd: 5, pendentes: [], publicadas: [], editando: null, ultimaExecucao: null, timer: null, rodando: false, noticias: [], fonteFiltro: 'todas', fontesCarregadas: false, categoria: 'interior', fotoEscrita: null };
 
   const esc = (s) => String(s ?? '').replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
   const fotoUrl = (img) => {
@@ -43,7 +44,8 @@
       body: opcoes.body ? JSON.stringify(opcoes.body) : undefined
     });
     const dados = await res.json().catch(() => ({}));
-    if (res.status === 401 && caminho !== '/api/login') {
+    // Nesses dois caminhos o 401 é senha errada, não sessão terminada.
+    if (res.status === 401 && caminho !== '/api/login' && caminho !== '/api/change-password') {
       mostrarLogin();
       throw new Error('Sua sessão terminou. Entre de novo.');
     }
@@ -89,12 +91,318 @@
     document.querySelectorAll('.tab').forEach((s) => { s.hidden = s.id !== `tab-${nome}`; });
     $('topTitle').textContent = TITULOS[nome];
     window.scrollTo(0, 0);
+    if (nome === 'fontes' && !estado.fontesCarregadas) carregarFontes();
     if (nome === 'revisar') carregarPendentes().catch(erroToast);
     if (nome === 'publicadas') carregarPublicadas().catch(erroToast);
   }
   document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => abrirAba(b.dataset.tab)));
 
   const erroToast = (e) => toast(e.message);
+
+  // ---------- Fontes ----------
+  const NOMES_FONTES = { todas: 'Todas', br104: 'BR104', a24h: 'Alagoas 24 Horas', agal: 'Agência Alagoas', abr: 'Agência Brasil' };
+
+  function semAcento(s) {
+    return String(s).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  }
+
+  function desenharFiltros() {
+    $('fonteFiltros').innerHTML = Object.entries(NOMES_FONTES)
+      .map(([k, nome]) => `<button type="button" class="chip" data-fonte="${k}" aria-pressed="${estado.fonteFiltro === k}">${esc(nome)}</button>`)
+      .join('');
+  }
+
+  function desenharFontes() {
+    const busca = semAcento($('fonteBusca').value.trim());
+    const lista = estado.noticias.filter((n) => (estado.fonteFiltro === 'todas' || n.fonte === estado.fonteFiltro)
+      && !(n.politica && $('escondePolitica').checked)
+      && (!busca || semAcento(n.titulo).includes(busca)));
+    $('fontesLista').innerHTML = lista.length ? lista.map((n) => `
+      <button type="button" class="fonte-item" data-url="${esc(n.url)}">
+        <span class="card__meta"><span>${esc(n.fonteNome)}</span><span>${esc(CATEGORIAS[n.categoria] || '')}</span>${n.politica ? '<span class="is-politica">Política</span>' : ''}</span>
+        <strong>${esc(n.titulo)}</strong>
+      </button>`).join('') : '<p class="empty">Nenhuma notícia encontrada.</p>';
+  }
+
+  async function carregarFontes() {
+    $('fontesLista').innerHTML = '<p class="empty">Buscando as últimas notícias…</p>';
+    $('fontesAviso').hidden = true;
+    try {
+      const { noticias, erros } = await api('/api/admin/fontes');
+      estado.noticias = noticias;
+      estado.fontesCarregadas = true;
+      estado.fontesEm = Date.now();
+      if (erros.length) {
+        $('fontesAviso').textContent = `Sem resposta agora: ${erros.join(', ')}.`;
+        $('fontesAviso').hidden = false;
+      }
+      desenharFontes();
+    } catch (err) {
+      $('fontesLista').innerHTML = `<p class="empty">${esc(err.message)}</p>`;
+    }
+  }
+
+  $('fonteFiltros').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-fonte]');
+    if (!b) return;
+    estado.fonteFiltro = b.dataset.fonte;
+    desenharFiltros();
+    desenharFontes();
+  });
+  $('fonteBusca').addEventListener('input', desenharFontes);
+  $('escondePolitica').addEventListener('change', desenharFontes);
+
+  $('fontesLista').addEventListener('click', async (e) => {
+    const b = e.target.closest('[data-url]');
+    if (!b) return;
+    if (temRascunho() && !confirm('Trocar o rascunho atual por esta notícia?')) return;
+    b.disabled = true;
+    try {
+      preencherComFonte(await api(`/api/admin/fontes/materia?url=${encodeURIComponent(b.dataset.url)}`));
+      abrirAba('escrever');
+    } catch (err) {
+      toast(err.message);
+    } finally {
+      b.disabled = false;
+    }
+  });
+
+  // ---------- Escrever ----------
+  const CAMPOS = { titulo: 'escTitulo', resumo: 'escResumo', texto: 'escTexto', fonte: 'escFonte', credito: 'escCredito', link: 'escImage' };
+
+  function desenharEditorias() {
+    $('escCats').innerHTML = Object.entries(CATEGORIAS)
+      .map(([k, nome]) => `<button type="button" class="chip" data-cat="${k}" aria-pressed="${estado.categoria === k}">${esc(nome)}</button>`)
+      .join('');
+  }
+
+  $('escCats').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-cat]');
+    if (!b) return;
+    estado.categoria = b.dataset.cat;
+    desenharEditorias();
+    guardarRascunho();
+  });
+
+  function mostrarFoto() {
+    const src = estado.fotoEscrita || $('escImage').value.trim();
+    $('escFoto').hidden = !src;
+    if (src) $('escFoto').src = fotoUrl(src);
+  }
+
+  function escolherFoto(url, credito) {
+    estado.fotoEscrita = null;
+    $('escImage').value = url;
+    if (credito) $('escCredito').value = credito;
+    mostrarFoto();
+    guardarRascunho();
+    $('escFoto').scrollIntoView({ behavior: 'smooth', block: 'center' });
+  }
+
+  function opcaoFoto(url, legenda, credito) {
+    return `<button type="button" class="foto-op" data-foto="${esc(url)}" data-credito="${esc(credito)}"><img src="${esc(url)}" alt="" loading="lazy"><span>${esc(legenda)}</span></button>`;
+  }
+
+  function preencherComFonte(m) {
+    limparEscrita();
+    estado.categoria = m.categoria;
+    const credito = m.credito ? (m.textoLivre ? m.credito : `${m.credito}/${m.fonteNome}`) : (m.textoLivre ? '' : `Reprodução/${m.fonteNome}`);
+    $('escTitulo').value = m.titulo;
+    $('escFonte').value = m.fonteNome;
+    if (m.textoLivre) {
+      $('escResumo').value = m.resumo;
+      $('escTexto').value = m.paragrafos.join('\n');
+    }
+    if (m.fotos[0]) {
+      $('escImage').value = m.fotos[0].url;
+      $('escCredito').value = credito;
+    }
+    $('refTitulo').textContent = `Fonte: ${m.fonteNome}`;
+    let aviso = 'Texto de agência pública: pode usar citando a fonte. Revise antes de publicar.';
+    if (!m.textoLivre) aviso = 'Esse texto tem dono. Use só os fatos e escreva com as suas palavras.';
+    if (m.fotoProibida) aviso += ' A foto dessa matéria é de agência paga e não pode ser usada: busque outra.';
+    $('refAviso').textContent = aviso;
+    $('refTexto').innerHTML = m.paragrafos.map((p) => `<p>${esc(p)}</p>`).join('');
+    $('refLink').href = m.url;
+    $('referencia').hidden = false;
+    $('fotosFonte').innerHTML = m.fotos.length > 1 ? m.fotos.map((f) => opcaoFoto(f.url, f.legenda || 'Foto da fonte', credito)).join('') : '';
+    $('fotosFonte').hidden = m.fotos.length < 2;
+    desenharEditorias();
+    mostrarFoto();
+    guardarRascunho();
+  }
+
+  function limparEscrita() {
+    Object.values(CAMPOS).forEach((id) => { $(id).value = ''; });
+    estado.fotoEscrita = null;
+    estado.categoria = 'interior';
+    $('referencia').hidden = true;
+    $('fotosFonte').hidden = true;
+    $('fotosFonte').innerHTML = '';
+    $('fotosCommons').innerHTML = '';
+    $('buscaFoto').hidden = true;
+    $('escErro').hidden = true;
+    desenharEditorias();
+    mostrarFoto();
+  }
+
+  function temRascunho() {
+    return ['escTitulo', 'escTexto', 'escResumo'].some((id) => $(id).value.trim());
+  }
+
+  // Guarda o que está sendo escrito para não perder se o telefone fechar o app.
+  function guardarRascunho() {
+    const dados = { categoria: estado.categoria, fotoEscrita: estado.fotoEscrita };
+    Object.entries(CAMPOS).forEach(([k, id]) => { dados[k] = $(id).value; });
+    try { localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(dados)); } catch { /* sem armazenamento, segue sem rascunho */ }
+  }
+
+  function apagarRascunho() {
+    try { localStorage.removeItem(CHAVE_RASCUNHO); } catch { /* nada a apagar */ }
+  }
+
+  function lerRascunho() {
+    let dados = null;
+    try { dados = JSON.parse(localStorage.getItem(CHAVE_RASCUNHO)); } catch { /* rascunho ilegível é ignorado */ }
+    if (!dados) return;
+    Object.entries(CAMPOS).forEach(([k, id]) => { $(id).value = dados[k] || ''; });
+    estado.categoria = CATEGORIAS[dados.categoria] ? dados.categoria : 'interior';
+    estado.fotoEscrita = dados.fotoEscrita || null;
+  }
+
+  $('escreverForm').addEventListener('input', (e) => {
+    if (e.target.id === 'escImage') {
+      estado.fotoEscrita = null;
+      mostrarFoto();
+    }
+    if (e.target.id !== 'fotoTermo') guardarRascunho();
+  });
+  $('escreverForm').addEventListener('submit', (e) => e.preventDefault());
+
+  $('btnAbrirBusca').addEventListener('click', () => {
+    $('buscaFoto').hidden = !$('buscaFoto').hidden;
+    if (!$('buscaFoto').hidden) $('fotoTermo').focus();
+  });
+
+  async function buscarFoto() {
+    const termo = $('fotoTermo').value.trim();
+    if (!termo) return;
+    const botao = $('btnBuscarFoto');
+    botao.disabled = true;
+    $('fotosCommons').innerHTML = '<p class="hint">Procurando…</p>';
+    try {
+      const fotos = await api(`/api/admin/fotos?q=${encodeURIComponent(termo)}`);
+      $('fotosCommons').innerHTML = fotos.length
+        ? fotos.map((f) => opcaoFoto(f.url, `${f.autor || 'Autor não informado'} · ${f.licenca}`, `${f.autor || 'Autor não informado'}/Wikimedia Commons (${f.licenca})`)).join('')
+        : '<p class="hint">Nada encontrado. Tente outras palavras, de preferência em inglês.</p>';
+    } catch (err) {
+      $('fotosCommons').innerHTML = `<p class="error">${esc(err.message)}</p>`;
+    } finally {
+      botao.disabled = false;
+    }
+  }
+  $('btnBuscarFoto').addEventListener('click', buscarFoto);
+  $('fotoTermo').addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter') return;
+    e.preventDefault();
+    buscarFoto();
+  });
+
+  const aoEscolherFoto = (e) => {
+    const b = e.target.closest('[data-foto]');
+    if (b) escolherFoto(b.dataset.foto, b.dataset.credito);
+  };
+  $('fotosFonte').addEventListener('click', aoEscolherFoto);
+  $('fotosCommons').addEventListener('click', aoEscolherFoto);
+
+  $('escArquivo').addEventListener('change', async (e) => {
+    const arquivo = e.target.files[0];
+    e.target.value = '';
+    if (!arquivo) return;
+    try {
+      const { dados } = comprimirFoto(await carregarImagem(await lerArquivo(arquivo)));
+      estado.fotoEscrita = dados;
+      $('escImage').value = '';
+      $('escCredito').value = '';
+      mostrarFoto();
+      guardarRascunho();
+      $('escCredito').focus();
+    } catch (err) {
+      toast(err.message);
+    }
+  });
+
+  function montarConteudo() {
+    const linhas = $('escTexto').value.split('\n').map((l) => l.trim()).filter(Boolean);
+    const fonte = $('escFonte').value.trim().replace(/\.$/, '');
+    if (fonte) linhas.push(`Com informações de ${fonte}.`);
+    linhas.push(`Foto: ${$('escCredito').value.trim()}`);
+    return linhas.join('\n');
+  }
+
+  async function publicarEscrita(destaque) {
+    const image = estado.fotoEscrita || $('escImage').value.trim();
+    const faltando = [
+      [image, 'a foto'], [$('escCredito').value.trim(), 'o crédito da foto'], [$('escTitulo').value.trim(), 'o título'],
+      [$('escResumo').value.trim(), 'o resumo'], [$('escTexto').value.trim(), 'o texto']
+    ].filter(([v]) => !v).map(([, nome]) => nome);
+    $('escErro').hidden = !faltando.length;
+    if (faltando.length) {
+      $('escErro').textContent = `Falta ${faltando.join(', ')}.`;
+      return;
+    }
+    if (!confirm(destaque ? 'Publicar no site como notícia de destaque?' : 'Publicar esta matéria no site?')) return;
+    $('btnPublicar').disabled = true;
+    $('btnPublicarDestaque').disabled = true;
+    try {
+      const { id } = await api('/api/news', {
+        method: 'POST',
+        body: { title: $('escTitulo').value.trim(), summary: $('escResumo').value.trim(), content: montarConteudo(), image, category: estado.categoria, featured: false }
+      });
+      if (destaque) await api(`/api/news/${id}/feature`, { method: 'POST' });
+      limparEscrita();
+      apagarRascunho();
+      abrirAba('publicadas');
+      toast(destaque ? 'Publicada como destaque' : 'Publicada no site');
+    } catch (err) {
+      $('escErro').textContent = err.message;
+      $('escErro').hidden = false;
+    } finally {
+      $('btnPublicar').disabled = false;
+      $('btnPublicarDestaque').disabled = false;
+    }
+  }
+  $('btnPublicar').addEventListener('click', () => publicarEscrita(false));
+  $('btnPublicarDestaque').addEventListener('click', () => publicarEscrita(true));
+  $('btnLimpar').addEventListener('click', () => {
+    if (!confirm('Apagar tudo o que está nesta tela?')) return;
+    limparEscrita();
+    apagarRascunho();
+  });
+
+  // ---------- Senha ----------
+  $('btnSenha').addEventListener('click', () => {
+    $('senhaForm').reset();
+    $('senhaErro').hidden = true;
+    $('senha').showModal();
+  });
+  $('btnSenhaFechar').addEventListener('click', () => $('senha').close());
+  $('btnSenhaSalvar').addEventListener('click', async () => {
+    const nova = $('senhaNova').value;
+    const erro = (texto) => {
+      $('senhaErro').textContent = texto;
+      $('senhaErro').hidden = false;
+    };
+    if (nova.length < 8) return erro('A senha nova precisa ter pelo menos 8 caracteres.');
+    if (nova !== $('senhaConfirma').value) return erro('As duas senhas novas não são iguais.');
+    try {
+      await api('/api/change-password', { method: 'POST', body: { currentPassword: $('senhaAtual').value, newPassword: nova } });
+      $('senha').close();
+      toast('Senha trocada');
+    } catch (err) {
+      erro(err.message);
+    }
+  });
 
   // ---------- Pedido ----------
   function desenharCats() {
@@ -142,6 +450,7 @@
     const s = await api('/api/admin/pauta');
     const rodando = !!s.rodando;
     $('semChave').hidden = s.configurado;
+    document.querySelector('.tabs [data-tab="atualizar"]').hidden = !s.configurado;
     $('runForm').hidden = rodando;
     $('rodando').hidden = !rodando;
     $('btnRun').disabled = !s.configurado;
@@ -452,6 +761,7 @@
   function atualizarTudo() {
     acompanhar().catch(erroToast);
     carregarPendentes().catch(erroToast);
+    if (Date.now() - (estado.fontesEm || 0) > 5 * 60 * 1000) carregarFontes();
   }
 
   document.addEventListener('visibilitychange', () => {
@@ -459,6 +769,10 @@
   });
 
   desenharCats();
+  desenharFiltros();
+  lerRascunho();
+  desenharEditorias();
+  mostrarFoto();
   api('/api/session')
     .then((s) => (s.loggedIn ? mostrarApp() : mostrarLogin()))
     .catch(mostrarLogin);
