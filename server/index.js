@@ -9,6 +9,7 @@ const compression = require('compression');
 const db = require('./db');
 const pauta = require('./pauta');
 const fontes = require('./fontes');
+const reescrita = require('./reescrita');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
@@ -316,9 +317,47 @@ app.get('/api/admin/fotos', requireAuth, async (req, res) => {
 
 // ---------- Botão "Atualizar notícias" do app (grátis, roda só no servidor) ----------
 // A busca continua aqui mesmo que o telefone feche o app; o app só consulta o andamento.
-const rodadaDoDia = { rodando: false, erro: null, resultado: null };
+const rodadaDoDia = { rodando: false, erro: null, progresso: '', resultado: null };
+// Teto por toque para a conta da IA não fugir do controle; o próximo toque continua.
+const MAX_REESCRITAS = 20;
+
+// Matérias de portal: o Claude escreve e elas vão para Revisar. Se a IA falhar,
+// a matéria só continua em "Para escrever", sem atrapalhar o resto da busca.
+async function reescreverPortais(itens, conhecidas) {
+  const fila = itens
+    .filter((e) => e.portal && e.foto && e.paragrafos.length >= 2 && !conhecidas.has(e.url) && hasRealPhoto(e.foto))
+    .sort((a, b) => (b.categoria === 'interior') - (a.categoria === 'interior'))
+    .slice(0, MAX_REESCRITAS);
+  let feitas = 0;
+  let falhas = 0;
+  let parar = false;
+  for (const [i, e] of fila.entries()) {
+    if (parar) break;
+    rodadaDoDia.progresso = `Escrevendo ${i + 1} de ${fila.length}…`;
+    try {
+      const m = await reescrita.reescrever(e);
+      if (!m) { falhas += 1; continue; }
+      const creditoFoto = e.credito ? `${e.credito}/${e.fonteNome}` : `Reprodução/${e.fonteNome}`;
+      const conteudo = [...m.paragrafos, `Com informações de ${e.fonteNome}.`, `Foto: ${creditoFoto}`].join('\n');
+      await db.run(
+        "INSERT INTO news (title, summary, content, image, category, source_url, source_name, status, created_at) VALUES (?, ?, ?, ?, ?, ?, ?, 'pending', NOW())",
+        [m.titulo, m.resumo, conteudo, e.foto.trim(), e.categoria, e.url, e.fonteNome]
+      );
+      conhecidas.set(e.url, 'pending');
+      e.titulo = m.titulo;
+      feitas += 1;
+    } catch (err) {
+      console.error('Reescrita:', err.message);
+      falhas += 1;
+      // Chave errada, sem crédito ou limite: repetir só gastaria tempo.
+      if ([400, 401, 402, 403, 429].includes(err.status)) parar = true;
+    }
+  }
+  return { feitas, falhas };
+}
 
 async function atualizarNoticiasDoDia() {
+  rodadaDoDia.progresso = 'Buscando as notícias de hoje…';
   const { dia, erros, falhas, prontas, aEscrever } = await fontes.noticiasDoDia();
   const linhas = await db.all('SELECT source_url, status FROM news WHERE source_url IS NOT NULL');
   const conhecidas = new Map(linhas.map((l) => [l.source_url, l.status]));
@@ -337,16 +376,18 @@ async function atualizarNoticiasDoDia() {
     }
     if (status !== 'rejected') lista.push({ url: p.url, titulo: p.titulo, fonteNome: p.fonteNome, categoria: p.categoria, foto: p.foto, status: status || 'escrever' });
   }
+  const ia = reescrita.disponivel() ? await reescreverPortais(aEscrever, conhecidas) : { feitas: 0, falhas: 0 };
+  novas += ia.feitas;
   for (const e of aEscrever) {
     const status = conhecidas.get(e.url) || 'escrever';
-    if (status !== 'rejected') lista.push({ ...e, status });
+    if (status !== 'rejected') lista.push({ url: e.url, titulo: e.titulo, fonteNome: e.fonteNome, categoria: e.categoria, foto: e.foto, status });
   }
-  return { dia, em: new Date().toISOString(), novas, erros, falhas, lista };
+  return { dia, em: new Date().toISOString(), novas, erros, falhas, falhasIA: ia.falhas, comIA: reescrita.disponivel(), lista };
 }
 
 app.get('/api/admin/atualizar-dia', requireAuth, (req, res) => {
-  const { rodando, erro, resultado } = rodadaDoDia;
-  res.json({ rodando, erro, resultado: resultado && resultado.dia === fontes.diaDe(new Date()) ? resultado : null });
+  const { rodando, erro, progresso, resultado } = rodadaDoDia;
+  res.json({ rodando, erro, progresso, resultado: resultado && resultado.dia === fontes.diaDe(new Date()) ? resultado : null });
 });
 
 app.post('/api/admin/atualizar-dia', requireAuth, (req, res) => {

@@ -284,7 +284,7 @@ async function noticiasDoDia() {
     if (m.textoLivre && base.foto && m.paragrafos.length >= 3) {
       prontas.push({ ...base, resumo: (m.resumo || m.paragrafos[0]).slice(0, 280), conteudo: conteudoPronto(m) });
     } else {
-      aEscrever.push(base);
+      aEscrever.push({ ...base, resumo: m.resumo, paragrafos: m.paragrafos, credito: m.credito, portal: !m.textoLivre });
     }
   }
   return { dia, erros, falhas, prontas, aEscrever };
