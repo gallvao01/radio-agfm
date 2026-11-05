@@ -43,7 +43,7 @@
 
 <div id="shell" hidden>
   <header class="top">
-    <strong id="topTitle">Fontes</strong>
+    <strong id="topTitle">Hoje</strong>
     <div class="top__acoes">
       <button class="icon-btn" id="btnSenha" type="button" aria-label="Trocar senha"><svg class="icon"><use href="#i-key"/></svg></button>
       <button class="icon-btn" id="btnSair" type="button" aria-label="Sair"><svg class="icon"><use href="#i-logout"/></svg></button>
@@ -51,7 +51,21 @@
   </header>
 
   <main>
-    <section id="tab-fontes" class="tab">
+    <section id="tab-hoje" class="tab">
+      <div id="install" class="note" hidden>
+        <p id="installText"></p>
+        <div class="row">
+          <button class="btn btn--small btn--line" id="btnInstall" type="button" hidden>Instalar</button>
+          <button class="btn btn--small btn--plain" id="btnInstallClose" type="button">Agora não</button>
+        </div>
+      </div>
+      <button class="btn btn--main" id="btnDia" type="button"><svg class="icon"><use href="#i-refresh"/></svg>Atualizar notícias</button>
+      <p id="diaResumo" class="hint dia-resumo">Busca as notícias de hoje, sem política, e deixa em Revisar. Nada vai para o site sem a sua aprovação.</p>
+      <p id="diaAviso" class="note note--warn" hidden></p>
+      <div id="diaLista"></div>
+    </section>
+
+    <section id="tab-fontes" class="tab" hidden>
       <input id="fonteBusca" inputmode="search" placeholder="Procurar nas notícias" aria-label="Procurar nas notícias">
       <div id="fonteFiltros" class="chips chips--rola"></div>
       <label class="line">
@@ -114,13 +128,6 @@
     </section>
 
     <section id="tab-atualizar" class="tab" hidden>
-      <div id="install" class="note" hidden>
-        <p id="installText"></p>
-        <div class="row">
-          <button class="btn btn--small btn--line" id="btnInstall" type="button" hidden>Instalar</button>
-          <button class="btn btn--small btn--plain" id="btnInstallClose" type="button">Agora não</button>
-        </div>
-      </div>
       <div id="semChave" class="note note--warn" hidden>
         <strong>A pesquisa ainda não está ligada.</strong>
         <p>Falta colocar a chave ANTHROPIC_API_KEY nas variáveis do site na Hostinger. Revisar e publicar continuam funcionando.</p>
@@ -177,7 +184,8 @@
   </main>
 
   <nav class="tabs" aria-label="Seções">
-    <button type="button" data-tab="fontes" class="is-on"><svg class="icon"><use href="#i-search"/></svg>Fontes</button>
+    <button type="button" data-tab="hoje" class="is-on"><svg class="icon"><use href="#i-refresh"/></svg>Hoje</button>
+    <button type="button" data-tab="fontes"><svg class="icon"><use href="#i-search"/></svg>Fontes</button>
     <button type="button" data-tab="escrever"><svg class="icon"><use href="#i-edit"/></svg>Escrever</button>
     <button type="button" data-tab="atualizar" hidden><svg class="icon"><use href="#i-refresh"/></svg>Atualizar</button>
     <button type="button" data-tab="revisar"><svg class="icon"><use href="#i-check"/></svg>Revisar<span id="badge" class="badge" hidden></span></button>

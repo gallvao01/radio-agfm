@@ -11,7 +11,7 @@
     entretenimento: 'Entretenimento'
   };
   const PADRAO_CATS = ['interior', 'alagoas', 'brasil', 'mundo'];
-  const TITULOS = { fontes: 'Fontes', escrever: 'Escrever', atualizar: 'Atualizar', revisar: 'Revisar', publicadas: 'No site' };
+  const TITULOS = { hoje: 'Hoje', fontes: 'Fontes', escrever: 'Escrever', atualizar: 'Atualizar', revisar: 'Revisar', publicadas: 'No site' };
   const CHAVE_RASCUNHO = 'rascunhoMateria';
   // A coluna da foto no banco guarda até 64 KB; a foto enviada pelo telefone precisa caber nisso.
   const LIMITE_FOTO = 60000;
@@ -56,6 +56,7 @@
   // ---------- Login ----------
   function mostrarLogin() {
     clearTimeout(estado.timer);
+    clearTimeout(estado.timerDia);
     $('shell').hidden = true;
     $('login').hidden = false;
   }
@@ -98,6 +99,79 @@
   document.querySelectorAll('.tabs button').forEach((b) => b.addEventListener('click', () => abrirAba(b.dataset.tab)));
 
   const erroToast = (e) => toast(e.message);
+
+  // ---------- Hoje: botão Atualizar notícias e lista do dia ----------
+  const GRUPOS_DIA = [
+    ['pending', 'Prontas em Revisar', 'Texto de agência pública, aguardando a sua aprovação.'],
+    ['escrever', 'Para escrever', 'O texto dessas fontes tem dono. Toque para abrir, escrever com as suas palavras e publicar.'],
+    ['published', 'Já no site', '']
+  ];
+
+  function itemDoDia(n) {
+    const semFoto = n.foto ? '' : '<span class="is-politica">Sem foto</span>';
+    const miolo = `
+        <span class="card__meta"><span>${esc(n.fonteNome)}</span><span>${esc(CATEGORIAS[n.categoria] || '')}</span>${semFoto}</span>
+        <strong>${esc(n.titulo)}</strong>`;
+    if (n.status === 'published') return `<div class="fonte-item">${miolo}</div>`;
+    return `<button type="button" class="fonte-item" data-status="${esc(n.status)}" data-url="${esc(n.url)}">${miolo}</button>`;
+  }
+
+  function desenharDia(r) {
+    if (!r) return;
+    const hora = new Date(r.em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
+    const novas = r.novas === 1 ? '1 matéria nova foi para Revisar' : `${r.novas} matérias novas foram para Revisar`;
+    $('diaResumo').textContent = `Atualizado às ${hora}: ${r.lista.length} notícias de hoje, ${novas}.`;
+    const avisos = [];
+    if (r.erros.length) avisos.push(`Sem resposta agora: ${r.erros.join(', ')}. As outras fontes entraram normalmente.`);
+    if (r.falhas) avisos.push(`${r.falhas} notícias não abriram. Toque em Atualizar notícias de novo para tentar.`);
+    $('diaAviso').textContent = avisos.join(' ');
+    $('diaAviso').hidden = !avisos.length;
+    $('diaLista').innerHTML = GRUPOS_DIA.map(([status, titulo, dica]) => {
+      const itens = r.lista.filter((n) => n.status === status);
+      if (!itens.length) return '';
+      return `<h2 class="dia-grupo">${esc(titulo)} (${itens.length})</h2>${dica ? `<p class="hint">${esc(dica)}</p>` : ''}<div class="cards cards--justas">${itens.map(itemDoDia).join('')}</div>`;
+    }).join('') || '<p class="empty">Nenhuma notícia de hoje apareceu nas fontes ainda.</p>';
+  }
+
+  async function acompanharDia() {
+    clearTimeout(estado.timerDia);
+    const { rodando, erro, resultado } = await api('/api/admin/atualizar-dia');
+    $('btnDia').disabled = rodando;
+    $('btnDia').lastChild.textContent = rodando ? 'Buscando as notícias de hoje…' : 'Atualizar notícias';
+    if (rodando) {
+      estado.diaRodando = true;
+      estado.timerDia = setTimeout(() => acompanharDia().catch(erroToast), 2000);
+      return;
+    }
+    desenharDia(resultado);
+    if (erro) {
+      $('diaAviso').textContent = erro;
+      $('diaAviso').hidden = false;
+    }
+    if (estado.diaRodando) {
+      estado.diaRodando = false;
+      carregarPendentes().catch(erroToast);
+    }
+  }
+
+  $('btnDia').addEventListener('click', async () => {
+    $('btnDia').disabled = true;
+    try {
+      await api('/api/admin/atualizar-dia', { method: 'POST' });
+      estado.diaRodando = true;
+      await acompanharDia();
+    } catch (err) {
+      $('btnDia').disabled = false;
+      toast(err.message);
+    }
+  });
+
+  $('diaLista').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-url]');
+    if (!b) return;
+    if (b.dataset.status === 'pending') abrirAba('revisar');
+    else abrirFonte(b);
+  });
 
   // ---------- Fontes ----------
   const NOMES_FONTES = { todas: 'Todas', br104: 'BR104', a24h: 'Alagoas 24 Horas', agal: 'Agência Alagoas', abr: 'Agência Brasil' };
@@ -152,9 +226,12 @@
   $('fonteBusca').addEventListener('input', desenharFontes);
   $('escondePolitica').addEventListener('change', desenharFontes);
 
-  $('fontesLista').addEventListener('click', async (e) => {
+  $('fontesLista').addEventListener('click', (e) => {
     const b = e.target.closest('[data-url]');
-    if (!b) return;
+    if (b) abrirFonte(b);
+  });
+
+  async function abrirFonte(b) {
     if (temRascunho() && !confirm('Trocar o rascunho atual por esta notícia?')) return;
     b.disabled = true;
     try {
@@ -165,7 +242,7 @@
     } finally {
       b.disabled = false;
     }
-  });
+  }
 
   // ---------- Escrever ----------
   const CAMPOS = { titulo: 'escTitulo', resumo: 'escResumo', texto: 'escTexto', fonte: 'escFonte', credito: 'escCredito', link: 'escImage' };
@@ -206,6 +283,7 @@
   function preencherComFonte(m) {
     limparEscrita();
     estado.categoria = m.categoria;
+    estado.urlFonte = m.url;
     const credito = m.credito ? (m.textoLivre ? m.credito : `${m.credito}/${m.fonteNome}`) : (m.textoLivre ? '' : `Reprodução/${m.fonteNome}`);
     $('escTitulo').value = m.titulo;
     $('escFonte').value = m.fonteNome;
@@ -235,6 +313,7 @@
   function limparEscrita() {
     Object.values(CAMPOS).forEach((id) => { $(id).value = ''; });
     estado.fotoEscrita = null;
+    estado.urlFonte = null;
     estado.categoria = 'interior';
     $('referencia').hidden = true;
     $('fotosFonte').hidden = true;
@@ -252,7 +331,7 @@
 
   // Guarda o que está sendo escrito para não perder se o telefone fechar o app.
   function guardarRascunho() {
-    const dados = { categoria: estado.categoria, fotoEscrita: estado.fotoEscrita };
+    const dados = { categoria: estado.categoria, fotoEscrita: estado.fotoEscrita, urlFonte: estado.urlFonte };
     Object.entries(CAMPOS).forEach(([k, id]) => { dados[k] = $(id).value; });
     try { localStorage.setItem(CHAVE_RASCUNHO, JSON.stringify(dados)); } catch { /* sem armazenamento, segue sem rascunho */ }
   }
@@ -268,6 +347,7 @@
     Object.entries(CAMPOS).forEach(([k, id]) => { $(id).value = dados[k] || ''; });
     estado.categoria = CATEGORIAS[dados.categoria] ? dados.categoria : 'interior';
     estado.fotoEscrita = dados.fotoEscrita || null;
+    estado.urlFonte = dados.urlFonte || null;
   }
 
   $('escreverForm').addEventListener('input', (e) => {
@@ -357,7 +437,7 @@
     try {
       const { id } = await api('/api/news', {
         method: 'POST',
-        body: { title: $('escTitulo').value.trim(), summary: $('escResumo').value.trim(), content: montarConteudo(), image, category: estado.categoria, featured: false }
+        body: { title: $('escTitulo').value.trim(), summary: $('escResumo').value.trim(), content: montarConteudo(), image, category: estado.categoria, featured: false, source_url: estado.urlFonte, source_name: $('escFonte').value.trim() }
       });
       if (destaque) await api(`/api/news/${id}/feature`, { method: 'POST' });
       limparEscrita();
@@ -760,6 +840,7 @@
   // ---------- Início ----------
   function atualizarTudo() {
     acompanhar().catch(erroToast);
+    acompanharDia().catch(erroToast);
     carregarPendentes().catch(erroToast);
     if (Date.now() - (estado.fontesEm || 0) > 5 * 60 * 1000) carregarFontes();
   }

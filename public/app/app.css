@@ -168,6 +168,12 @@ dialog header { display: flex; align-items: center; justify-content: space-betwe
 .cards--justas { gap: 8px; }
 .fonte-item { display: block; width: 100%; padding: 16px; border: 0; border-radius: var(--r-block); background: var(--surface); text-align: left; transition: transform .12s var(--ease); }
 .fonte-item:active { transform: scale(.98); }
+div.fonte-item:active { transform: none; }
+.card__meta .is-politica { color: var(--danger); }
+.dia-resumo { margin: 8px 0 16px; }
+.dia-grupo { margin: 24px 0 4px; font-size: 16px; font-weight: 700; }
+.dia-grupo + .hint { margin-bottom: 8px; }
+.dia-grupo + .cards { margin-top: 8px; }
 .fonte-item:disabled { opacity: .5; }
 .fonte-item strong { display: block; margin-top: 4px; font-size: 16px; line-height: 1.35; font-weight: 600; }
 .is-politica { color: var(--danger); }
