@@ -102,7 +102,7 @@
 
   // ---------- Hoje: botão Atualizar notícias e lista do dia ----------
   const GRUPOS_DIA = [
-    ['pending', 'Prontas em Revisar', 'Texto de agência pública, aguardando a sua aprovação.'],
+    ['pending', 'Prontas em Revisar', 'Aguardando a sua aprovação. Toque para ler antes de mandar.'],
     ['escrever', 'Para escrever', 'O texto dessas fontes tem dono. Toque para abrir, escrever com as suas palavras e publicar.'],
     ['published', 'Já no site', '']
   ];
@@ -121,7 +121,9 @@
     const hora = new Date(r.em).toLocaleTimeString('pt-BR', { hour: '2-digit', minute: '2-digit' });
     const novas = r.novas === 1 ? '1 matéria nova foi para Revisar' : `${r.novas} matérias novas foram para Revisar`;
     $('diaResumo').textContent = `Atualizado às ${hora}: ${r.lista.length} notícias de hoje, ${novas}.`;
+    estado.dia = r;
     const avisos = [];
+    if (r.falhasIA) avisos.push(`A IA não escreveu ${r.falhasIA} matérias agora. Elas ficaram em Para escrever; toque em Atualizar notícias para tentar de novo.`);
     if (r.erros.length) avisos.push(`Sem resposta agora: ${r.erros.join(', ')}. As outras fontes entraram normalmente.`);
     if (r.falhas) avisos.push(`${r.falhas} notícias não abriram. Toque em Atualizar notícias de novo para tentar.`);
     $('diaAviso').textContent = avisos.join(' ');
@@ -135,9 +137,9 @@
 
   async function acompanharDia() {
     clearTimeout(estado.timerDia);
-    const { rodando, erro, resultado } = await api('/api/admin/atualizar-dia');
+    const { rodando, erro, progresso, resultado } = await api('/api/admin/atualizar-dia');
     $('btnDia').disabled = rodando;
-    $('btnDia').lastChild.textContent = rodando ? 'Buscando as notícias de hoje…' : 'Atualizar notícias';
+    $('btnDia').lastChild.textContent = rodando ? (progresso || 'Buscando as notícias de hoje…') : 'Atualizar notícias';
     if (rodando) {
       estado.diaRodando = true;
       estado.timerDia = setTimeout(() => acompanharDia().catch(erroToast), 2000);
@@ -564,6 +566,8 @@
   // ---------- Revisar ----------
   function atualizarBadge() {
     const n = estado.pendentes.length;
+    $('btnEnviar').hidden = !n;
+    $('btnEnviar').textContent = `Mandar para o site (${n})`;
     $('badge').textContent = n;
     $('badge').hidden = !n;
   }
@@ -636,10 +640,12 @@
     }
   });
 
-  $('btnPublicarTodas').addEventListener('click', async (e) => {
-    const n = estado.pendentes.length;
-    if (!confirm(`Publicar as ${n} matérias no site?`)) return;
+  // Publica uma por uma: se alguma falhar, as outras seguem e continuam marcadas certo.
+  async function publicarTodas(e) {
     const botao = e.currentTarget;
+    await carregarPendentes().catch(erroToast);
+    const n = estado.pendentes.length;
+    if (!n || !confirm(`Mandar as ${n} matérias para o site? Elas ficam públicas agora.`)) return;
     botao.disabled = true;
     let feitas = 0;
     let erro = '';
@@ -648,13 +654,18 @@
         await api(`/api/news/${m.id}/approve`, { method: 'POST' });
         feitas += 1;
         await aposPublicar(m.id);
+        const noDia = estado.dia && estado.dia.lista.find((x) => x.url === m.source_url);
+        if (noDia) noDia.status = 'published';
       } catch (err) {
         erro = err.message;
       }
     }
     botao.disabled = false;
-    toast(erro ? `${feitas} de ${n} publicadas. ${erro}` : `${feitas} matérias publicadas`);
-  });
+    if (estado.dia) desenharDia(estado.dia);
+    toast(erro ? `${feitas} de ${n} foram para o site. ${erro}` : `${feitas} matérias no site`);
+  }
+  $('btnPublicarTodas').addEventListener('click', publicarTodas);
+  $('btnEnviar').addEventListener('click', publicarTodas);
 
   // ---------- No site ----------
   async function carregarPublicadas() {
