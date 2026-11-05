@@ -8,6 +8,7 @@ const rateLimit = require('express-rate-limit');
 const compression = require('compression');
 const db = require('./db');
 const pauta = require('./pauta');
+const fontes = require('./fontes');
 
 const app = express();
 const PORT = process.env.PORT || 5174;
@@ -287,6 +288,29 @@ app.post('/api/admin/pauta/run', requireAuth, async (req, res) => {
     res.json({ ok: true, id });
   } catch (err) {
     res.status(err.status || 500).json({ error: err.message });
+  }
+});
+
+// ---------- Redação manual pelo app do celular (fontes e fotos, sem IA) ----------
+app.get('/api/admin/fontes', requireAuth, async (req, res) => {
+  res.json(await fontes.listarTodas());
+});
+
+app.get('/api/admin/fontes/materia', requireAuth, async (req, res) => {
+  try {
+    res.json(await fontes.abrir(String(req.query.url || '')));
+  } catch (err) {
+    res.status(400).json({ error: `Não consegui abrir essa notícia: ${err.message}` });
+  }
+});
+
+app.get('/api/admin/fotos', requireAuth, async (req, res) => {
+  const termo = String(req.query.q || '').trim().slice(0, 100);
+  if (!termo) return res.status(400).json({ error: 'Digite o que quer procurar' });
+  try {
+    res.json(await pauta.searchCommons(termo));
+  } catch (err) {
+    res.status(502).json({ error: 'A busca de fotos não respondeu. Tente de novo.' });
   }
 });
 
