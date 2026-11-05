@@ -7,6 +7,7 @@
   const QUALIDADES = [0.85, 0.75, 0.65];
   const MAX_BYTES = 900 * 1024;
   const MENOR_LADO = 300;
+  const TEMPO_MAXIMO = 90000;
 
   function abrir(arquivo) {
     return new Promise((ok, falha) => {
@@ -47,6 +48,9 @@
 
   async function enviar(arquivo) {
     const blob = await reduzir(await abrir(arquivo));
+    // Feito à mão porque AbortSignal.timeout não existe em iPhones mais antigos.
+    const controle = new AbortController();
+    const limite = setTimeout(() => controle.abort(), TEMPO_MAXIMO);
     let res;
     try {
       res = await fetch('/api/fotos', {
@@ -54,10 +58,12 @@
         credentials: 'same-origin',
         headers: { 'Content-Type': 'image/jpeg' },
         body: blob,
-        signal: AbortSignal.timeout(90000)
+        signal: controle.signal
       });
     } catch {
       throw new Error('A internet falhou ao enviar a foto. Tente de novo.');
+    } finally {
+      clearTimeout(limite);
     }
     const dados = await res.json().catch(() => ({}));
     if (!res.ok) {
