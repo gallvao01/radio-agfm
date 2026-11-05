@@ -135,9 +135,14 @@ function miolo(html) {
   const semRuido = html
     .replace(/<(script|style|noscript|svg|nav|footer|aside|form)\b[\s\S]*?<\/\1>/gi, ' ')
     .replace(/<!--[\s\S]*?-->/g, ' ');
-  // O corpo da matéria fica depois do título; o que vem no <article> é o mais confiável.
+  // O que vem no <article> costuma ser o mais confiável, mas o Alagoas 24 Horas usa
+  // <article> só no cabeçalho e guarda o corpo em .entry-content. Vale o que tiver mais parágrafos.
   const artigo = semRuido.match(/<article\b[\s\S]*?<\/article>/i);
-  return artigo ? artigo[0] : semRuido;
+  const corpo = semRuido.match(/class=["'][^"']*\bentry-content\b[\s\S]*?(?=class=["'][^"']*\bpost-tags\b|<\/article>|$)/i);
+  const paragrafos = (texto) => (texto.match(/<p\b/gi) || []).length;
+  const melhor = [artigo, corpo].filter(Boolean).map((m) => m[0])
+    .sort((a, b) => paragrafos(b) - paragrafos(a))[0];
+  return melhor && paragrafos(melhor) > 0 ? melhor : semRuido;
 }
 
 function extrairParagrafos(trecho, titulo) {
