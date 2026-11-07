@@ -170,7 +170,8 @@ dialog header { display: flex; align-items: center; justify-content: space-betwe
 .fonte-item:active { transform: scale(.98); }
 div.fonte-item:active { transform: none; }
 .card__meta .is-politica { color: var(--danger); }
-.btn--enviar { margin-top: 8px; }
+.btn--enviar { width: 100%; margin-top: 8px; }
+.links-hoje { margin-top: 8px; font-size: 14px; }
 .dia-resumo { margin: 8px 0 16px; }
 .dia-grupo { margin: 24px 0 4px; font-size: 16px; font-weight: 700; }
 .dia-grupo + .hint { margin-bottom: 8px; }

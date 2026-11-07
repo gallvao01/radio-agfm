@@ -173,6 +173,50 @@
     else abrirFonte(b);
   });
 
+  // ---------- Copiar links das matérias publicadas hoje ----------
+  const diaEmAlagoas = (d) => new Intl.DateTimeFormat('en-CA', { timeZone: 'America/Maceio' }).format(new Date(d));
+
+  async function copiarTexto(texto) {
+    try {
+      await navigator.clipboard.writeText(texto);
+      return true;
+    } catch {
+      // Alguns navegadores só liberam a cópia por este caminho antigo.
+      const area = $('linksHoje');
+      area.hidden = false;
+      area.value = texto;
+      area.select();
+      area.setSelectionRange(0, texto.length);
+      try { return document.execCommand('copy'); } catch { return false; }
+    }
+  }
+
+  $('btnCopiarLinks').addEventListener('click', async (e) => {
+    const botao = e.currentTarget;
+    botao.disabled = true;
+    $('linksHoje').hidden = true;
+    try {
+      const hoje = diaEmAlagoas(new Date());
+      const noticias = await api('/api/news?limit=100');
+      const deHoje = noticias.filter((n) => diaEmAlagoas(n.created_at) === hoje);
+      if (!deHoje.length) {
+        toast('Nenhuma matéria foi publicada hoje.');
+        return;
+      }
+      const texto = deHoje.map((n) => `${n.title}\n${location.origin}/noticia.html?id=${n.id}`).join('\n\n');
+      if (await copiarTexto(texto)) {
+        $('linksHoje').hidden = true;
+        toast(deHoje.length === 1 ? '1 link copiado' : `${deHoje.length} links copiados`);
+      } else {
+        toast('Não copiou sozinho. Segure no texto abaixo e copie.');
+      }
+    } catch (err) {
+      toast(err.message);
+    } finally {
+      botao.disabled = false;
+    }
+  });
+
   // ---------- Fontes ----------
   const NOMES_FONTES = { todas: 'Todas', br104: 'BR104', a24h: 'Alagoas 24 Horas', agal: 'Agência Alagoas', abr: 'Agência Brasil' };
 

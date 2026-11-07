@@ -61,6 +61,8 @@
       </div>
       <button class="btn btn--main" id="btnDia" type="button"><svg class="icon"><use href="#i-refresh"/></svg>Atualizar notícias</button>
       <button class="btn btn--main btn--enviar" id="btnEnviar" type="button" hidden></button>
+      <button class="btn btn--small btn--line btn--enviar" id="btnCopiarLinks" type="button">Copiar links de hoje</button>
+      <textarea id="linksHoje" class="links-hoje" rows="8" readonly aria-label="Links de hoje" hidden></textarea>
       <p id="diaResumo" class="hint dia-resumo">Busca as notícias de hoje, sem política, e deixa em Revisar. Nada vai para o site sem a sua aprovação.</p>
       <p id="diaAviso" class="note note--warn" hidden></p>
       <div id="diaLista"></div>
@@ -231,7 +233,7 @@
 </dialog>
 
 <div id="toast" class="toast" role="status" hidden></div>
-<script src="/js/foto.js?v=2026110501"></script>
+<script src="/js/foto.js?v=2026110701"></script>
 <script src="app.js"></script>
 </body>
 </html>
