@@ -9,16 +9,18 @@
   const MENOR_LADO = 300;
   const TEMPO_MAXIMO = 90000;
 
+  // Lê como data: porque a política de segurança do site bloqueia imagens blob:.
   function abrir(arquivo) {
     return new Promise((ok, falha) => {
-      const link = URL.createObjectURL(arquivo);
-      const img = new Image();
-      img.onload = () => { URL.revokeObjectURL(link); ok(img); };
-      img.onerror = () => {
-        URL.revokeObjectURL(link);
-        falha(new Error('Esse formato de foto não abriu neste telefone. Tente uma foto JPG ou um print dela.'));
+      const leitor = new FileReader();
+      leitor.onerror = () => falha(new Error('Não consegui ler essa foto. Tente de novo.'));
+      leitor.onload = () => {
+        const img = new Image();
+        img.onload = () => ok(img);
+        img.onerror = () => falha(new Error('Esse formato de foto não abriu neste telefone. Tente uma foto JPG ou um print dela.'));
+        img.src = leitor.result;
       };
-      img.src = link;
+      leitor.readAsDataURL(arquivo);
     });
   }
 
